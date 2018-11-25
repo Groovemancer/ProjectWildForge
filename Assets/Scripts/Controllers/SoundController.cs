@@ -9,7 +9,7 @@ public class SoundController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        WorldController.Instance.World.RegisterInstalledObjectCreated(OnInstalledObjectCreated);
+        WorldController.Instance.World.RegisterBuildingCreated(OnBuildingCreated);
 
         WorldController.Instance.World.RegisterTileChanged(OnTileChanged);
     }
@@ -30,7 +30,7 @@ public class SoundController : MonoBehaviour
         soundCooldown = 0.1f;
     }
 
-    public void OnInstalledObjectCreated(InstalledObject obj)
+    public void OnBuildingCreated(Building obj)
     {
         if (soundCooldown > 0)
             return;

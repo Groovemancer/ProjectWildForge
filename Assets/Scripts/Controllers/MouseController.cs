@@ -5,11 +5,6 @@ using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour
 {
-    MouseMode mouseMode = MouseMode.Hover;
-    bool buildModeIsObjects = false;
-    TileType buildModeTile = TileType.Empty;
-    string buildModeObjectType;
-
     public GameObject circleCursorPrefab;
 
     // The world-position of the mouse last frame.
@@ -41,32 +36,16 @@ public class MouseController : MonoBehaviour
         lastFramePosition.z = 0;
     }
 
-    /*
-    void UpdateCursor()
-    {
-        // Update the circle cursor position
-        Tile tileUnderMouse = WorldController.Instance.GetTileAtWorldCoord(currFramePosition);
-        if (tileUnderMouse != null)
-        {
-            circleCursor.SetActive(true);
-            Vector3 cursorPosition = new Vector3(tileUnderMouse.X, tileUnderMouse.Y, 0);
-            circleCursor.transform.position = cursorPosition;
-        }
-        else
-        {
-            circleCursor.SetActive(false);
-        }
-    }
-    */
-
     void UpdateDragging()
     {
         // If we are over a UI element, bail out.
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
+        BuildModeController bmc = GameObject.FindObjectOfType<BuildModeController>();
+
         // If we are in Hover mode, bail out.
-        if (mouseMode == MouseMode.Hover)
+        if (bmc.GetBuildMode() == BuildMode.Nothing)
             return;
 
         // Start Drag
@@ -124,6 +103,8 @@ public class MouseController : MonoBehaviour
         // End Drag
         if (Input.GetMouseButtonUp(0))
         {
+            
+
             for (int x = start_x; x <= end_x; x++)
             {
                 for (int y = start_y; y <= end_y; y++)
@@ -132,53 +113,17 @@ public class MouseController : MonoBehaviour
 
                     if (t != null)
                     {
-                        if (buildModeIsObjects)
-                        {
-                            // Create the InstalledObject and assign it to the tile
-
-                            // FIXME: This instantly builds the object
-                            //WorldController.Instance.World.PlaceInstalledObject(buildModeObjectType, t);
-
-                            // Can we build the object in the selected tile?
-                            // Run the ValidPlacement function
-                            string objType = buildModeObjectType;
-
-                            if (WorldController.Instance.World.IsInstalledObjectPlacementValid(objType, t) &&
-                                t.PendingInstalledObjectJob == null)
-                            {
-                                // This tile position is valid for this object
-                                // Create a job for it to be build
-                                Job j = new Job(t, (theJob) =>
-                                {
-                                    WorldController.Instance.World.PlaceInstalledObject(objType, theJob.Tile);
-                                    t.PendingInstalledObjectJob = null;
-                                });
-
-                                // FIXME: I don't like having to manually and explicitly set
-                                // flags to prevent conflicts. It's too easy to forget to set/clear them!
-                                t.PendingInstalledObjectJob = j;
-
-                                j.RegisterJobCancelCallback((theJob) => { theJob.Tile.PendingInstalledObjectJob = null; });
-
-                                // Add job to queue later
-                                WorldController.Instance.World.jobQueue.Enqueue(j);
-                                Debug.Log("Job Queue Size: " + WorldController.Instance.World.jobQueue.Count);
-                            }
-                        }
-                        else
-                        {
-                            // We are in tile-changing mode.
-                            t.Type = buildModeTile;
-                        }
+                        // Call BuildModeController DoWork
+                        bmc.DoBuild(t);
                     }
                 }
             }
         }
     }
 
-    void OnInstalledObjectJobComplete(string objectType, Tile t)
+    void OnBuildingJobComplete(string objectType, Tile t)
     {
-        WorldController.Instance.World.PlaceInstalledObject(objectType, t);
+        WorldController.Instance.World.PlaceBuilding(objectType, t);
     }
 
     void UpdateCameraMovement()
@@ -193,35 +138,5 @@ public class MouseController : MonoBehaviour
         Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel");
 
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
-    }
-
-    public void SetMode(MouseState mouseState)
-    {
-        mouseMode = mouseState.State;
-        buildModeObjectType = ""; // Clear this, will get set later
-        switch (mouseMode)
-        {
-            case MouseMode.BuildFloor:
-                buildModeIsObjects = false;
-                buildModeTile = TileType.Floor;
-                break;
-            case MouseMode.RemoveFloor:
-                buildModeIsObjects = false;
-                buildModeTile = TileType.Dirt;
-                break;
-            case MouseMode.BuildObject:
-                buildModeIsObjects = true;
-                break;
-        }
-    }
-
-    public void SetBuildInstalledObject(string objInstalledObject)
-    {
-        if (mouseMode != MouseMode.BuildObject)
-        {
-            return;
-        }
-
-        buildModeObjectType = objInstalledObject;
     }
 }

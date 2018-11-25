@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// InstalledObjects are things like walls, doors, and furniture (e.g. table)
+// Buildings are things like walls, doors, and furniture (e.g. table)
 
-public class InstalledObject
+public class Building
 {
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
     // multiple tiles.
@@ -29,19 +29,19 @@ public class InstalledObject
 
     public bool LinksToNeighbor { get; protected set; }
 
-    Action<InstalledObject> cbOnChanged;
+    Action<Building> cbOnChanged;
 
     Func<Tile, bool> funcPositionValidation;
 
     // TODO: Implement larger objects
     // TODO: Implement object rotation
 
-    protected InstalledObject() { }
+    protected Building() { }
     
-    public static InstalledObject CreatePrototype(string objectType, float movementCost = 1f,
+    public static Building CreatePrototype(string objectType, float movementCost = 1f,
         int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All)
     {
-        InstalledObject obj = new InstalledObject();
+        Building obj = new Building();
 
         obj.ObjectType = objectType;
         obj.movementCost = movementCost;
@@ -50,12 +50,12 @@ public class InstalledObject
         obj.LinksToNeighbor = linksToNeighbor;
         obj.AllowedTileTypes = allowedTileTypes;
 
-        obj.funcPositionValidation = obj.IsValidPosition;
+        obj.funcPositionValidation = obj.__IsValidPosition;
 
         return obj;
     }
 
-    public static InstalledObject PlaceInstance(InstalledObject proto, Tile tile)
+    public static Building PlaceInstance(Building proto, Tile tile)
     {
         if (proto.funcPositionValidation(tile) == false)
         {
@@ -65,7 +65,7 @@ public class InstalledObject
 
         // We know our placement destination is valid.
 
-        InstalledObject obj = new InstalledObject();
+        Building obj = new Building();
 
         obj.ObjectType = proto.ObjectType;
         obj.movementCost = proto.movementCost;
@@ -77,7 +77,7 @@ public class InstalledObject
         obj.Tile = tile;
 
         // FIXME: This assumes we are 1x1!
-        if (tile.PlaceInstalledObject(obj) == false)
+        if (tile.PlaceBuilding(obj) == false)
         {
             // For some reason,we weren't able to place our object in this tile.
             // (Probably it was already occupied.)
@@ -97,27 +97,27 @@ public class InstalledObject
             int y = tile.Y;
 
             t = tile.World.GetTileAt(x, y + 1);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
             {
-                t.InstalledObject.cbOnChanged(t.InstalledObject);
+                t.Building.cbOnChanged(t.Building);
             }
 
             t = tile.World.GetTileAt(x + 1, y);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
             {
-                t.InstalledObject.cbOnChanged(t.InstalledObject);
+                t.Building.cbOnChanged(t.Building);
             }
 
             t = tile.World.GetTileAt(x, y - 1);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
             {
-                t.InstalledObject.cbOnChanged(t.InstalledObject);
+                t.Building.cbOnChanged(t.Building);
             }
 
             t = tile.World.GetTileAt(x - 1, y);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
             {
-                t.InstalledObject.cbOnChanged(t.InstalledObject);
+                t.Building.cbOnChanged(t.Building);
             }
         }
 
@@ -134,7 +134,7 @@ public class InstalledObject
     public bool __IsValidPosition(Tile t)
     {
         // Make sure tile is of allowed types
-        // Make sure tile doesn't already have installed object
+        // Make sure tile doesn't already have building
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
         {
             return false;
@@ -150,12 +150,12 @@ public class InstalledObject
         return true;
     }
 
-    public void RegisterOnChangedCallback(Action<InstalledObject> callbackFunc)
+    public void RegisterOnChangedCallback(Action<Building> callbackFunc)
     {
         cbOnChanged += callbackFunc;
     }
 
-    public void UnregisterOnChangedCallback(Action<InstalledObject> callbackFunc)
+    public void UnregisterOnChangedCallback(Action<Building> callbackFunc)
     {
         cbOnChanged -= callbackFunc;
     }

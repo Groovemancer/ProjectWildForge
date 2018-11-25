@@ -7,12 +7,12 @@ public class World
 {
     Tile[,] tiles;
 
-    Dictionary<string, InstalledObject> installedObjectPrototypes;
+    Dictionary<string, Building> buildingPrototypes;
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
-    Action<InstalledObject> cbInstalledObjectCreated;
+    Action<Building> cbBuildingCreated;
     Action<Tile> cbTileObjectChanged;
 
     // TODO: Most likely this will be replaced with a dedicated
@@ -41,26 +41,26 @@ public class World
 
         Debug.Log("World created with " + (Width * Height) + " tiles.");
 
-        CreateInstalledObjectPrototypes();
+        CreateBuildingPrototypes();
     }
 
-    private void CreateInstalledObjectPrototypes()
+    private void CreateBuildingPrototypes()
     {
-        installedObjectPrototypes = new Dictionary<string, InstalledObject>();
+        buildingPrototypes = new Dictionary<string, Building>();
 
-        installedObjectPrototypes.Add("Wall",
-            InstalledObject.CreatePrototype(
-                                    "Wall",
-                                    0,      // Impassable
-                                    1,      // Width
-                                    1,      // Height
-                                    true,    // Links to neighbors and "sort of" becomes part of a large object
-                                    TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone
-                                )
+        buildingPrototypes.Add("Wall",
+            Building.CreatePrototype(
+                "Wall",
+                0,      // Impassable
+                1,      // Width
+                1,      // Height
+                true,    // Links to neighbors and "sort of" becomes part of a large object
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone
+            )
         );
 
-        Debug.Log("CreateInstalledObjectPrototypes:");
-        foreach (KeyValuePair<string, InstalledObject> kvpair in installedObjectPrototypes)
+        Debug.Log("CreateBuildingPrototypes:");
+        foreach (KeyValuePair<string, Building> kvpair in buildingPrototypes)
         {
             Debug.Log("\tKey: " + kvpair.Key);
         }
@@ -96,17 +96,17 @@ public class World
         return tiles[x, y];
     }
 
-    public void PlaceInstalledObject(string objectType, Tile t)
+    public void PlaceBuilding(string buildingType, Tile t)
     {
         //TODO: This function assumes 1x1 tiles -- change this later!
 
-        if (installedObjectPrototypes.ContainsKey(objectType) == false)
+        if (buildingPrototypes.ContainsKey(buildingType) == false)
         {
-            Debug.LogError("installedObjectPrototypes doesn't contain a proto for key: " + objectType);
+            Debug.LogError("buildingPrototypes doesn't contain a proto for key: " + buildingType);
             return;
         }
 
-        InstalledObject obj = InstalledObject.PlaceInstance(installedObjectPrototypes[objectType], t);
+        Building obj = Building.PlaceInstance(buildingPrototypes[buildingType], t);
 
         if (obj == null)
         {
@@ -114,20 +114,20 @@ public class World
             return;
         }
 
-        if (cbInstalledObjectCreated != null)
+        if (cbBuildingCreated != null)
         {
-            cbInstalledObjectCreated(obj);
+            cbBuildingCreated(obj);
         }
     }
 
-    public void RegisterInstalledObjectCreated(Action<InstalledObject> callbackfunc)
+    public void RegisterBuildingCreated(Action<Building> callbackfunc)
     {
-        cbInstalledObjectCreated += callbackfunc;
+        cbBuildingCreated += callbackfunc;
     }
 
-    public void UnregisterInstalledObjectCreated(Action<InstalledObject> callbackfunc)
+    public void UnregisterBuildingCreated(Action<Building> callbackfunc)
     {
-        cbInstalledObjectCreated -= callbackfunc;
+        cbBuildingCreated -= callbackfunc;
     }
 
     public void RegisterTileChanged(Action<Tile> callbackfunc)
@@ -148,8 +148,10 @@ public class World
         cbTileObjectChanged(t);
     }
 
-    public bool IsInstalledObjectPlacementValid(string objectType, Tile t)
+    public bool IsBuildingPlacementValid(string buildingType, Tile t)
     {
-        return installedObjectPrototypes[objectType].IsValidPosition(t);
+        Debug.Log("Building Type: " + buildingType);
+        Debug.Log("Tile: " + t);
+        return buildingPrototypes[buildingType].IsValidPosition(t);
     }
 }
