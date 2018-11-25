@@ -91,7 +91,7 @@ public class MouseController : MonoBehaviour
                     Tile t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        // Display the building hint on top of this tile position
+                        // Display the structure hint on top of this tile position
                         GameObject go = SimplePool.Spawn(circleCursorPrefab, new Vector3(x, y, 0), Quaternion.identity);
                         go.transform.SetParent(this.transform, true);
                         dragPreviewGameObjects.Add(go);
@@ -121,9 +121,9 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    void OnBuildingJobComplete(string objectType, Tile t)
+    void OnStructureJobComplete(string objectType, Tile t)
     {
-        WorldController.Instance.World.PlaceBuilding(objectType, t);
+        WorldController.Instance.World.PlaceStructure(objectType, t);
     }
 
     void UpdateCameraMovement()

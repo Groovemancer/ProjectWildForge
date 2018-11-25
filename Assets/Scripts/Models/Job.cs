@@ -5,7 +5,7 @@ using System.Collections;
 public class Job
 {
     // This class holds info for a queued up job, which can include
-    // things like placing buildings, moving stored loose items
+    // things like placing structures, moving stored loose items
     // working at a desk, and maybe even fighting enemies.
 
     public Tile Tile { get; protected set; }

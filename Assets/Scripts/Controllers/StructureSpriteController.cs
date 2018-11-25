@@ -4,11 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingSpriteController : MonoBehaviour
+public class StructureSpriteController : MonoBehaviour
 {
-    Dictionary<Building, GameObject> buildingGameObjectMap;
+    Dictionary<Structure, GameObject> structureGameObjectMap;
 
-    Dictionary<string, Sprite> buildingSprites;
+    Dictionary<string, Sprite> structureSprites;
     
     World World
     {
@@ -21,25 +21,25 @@ public class BuildingSpriteController : MonoBehaviour
         LoadSprites();
 
         // Instantiate our dictionary that tracks which GameObject is rendering which Tile data.
-        buildingGameObjectMap = new Dictionary<Building, GameObject>();
+        structureGameObjectMap = new Dictionary<Structure, GameObject>();
 
-        World.RegisterBuildingCreated(OnBuildingCreated);
+        World.RegisterStructureCreated(OnStructureCreated);
     }
 
     private void LoadSprites()
     {
-        buildingSprites = new Dictionary<string, Sprite>();
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Buildings");
+        structureSprites = new Dictionary<string, Sprite>();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Structures");
 
         Debug.Log("LOADED RESOURCES:");
         foreach (Sprite s in sprites)
         {
             Debug.Log(s);
-            buildingSprites[s.name] = s;
+            structureSprites[s.name] = s;
         }
     }
 
-    public void OnBuildingCreated(Building obj)
+    public void OnStructureCreated(Structure obj)
     {
         // Create a visual GameObject linked to this data.
 
@@ -48,7 +48,7 @@ public class BuildingSpriteController : MonoBehaviour
         GameObject obj_go = new GameObject();
 
         // Add our tile/GO pair to the dictionary.
-        buildingGameObjectMap.Add(obj, obj_go);
+        structureGameObjectMap.Add(obj, obj_go);
 
         obj_go.name = obj.ObjectType + "_" + obj.Tile.X + "_" + obj.Tile.Y;
         obj_go.transform.position = new Vector3(obj.Tile.X, obj.Tile.Y, 0);
@@ -57,31 +57,31 @@ public class BuildingSpriteController : MonoBehaviour
         // FIXME: We assume that the object must be a wall, so use
         // the hardcoded reference to the wall sprite
         SpriteRenderer spr = obj_go.AddComponent<SpriteRenderer>();
-        spr.sprite = GetSpriteForBuilding(obj);
+        spr.sprite = GetSpriteForStructure(obj);
         spr.sortingLayerName = "Object";
 
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
-        obj.RegisterOnChangedCallback(OnBuildingChanged);
+        obj.RegisterOnChangedCallback(OnStructureChanged);
     }
 
-    void OnBuildingChanged(Building obj)
+    void OnStructureChanged(Structure obj)
     {
-        // Make sure the building's graphics are correct.
-        if (buildingGameObjectMap.ContainsKey(obj) == false)
+        // Make sure the structure's graphics are correct.
+        if (structureGameObjectMap.ContainsKey(obj) == false)
         {
-            Debug.LogError("OnBuildingChanged -- trying to change visuals for building not in our map.");
+            Debug.LogError("OnStructureChanged -- trying to change visuals for structure not in our map.");
             return;
         }
-        GameObject obj_go = buildingGameObjectMap[obj];
-        obj_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForBuilding(obj);
+        GameObject obj_go = structureGameObjectMap[obj];
+        obj_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(obj);
     }
 
-    Sprite GetSpriteForBuilding(Building obj)
+    Sprite GetSpriteForStructure(Structure obj)
     {
         if (obj.LinksToNeighbor == false)
         {
-            return buildingSprites[obj.ObjectType];
+            return structureSprites[obj.ObjectType];
         }
 
         // Otherwise, the sprite name is more complicated.
@@ -95,25 +95,25 @@ public class BuildingSpriteController : MonoBehaviour
         Tile t;
 
         t = World.GetTileAt(x, y + 1);
-        if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+        if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
         {
             spriteName += "N";
         }
 
         t = World.GetTileAt(x + 1, y);
-        if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+        if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
         {
             spriteName += "E";
         }
 
         t = World.GetTileAt(x, y - 1);
-        if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+        if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
         {
             spriteName += "S";
         }
 
         t = World.GetTileAt(x - 1, y);
-        if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+        if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
         {
             spriteName += "W";
         }
@@ -122,12 +122,12 @@ public class BuildingSpriteController : MonoBehaviour
         // the same type, then the string will look like:
         //      Wall_NESW
 
-        if (buildingSprites.ContainsKey(spriteName) == false)
+        if (structureSprites.ContainsKey(spriteName) == false)
         {
-            Debug.LogError("GetSpriteForBuilding -- No sprites with name: " + spriteName);
+            Debug.LogError("GetSpriteForStructure -- No sprites with name: " + spriteName);
             return null;
         }
 
-        return buildingSprites[spriteName];
+        return structureSprites[spriteName];
     }
 }

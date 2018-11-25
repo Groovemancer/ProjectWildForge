@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Buildings are things like walls, doors, and furniture (e.g. table)
+// Structures are things like walls, doors, and furniture (e.g. table)
 
-public class Building
+public class Structure
 {
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
     // multiple tiles.
@@ -29,19 +29,19 @@ public class Building
 
     public bool LinksToNeighbor { get; protected set; }
 
-    Action<Building> cbOnChanged;
+    Action<Structure> cbOnChanged;
 
     Func<Tile, bool> funcPositionValidation;
 
     // TODO: Implement larger objects
     // TODO: Implement object rotation
 
-    protected Building() { }
+    protected Structure() { }
     
-    public static Building CreatePrototype(string objectType, float movementCost = 1f,
+    public static Structure CreatePrototype(string objectType, float movementCost = 1f,
         int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All)
     {
-        Building obj = new Building();
+        Structure obj = new Structure();
 
         obj.ObjectType = objectType;
         obj.movementCost = movementCost;
@@ -55,7 +55,7 @@ public class Building
         return obj;
     }
 
-    public static Building PlaceInstance(Building proto, Tile tile)
+    public static Structure PlaceInstance(Structure proto, Tile tile)
     {
         if (proto.funcPositionValidation(tile) == false)
         {
@@ -65,7 +65,7 @@ public class Building
 
         // We know our placement destination is valid.
 
-        Building obj = new Building();
+        Structure obj = new Structure();
 
         obj.ObjectType = proto.ObjectType;
         obj.movementCost = proto.movementCost;
@@ -77,7 +77,7 @@ public class Building
         obj.Tile = tile;
 
         // FIXME: This assumes we are 1x1!
-        if (tile.PlaceBuilding(obj) == false)
+        if (tile.PlaceStructure(obj) == false)
         {
             // For some reason,we weren't able to place our object in this tile.
             // (Probably it was already occupied.)
@@ -97,27 +97,27 @@ public class Building
             int y = tile.Y;
 
             t = tile.World.GetTileAt(x, y + 1);
-            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
             {
-                t.Building.cbOnChanged(t.Building);
+                t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x + 1, y);
-            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
             {
-                t.Building.cbOnChanged(t.Building);
+                t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x, y - 1);
-            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
             {
-                t.Building.cbOnChanged(t.Building);
+                t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x - 1, y);
-            if (t != null && t.Building != null && t.Building.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
             {
-                t.Building.cbOnChanged(t.Building);
+                t.Structure.cbOnChanged(t.Structure);
             }
         }
 
@@ -134,7 +134,7 @@ public class Building
     public bool __IsValidPosition(Tile t)
     {
         // Make sure tile is of allowed types
-        // Make sure tile doesn't already have building
+        // Make sure tile doesn't already have structure
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
         {
             return false;
@@ -150,12 +150,12 @@ public class Building
         return true;
     }
 
-    public void RegisterOnChangedCallback(Action<Building> callbackFunc)
+    public void RegisterOnChangedCallback(Action<Structure> callbackFunc)
     {
         cbOnChanged += callbackFunc;
     }
 
-    public void UnregisterOnChangedCallback(Action<Building> callbackFunc)
+    public void UnregisterOnChangedCallback(Action<Structure> callbackFunc)
     {
         cbOnChanged -= callbackFunc;
     }

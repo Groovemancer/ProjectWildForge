@@ -7,12 +7,12 @@ public class World
 {
     Tile[,] tiles;
 
-    Dictionary<string, Building> buildingPrototypes;
+    Dictionary<string, Structure> structurePrototypes;
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
-    Action<Building> cbBuildingCreated;
+    Action<Structure> cbStructureCreated;
     Action<Tile> cbTileObjectChanged;
 
     // TODO: Most likely this will be replaced with a dedicated
@@ -41,15 +41,15 @@ public class World
 
         Debug.Log("World created with " + (Width * Height) + " tiles.");
 
-        CreateBuildingPrototypes();
+        CreateStructurePrototypes();
     }
 
-    private void CreateBuildingPrototypes()
+    private void CreateStructurePrototypes()
     {
-        buildingPrototypes = new Dictionary<string, Building>();
+        structurePrototypes = new Dictionary<string, Structure>();
 
-        buildingPrototypes.Add("Wall",
-            Building.CreatePrototype(
+        structurePrototypes.Add("Wall",
+            Structure.CreatePrototype(
                 "Wall",
                 0,      // Impassable
                 1,      // Width
@@ -59,8 +59,8 @@ public class World
             )
         );
 
-        Debug.Log("CreateBuildingPrototypes:");
-        foreach (KeyValuePair<string, Building> kvpair in buildingPrototypes)
+        Debug.Log("CreateStructurePrototypes:");
+        foreach (KeyValuePair<string, Structure> kvpair in structurePrototypes)
         {
             Debug.Log("\tKey: " + kvpair.Key);
         }
@@ -96,17 +96,17 @@ public class World
         return tiles[x, y];
     }
 
-    public void PlaceBuilding(string buildingType, Tile t)
+    public void PlaceStructure(string structureType, Tile t)
     {
         //TODO: This function assumes 1x1 tiles -- change this later!
 
-        if (buildingPrototypes.ContainsKey(buildingType) == false)
+        if (structurePrototypes.ContainsKey(structureType) == false)
         {
-            Debug.LogError("buildingPrototypes doesn't contain a proto for key: " + buildingType);
+            Debug.LogError("structurePrototypes doesn't contain a proto for key: " + structureType);
             return;
         }
 
-        Building obj = Building.PlaceInstance(buildingPrototypes[buildingType], t);
+        Structure obj = Structure.PlaceInstance(structurePrototypes[structureType], t);
 
         if (obj == null)
         {
@@ -114,20 +114,20 @@ public class World
             return;
         }
 
-        if (cbBuildingCreated != null)
+        if (cbStructureCreated != null)
         {
-            cbBuildingCreated(obj);
+            cbStructureCreated(obj);
         }
     }
 
-    public void RegisterBuildingCreated(Action<Building> callbackfunc)
+    public void RegisterStructureCreated(Action<Structure> callbackfunc)
     {
-        cbBuildingCreated += callbackfunc;
+        cbStructureCreated += callbackfunc;
     }
 
-    public void UnregisterBuildingCreated(Action<Building> callbackfunc)
+    public void UnregisterStructureCreated(Action<Structure> callbackfunc)
     {
-        cbBuildingCreated -= callbackfunc;
+        cbStructureCreated -= callbackfunc;
     }
 
     public void RegisterTileChanged(Action<Tile> callbackfunc)
@@ -148,10 +148,8 @@ public class World
         cbTileObjectChanged(t);
     }
 
-    public bool IsBuildingPlacementValid(string buildingType, Tile t)
+    public bool IsStructurePlacementValid(string structureType, Tile t)
     {
-        Debug.Log("Building Type: " + buildingType);
-        Debug.Log("Tile: " + t);
-        return buildingPrototypes[buildingType].IsValidPosition(t);
+        return structurePrototypes[structureType].IsValidPosition(t);
     }
 }

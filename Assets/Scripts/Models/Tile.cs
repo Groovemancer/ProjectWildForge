@@ -29,8 +29,8 @@ public class Tile
 
     LooseObject looseObject;
 
-    public Building Building { get; protected set; }
-    public Job PendingBuildingJob;
+    public Structure Structure { get; protected set; }
+    public Job PendingStructureJob;
 
     public World World { get; protected set; }
     public int X { get; protected set; }
@@ -53,24 +53,24 @@ public class Tile
         cbTileChanged -= callback;
     }
 
-    public bool PlaceBuilding(Building objInstance)
+    public bool PlaceStructure(Structure objInstance)
     {
         if (objInstance == null)
         {
             // We are uninstalling whatever was here before.
-            Building = null;
+            Structure = null;
             return true;
         }
 
         // objInstance isn't null
-        if (Building != null)
+        if (Structure != null)
         {
-            Debug.LogError("Trying to assign an building to a tile that already has one!");
+            Debug.LogError("Trying to assign an structure to a tile that already has one!");
             return false;
         }
 
         // At this point, everything's fine!
-        Building = objInstance;
+        Structure = objInstance;
         return true;
     }
 }

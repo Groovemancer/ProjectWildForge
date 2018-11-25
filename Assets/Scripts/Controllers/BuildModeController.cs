@@ -10,9 +10,9 @@ public class BuildModeController : MonoBehaviour
     TileType buildModeTile = TileType.Empty;
     string buildModeObjectType;
     
-    void OnBuildingJobComplete(string objectType, Tile t)
+    void OnStructureJobComplete(string objectType, Tile t)
     {
-        WorldController.Instance.World.PlaceBuilding(objectType, t);
+        WorldController.Instance.World.PlaceStructure(objectType, t);
     }
 
     public BuildMode GetBuildMode()
@@ -39,41 +39,41 @@ public class BuildModeController : MonoBehaviour
         }
     }
 
-    public void SetBuildBuilding(string objBuilding)
+    public void SetBuildStructure(string objStructure)
     {
         buildModeObjectType = ""; // Clear this, will get set later
-        buildModeObjectType = objBuilding;
+        buildModeObjectType = objStructure;
     }
 
     public void DoBuild(Tile t)
     {
         if (buildModeIsObjects)
         {
-            // Create the Building and assign it to the tile
+            // Create the Structure and assign it to the tile
 
             // FIXME: This instantly builds the object
-            //WorldController.Instance.World.PlaceBuilding(buildModeObjectType, t);
+            //WorldController.Instance.World.PlaceStructure(buildModeObjectType, t);
 
             // Can we build the object in the selected tile?
             // Run the ValidPlacement function
-            string buildingType = buildModeObjectType;
+            string structureType = buildModeObjectType;
 
-            if (WorldController.Instance.World.IsBuildingPlacementValid(buildingType, t) &&
-                t.PendingBuildingJob == null)
+            if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t) &&
+                t.PendingStructureJob == null)
             {
                 // This tile position is valid for this object
                 // Create a job for it to be build
                 Job j = new Job(t, (theJob) =>
                 {
-                    WorldController.Instance.World.PlaceBuilding(buildingType, theJob.Tile);
-                    t.PendingBuildingJob = null;
+                    WorldController.Instance.World.PlaceStructure(structureType, theJob.Tile);
+                    t.PendingStructureJob = null;
                 });
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!
-                t.PendingBuildingJob = j;
+                t.PendingStructureJob = j;
 
-                j.RegisterJobCancelCallback((theJob) => { theJob.Tile.PendingBuildingJob = null; });
+                j.RegisterJobCancelCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
 
                 // Add job to queue later
                 WorldController.Instance.World.jobQueue.Enqueue(j);
