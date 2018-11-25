@@ -126,6 +126,13 @@ public class InstalledObject
 
     public bool IsValidPosition(Tile t)
     {
+        return funcPositionValidation(t);
+    }
+
+    // FIXME: These functions should never be called directly,
+    // so they probably shouldn't be public functions
+    public bool __IsValidPosition(Tile t)
+    {
         // Make sure tile is of allowed types
         // Make sure tile doesn't already have installed object
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
@@ -136,7 +143,7 @@ public class InstalledObject
         return true;
     }
 
-    public bool IsValidPosition_Door(Tile t)
+    public bool __IsValidPosition_Door(Tile t)
     {
         // Make sure we have a pair of E/W walls or N/S walls
 

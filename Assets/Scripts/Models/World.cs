@@ -15,8 +15,16 @@ public class World
     Action<InstalledObject> cbInstalledObjectCreated;
     Action<Tile> cbTileObjectChanged;
 
+    // TODO: Most likely this will be replaced with a dedicated
+    // class for managing job queues (plural!) that might also
+    // be semi-static or self initializing or some damn thing.
+    // For now, this is just a PUBLIC member of world
+    public Queue<Job> jobQueue;
+
     public World(int width = 100, int height = 100)
     {
+        jobQueue = new Queue<Job>();
+
         Width = width;
         Height = height;
 
@@ -138,5 +146,10 @@ public class World
             return;
 
         cbTileObjectChanged(t);
+    }
+
+    public bool IsInstalledObjectPlacementValid(string objectType, Tile t)
+    {
+        return installedObjectPrototypes[objectType].IsValidPosition(t);
     }
 }

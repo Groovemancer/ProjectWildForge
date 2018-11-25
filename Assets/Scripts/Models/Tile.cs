@@ -30,6 +30,7 @@ public class Tile
     LooseObject looseObject;
 
     public InstalledObject InstalledObject { get; protected set; }
+    public Job PendingInstalledObjectJob;
 
     public World World { get; protected set; }
     public int X { get; protected set; }

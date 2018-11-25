@@ -136,8 +136,34 @@ public class MouseController : MonoBehaviour
                         {
                             // Create the InstalledObject and assign it to the tile
 
-                            // FIXME: Right now, we're just going to assume walls.
-                            WorldController.Instance.World.PlaceInstalledObject(buildModeObjectType, t);
+                            // FIXME: This instantly builds the object
+                            //WorldController.Instance.World.PlaceInstalledObject(buildModeObjectType, t);
+
+                            // Can we build the object in the selected tile?
+                            // Run the ValidPlacement function
+                            string objType = buildModeObjectType;
+
+                            if (WorldController.Instance.World.IsInstalledObjectPlacementValid(objType, t) &&
+                                t.PendingInstalledObjectJob == null)
+                            {
+                                // This tile position is valid for this object
+                                // Create a job for it to be build
+                                Job j = new Job(t, (theJob) =>
+                                {
+                                    WorldController.Instance.World.PlaceInstalledObject(objType, theJob.Tile);
+                                    t.PendingInstalledObjectJob = null;
+                                });
+
+                                // FIXME: I don't like having to manually and explicitly set
+                                // flags to prevent conflicts. It's too easy to forget to set/clear them!
+                                t.PendingInstalledObjectJob = j;
+
+                                j.RegisterJobCancelCallback((theJob) => { theJob.Tile.PendingInstalledObjectJob = null; });
+
+                                // Add job to queue later
+                                WorldController.Instance.World.jobQueue.Enqueue(j);
+                                Debug.Log("Job Queue Size: " + WorldController.Instance.World.jobQueue.Count);
+                            }
                         }
                         else
                         {
@@ -148,6 +174,11 @@ public class MouseController : MonoBehaviour
                 }
             }
         }
+    }
+
+    void OnInstalledObjectJobComplete(string objectType, Tile t)
+    {
+        WorldController.Instance.World.PlaceInstalledObject(objectType, t);
     }
 
     void UpdateCameraMovement()
