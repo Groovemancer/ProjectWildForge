@@ -63,7 +63,7 @@ public class BuildModeController : MonoBehaviour
             {
                 // This tile position is valid for this object
                 // Create a job for it to be build
-                Job j = new Job(t, (theJob) =>
+                Job j = new Job(t, structureType, (theJob) =>
                 {
                     WorldController.Instance.World.PlaceStructure(structureType, theJob.Tile);
                     t.PendingStructureJob = null;
@@ -77,7 +77,6 @@ public class BuildModeController : MonoBehaviour
 
                 // Add job to queue later
                 WorldController.Instance.World.jobQueue.Enqueue(j);
-                Debug.Log("Job Queue Size: " + WorldController.Instance.World.jobQueue.Count);
             }
         }
         else

@@ -19,11 +19,11 @@ public class World
     // class for managing job queues (plural!) that might also
     // be semi-static or self initializing or some damn thing.
     // For now, this is just a PUBLIC member of world
-    public Queue<Job> jobQueue;
+    public JobQueue jobQueue;
 
     public World(int width = 100, int height = 100)
     {
-        jobQueue = new Queue<Job>();
+        jobQueue = new JobQueue();
 
         Width = width;
         Height = height;
@@ -151,5 +151,16 @@ public class World
     public bool IsStructurePlacementValid(string structureType, Tile t)
     {
         return structurePrototypes[structureType].IsValidPosition(t);
+    }
+
+    public Structure GetStructurePrototype( string objType)
+    {
+        if (structurePrototypes.ContainsKey(objType) == false)
+        {
+            Debug.LogError("No structure with type: " + objType);
+            return null;
+        }
+
+        return structurePrototypes[objType];
     }
 }

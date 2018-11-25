@@ -12,12 +12,19 @@ public class Job
 
     float jobTime;
 
+    // FIXME: Hard-coding a parameter for structure. Do not like.
+    public string jobObjectType
+    {
+        get; protected set;
+    }
+
     Action<Job> cbJobComplete;
     Action<Job> cbJobCancel;
 
-    public Job(Tile tile, Action<Job> cbJobComplete, float jobTime = 1f)
+    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime = 1f)
     {
         this.Tile = tile;
+        this.jobObjectType = jobObjectType;
         this.cbJobComplete += cbJobComplete;
         this.jobTime = jobTime;
     }
@@ -47,5 +54,15 @@ public class Job
     public void RegisterJobCancelCallback(Action<Job> cb)
     {
         cbJobCancel += cb;
+    }
+
+    public void UnregisterJobCompleteCallback(Action<Job> cb)
+    {
+        cbJobComplete -= cb;
+    }
+
+    public void UnregisterJobCancelCallback(Action<Job> cb)
+    {
+        cbJobCancel -= cb;
     }
 }

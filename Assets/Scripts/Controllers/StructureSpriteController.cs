@@ -77,7 +77,7 @@ public class StructureSpriteController : MonoBehaviour
         obj_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(obj);
     }
 
-    Sprite GetSpriteForStructure(Structure obj)
+    public Sprite GetSpriteForStructure(Structure obj)
     {
         if (obj.LinksToNeighbor == false)
         {
@@ -129,5 +129,21 @@ public class StructureSpriteController : MonoBehaviour
         }
 
         return structureSprites[spriteName];
+    }
+
+    public Sprite GetSpriteForStructure(string objectType)
+    {
+        if (structureSprites.ContainsKey(objectType))
+        {
+            return structureSprites[objectType];
+        }
+
+        if (structureSprites.ContainsKey(objectType+"_"))
+        {
+            return structureSprites[objectType+"_"];
+        }
+
+        Debug.LogError("GetSpriteForStructure -- No sprites with name: " + objectType);
+        return null;
     }
 }
