@@ -13,6 +13,7 @@ public class World
     public int Height { get; protected set; }
 
     Action<InstalledObject> cbInstalledObjectCreated;
+    Action<Tile> cbTileObjectChanged;
 
     public World(int width = 100, int height = 100)
     {
@@ -26,6 +27,7 @@ public class World
             for (int y = 0; y < Height; y++)
             {
                 tiles[x, y] = new Tile(this, x, y);
+                tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
             }
         }
 
@@ -44,7 +46,8 @@ public class World
                                     0,      // Impassable
                                     1,      // Width
                                     1,      // Height
-                                    true    // Links to neighbors and "sort of" becomes part of a large object
+                                    true,    // Links to neighbors and "sort of" becomes part of a large object
+                                    TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone
                                 )
         );
 
@@ -117,5 +120,23 @@ public class World
     public void UnregisterInstalledObjectCreated(Action<InstalledObject> callbackfunc)
     {
         cbInstalledObjectCreated -= callbackfunc;
+    }
+
+    public void RegisterTileChanged(Action<Tile> callbackfunc)
+    {
+        cbTileObjectChanged += callbackfunc;
+    }
+
+    public void UnregisterTileChanged(Action<Tile> callbackfunc)
+    {
+        cbTileObjectChanged -= callbackfunc;
+    }
+
+    public void OnTileChanged(Tile t)
+    {
+        if (cbTileObjectChanged == null)
+            return;
+
+        cbTileObjectChanged(t);
     }
 }

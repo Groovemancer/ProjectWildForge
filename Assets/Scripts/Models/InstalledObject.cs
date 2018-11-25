@@ -48,6 +48,7 @@ public class InstalledObject
         obj.width = width;
         obj.height = height;
         obj.LinksToNeighbor = linksToNeighbor;
+        obj.AllowedTileTypes = allowedTileTypes;
 
         obj.funcPositionValidation = obj.IsValidPosition;
 
@@ -71,6 +72,7 @@ public class InstalledObject
         obj.width = proto.width;
         obj.height = proto.height;
         obj.LinksToNeighbor = proto.LinksToNeighbor;
+        obj.AllowedTileTypes = proto.AllowedTileTypes;
 
         obj.Tile = tile;
 
@@ -126,6 +128,11 @@ public class InstalledObject
     {
         // Make sure tile is of allowed types
         // Make sure tile doesn't already have installed object
+        if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
+        {
+            return false;
+        }
+
         return true;
     }
 

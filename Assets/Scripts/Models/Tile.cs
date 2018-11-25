@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Flags]
-public enum TileType { Empty = 0, Dirt = 1, RoughStone = 2, Marsh = 4, ShallowWater = 8, Grass = 16, Floor = 32, All = 64 };
+public enum TileType { Empty = 0x00, Dirt = 0x01, RoughStone = 0x02, Marsh = 0x04, ShallowWater = 0x08, Grass = 0x10, Floor = 0x20, All = 0x30 };
 
 [Serializable]
 public class Tile
@@ -19,13 +19,13 @@ public class Tile
             _type = value;
 
             // Call the callback and let things know we've changed.
-            if (cbTileTypeChanged != null && _type != oldType)
-                cbTileTypeChanged(this);
+            if (cbTileChanged != null && _type != oldType)
+                cbTileChanged(this);
         }
     }
 
-    // The function we callback any time our type changes
-    Action<Tile> cbTileTypeChanged;
+    // The function we callback any time our tile data changes
+    Action<Tile> cbTileChanged;
 
     LooseObject looseObject;
 
@@ -42,14 +42,14 @@ public class Tile
         this.Y = y;
     }
 
-    public void RegisterTileTypeChangedCallback(Action<Tile> callback)
+    public void RegisterTileChangedCallback(Action<Tile> callback)
     {
-        cbTileTypeChanged += callback;
+        cbTileChanged += callback;
     }
 
-    public void UnregisterTileTypeChangedCallback(Action<Tile> callback)
+    public void UnregisterTileChangedCallback(Action<Tile> callback)
     {
-        cbTileTypeChanged -= callback;
+        cbTileChanged -= callback;
     }
 
     public bool PlaceInstalledObject(InstalledObject objInstance)

@@ -18,7 +18,7 @@ public class WorldController : MonoBehaviour
     public World World { get; protected set; }
 
     // Use this for initialization
-    void Start()
+    void OnEnable()
     {
         LoadSprites();
 
@@ -54,13 +54,13 @@ public class WorldController : MonoBehaviour
                 tile_go.transform.SetParent(this.transform, true);
 
                 tile_go.AddComponent<SpriteRenderer>();
-
-                tile_data.RegisterTileTypeChangedCallback(OnTileTypeChanged);
             }
         }
 
+        World.RegisterTileChanged(OnTileChanged);
+
         // Center the camera
-        Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, -10);
+        Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
 
         World.RandomizeTiles();
     }
@@ -93,13 +93,13 @@ public class WorldController : MonoBehaviour
 
             tileGameObjectMap.Remove(tile_data);
 
-            tile_data.UnregisterTileTypeChangedCallback(OnTileTypeChanged);
+            tile_data.UnregisterTileChangedCallback(OnTileChanged);
 
             Destroy(tile_go);
         }
     }
 
-    void OnTileTypeChanged(Tile tile_data)
+    void OnTileChanged(Tile tile_data)
     {
         if (!tileGameObjectMap.ContainsKey(tile_data))
         {
