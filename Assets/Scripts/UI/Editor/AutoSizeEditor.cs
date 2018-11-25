@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(AutoHorizSize))]
-public class AutoHorizSizeEditor : Editor
+[CustomEditor(typeof(AutoSize))]
+public class AutoSizeEditor : Editor
 {
     public override void OnInspectorGUI()
     {
@@ -12,7 +12,7 @@ public class AutoHorizSizeEditor : Editor
 
         if (GUILayout.Button("Recalc Size"))
         {
-            ((AutoHorizSize)target).AdjustSize();
+            ((AutoSize)target).AdjustSize();
         }
     }
 }

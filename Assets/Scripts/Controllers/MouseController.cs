@@ -5,10 +5,10 @@ using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour
 {
-    public enum MouseMode { BuildFloor, DestroyFloor };
-
-    MouseMode mouseMode;
-    TileType buildModeTile = TileType.Floor;
+    MouseMode mouseMode = MouseMode.Hover;
+    bool buildModeIsObjects = false;
+    TileType buildModeTile = TileType.Empty;
+    string buildModeObjectType;
 
     public GameObject circleCursorPrefab;
 
@@ -65,6 +65,10 @@ public class MouseController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
+        // If we are in Hover mode, bail out.
+        if (mouseMode == MouseMode.Hover)
+            return;
+
         // Start Drag
         if (Input.GetMouseButtonDown(0))
         {
@@ -72,9 +76,9 @@ public class MouseController : MonoBehaviour
         }
 
         int start_x = Mathf.FloorToInt(dragStartPosition.x);
-        int end_x = Mathf.FloorToInt(currFramePosition.x);
+        int end_x   = Mathf.FloorToInt(currFramePosition.x);
         int start_y = Mathf.FloorToInt(dragStartPosition.y);
-        int end_y = Mathf.FloorToInt(currFramePosition.y);
+        int end_y   = Mathf.FloorToInt(currFramePosition.y);
 
         // We may be dragging in the "wrong" direction, so flip things if needed
         if (end_x < start_x)
@@ -125,9 +129,21 @@ public class MouseController : MonoBehaviour
                 for (int y = start_y; y <= end_y; y++)
                 {
                     Tile t = WorldController.Instance.World.GetTileAt(x, y);
+
                     if (t != null)
                     {
-                        t.Type = buildModeTile;
+                        if (buildModeIsObjects)
+                        {
+                            // Create the InstalledObject and assign it to the tile
+
+                            // FIXME: Right now, we're just going to assume walls.
+                            WorldController.Instance.World.PlaceInstalledObject(buildModeObjectType, t);
+                        }
+                        else
+                        {
+                            // We are in tile-changing mode.
+                            t.Type = buildModeTile;
+                        }
                     }
                 }
             }
@@ -148,30 +164,33 @@ public class MouseController : MonoBehaviour
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
     }
 
-    public void SetModeBuildFloor()
+    public void SetMode(MouseState mouseState)
     {
-        SetMode(MouseMode.BuildFloor);
-
-    }
-
-    public void SetModeDestroyFloor()
-    {
-        SetMode(MouseMode.DestroyFloor);
-
-    }
-
-    public void SetMode(MouseMode mode)
-    {
-        mouseMode = mode;
-
-        switch (mode)
+        mouseMode = mouseState.State;
+        buildModeObjectType = ""; // Clear this, will get set later
+        switch (mouseMode)
         {
             case MouseMode.BuildFloor:
+                buildModeIsObjects = false;
                 buildModeTile = TileType.Floor;
                 break;
-            case MouseMode.DestroyFloor:
+            case MouseMode.RemoveFloor:
+                buildModeIsObjects = false;
                 buildModeTile = TileType.Dirt;
                 break;
+            case MouseMode.BuildObject:
+                buildModeIsObjects = true;
+                break;
         }
+    }
+
+    public void SetBuildInstalledObject(string objInstalledObject)
+    {
+        if (mouseMode != MouseMode.BuildObject)
+        {
+            return;
+        }
+
+        buildModeObjectType = objInstalledObject;
     }
 }
