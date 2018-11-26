@@ -37,7 +37,9 @@ public class TileSpriteController : MonoBehaviour
                 tile_go.transform.position = new Vector3(tile_data.X, tile_data.Y, 0);
                 tile_go.transform.SetParent(this.transform, true);
 
-                tile_go.AddComponent<SpriteRenderer>();
+                SpriteRenderer sr = tile_go.AddComponent<SpriteRenderer>();
+                sr.sprite = Sprites.Find(spr => spr.Type == tile_data.Type).Sprite;
+                sr.sortingLayerName = "Tiles";
             }
         }
 
@@ -78,6 +80,6 @@ public class TileSpriteController : MonoBehaviour
 
         SpriteRenderer sprRenderer = tile_go.GetComponent<SpriteRenderer>();
         sprRenderer.sprite = Sprites.Find(spr => spr.Type == tile_data.Type).Sprite;
-        sprRenderer.sortingLayerName = "Tile";
+        sprRenderer.sortingLayerName = "Tiles";
     }
 }

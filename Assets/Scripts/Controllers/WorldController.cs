@@ -9,7 +9,7 @@ public class WorldController : MonoBehaviour
     public static WorldController Instance { get; protected set; }
     
     public World World { get; protected set; }
-
+    
     // Use this for initialization
     void OnEnable()
     {
@@ -22,14 +22,22 @@ public class WorldController : MonoBehaviour
         // Create a world with Empty tiles
         World = new World();
         
-        
-
         // Center the camera
         Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
 
         World.RandomizeTiles();
     }
-    
+
+    void Update()
+    {
+        World.Update(Time.deltaTime);
+    }
+
+    public void SetupPathfindingExample()
+    {
+        World.SetupPathfindingExample();
+    }
+
     public Tile GetTileAtWorldCoord(Vector3 coord)
     {
         int x = Mathf.FloorToInt(coord.x);

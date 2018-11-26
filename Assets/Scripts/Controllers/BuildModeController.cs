@@ -67,7 +67,9 @@ public class BuildModeController : MonoBehaviour
                 {
                     WorldController.Instance.World.PlaceStructure(structureType, theJob.Tile);
                     t.PendingStructureJob = null;
-                });
+                },
+                200 // AUTs needed to complete
+                );
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!

@@ -6,6 +6,7 @@ using UnityEngine;
 public class World
 {
     Tile[,] tiles;
+    List<Actor> actors;
 
     Dictionary<string, Structure> structurePrototypes;
 
@@ -14,6 +15,10 @@ public class World
 
     Action<Structure> cbStructureCreated;
     Action<Tile> cbTileObjectChanged;
+    Action<Actor> cbActorCreated;
+
+    float gameSpeed = 1.0f;
+    float autsPerSec = 100f;
 
     // TODO: Most likely this will be replaced with a dedicated
     // class for managing job queues (plural!) that might also
@@ -42,6 +47,30 @@ public class World
         Debug.Log("World created with " + (Width * Height) + " tiles.");
 
         CreateStructurePrototypes();
+
+        actors = new List<Actor>();
+    }
+
+    public void Update(float deltaTime)
+    {
+        float deltaAuts = autsPerSec* gameSpeed * deltaTime;
+
+        foreach (Actor a in actors)
+        {
+            a.Update(deltaAuts);
+        }
+    }
+
+    public Actor CreateActor(Tile t)
+    {
+        Actor a = new Actor(t);
+
+        actors.Add(a);
+
+        if (cbActorCreated != null)
+            cbActorCreated(a);
+
+        return a;
     }
 
     private void CreateStructurePrototypes()
@@ -63,6 +92,30 @@ public class World
         foreach (KeyValuePair<string, Structure> kvpair in structurePrototypes)
         {
             Debug.Log("\tKey: " + kvpair.Key);
+        }
+    }
+
+    public void SetupPathfindingExample()
+    {
+        Debug.Log("SetupPathfindingExample");
+
+        int l = Width / 2 - 5;
+        int b = Height / 2 - 5;
+
+        for (int x = l - 5; x < l + 15; x++)
+        {
+            for (int y = b - 5; y < b + 15; y++)
+            {
+                tiles[x, y].Type = TileType.Floor;
+
+                if (x == l || x == (l + 9) || y == b || y == (b + 9))
+                {
+                    if (x != (l + 9) && y != (b + 4))
+                    {
+                        PlaceStructure("Wall", tiles[x, y]);
+                    }
+                }
+            }
         }
     }
 
@@ -128,6 +181,16 @@ public class World
     public void UnregisterStructureCreated(Action<Structure> callbackfunc)
     {
         cbStructureCreated -= callbackfunc;
+    }
+
+    public void RegisterActorCreated(Action<Actor> callbackfunc)
+    {
+        cbActorCreated += callbackfunc;
+    }
+
+    public void UnregisterActorCreated(Action<Actor> callbackfunc)
+    {
+        cbActorCreated -= callbackfunc;
     }
 
     public void RegisterTileChanged(Action<Tile> callbackfunc)

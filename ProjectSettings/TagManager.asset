@@ -41,11 +41,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Tile
+  - name: Tiles
     uniqueID: 723620991
     locked: 0
-  - name: Object
+  - name: Structures
     uniqueID: 223915675
+    locked: 0
+  - name: Jobs
+    uniqueID: 2018631631
+    locked: 0
+  - name: Actors
+    uniqueID: 989739271
     locked: 0
   - name: TileUI
     uniqueID: 3617189023

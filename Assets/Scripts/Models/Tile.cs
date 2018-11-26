@@ -9,7 +9,7 @@ public enum TileType { Empty = 0x00, Dirt = 0x01, RoughStone = 0x02, Marsh = 0x0
 [Serializable]
 public class Tile
 {
-    TileType _type = TileType.Empty;
+    TileType _type = TileType.Dirt;
     public TileType Type
     {
         get { return _type; }
@@ -72,6 +72,12 @@ public class Tile
         // At this point, everything's fine!
         Structure = objInstance;
         return true;
+    }
+
+    public bool IsNeighbor(Tile tile, bool diagOkay = false)
+    {
+        return (Mathf.Abs(this.X - this.X) + Mathf.Abs(this.Y - tile.Y) == 1 || // Check hori/vert adjacency
+            (diagOkay && (Mathf.Abs(this.X - this.X) == 1 && Mathf.Abs(this.Y - this.Y) == 1))); // Check diag adjacency
     }
 }
 

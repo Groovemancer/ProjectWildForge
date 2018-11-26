@@ -58,7 +58,7 @@ public class StructureSpriteController : MonoBehaviour
         // the hardcoded reference to the wall sprite
         SpriteRenderer spr = obj_go.AddComponent<SpriteRenderer>();
         spr.sprite = GetSpriteForStructure(obj);
-        spr.sortingLayerName = "Object";
+        spr.sortingLayerName = "Structures";
 
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
