@@ -21,7 +21,7 @@ public class Structure
     // For example, a "rough tile (cost of 2) with a table (cost of 3) that is on fire (cost of 3)
     // would have a total movement cost of (2+3+3 = 8), so you'd move through this tile at 1/8th normal speed.
     // SPECIAL: If movementCost = 0, then this tile is impassable. (e.g. a wall).
-    float movementCost;
+    public float MovementCost { get; protected set; }
 
     // For example, a sofa might be a 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room
     int width;
@@ -44,7 +44,7 @@ public class Structure
         Structure obj = new Structure();
 
         obj.ObjectType = objectType;
-        obj.movementCost = movementCost;
+        obj.MovementCost = movementCost;
         obj.width = width;
         obj.height = height;
         obj.LinksToNeighbor = linksToNeighbor;
@@ -68,7 +68,7 @@ public class Structure
         Structure obj = new Structure();
 
         obj.ObjectType = proto.ObjectType;
-        obj.movementCost = proto.movementCost;
+        obj.MovementCost = proto.MovementCost;
         obj.width = proto.width;
         obj.height = proto.height;
         obj.LinksToNeighbor = proto.LinksToNeighbor;

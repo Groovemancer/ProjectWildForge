@@ -1667,8 +1667,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1063862941}
-        m_MethodName: SetupPathfindingExample
+      - m_Target: {fileID: 1128063391}
+        m_MethodName: DoPathfindingTest
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

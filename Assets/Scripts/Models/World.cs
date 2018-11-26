@@ -8,6 +8,9 @@ public class World
     Tile[,] tiles;
     List<Actor> actors;
 
+    // The pathfinding graph used to navigate our world map.
+    PathTileGraph tileGraph;
+
     Dictionary<string, Structure> structurePrototypes;
 
     public int Width { get; protected set; }
@@ -142,7 +145,7 @@ public class World
     {
         if (x >= Width || x < 0 || y >= Height || y < 0)
         {
-            Debug.LogError("World::GetTileAt Tile (" + x + ", " + y + ") is out of range.");
+            //Debug.LogError("World::GetTileAt Tile (" + x + ", " + y + ") is out of range.");
             return null;
         }
 
@@ -171,6 +174,15 @@ public class World
         {
             cbStructureCreated(obj);
         }
+
+        InvalidateTileGraph();
+    }
+
+    // This should be called whenever a change to the world
+    // means that our old pathfinding info is invalid
+    public void InvalidateTileGraph()
+    {
+        tileGraph = null;
     }
 
     public void RegisterStructureCreated(Action<Structure> callbackfunc)
@@ -203,12 +215,15 @@ public class World
         cbTileObjectChanged -= callbackfunc;
     }
 
+    // Gets called whenever ANY tile changes
     public void OnTileChanged(Tile t)
     {
         if (cbTileObjectChanged == null)
             return;
 
         cbTileObjectChanged(t);
+
+        InvalidateTileGraph();
     }
 
     public bool IsStructurePlacementValid(string structureType, Tile t)

@@ -96,6 +96,10 @@ public class Actor
                 
                 if (CurrTile == destTile)
                 {
+                    // TODO: Get the next tile from the pathfinding system.
+                    //       If there are no more tiles, then we have TRULY
+                    //       reached our destination.
+
                     CurrTile = destTile;
                     Debug.Log("Arrived!");
                 }   

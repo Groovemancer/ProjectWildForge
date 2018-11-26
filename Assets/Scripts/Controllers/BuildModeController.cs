@@ -39,6 +39,11 @@ public class BuildModeController : MonoBehaviour
         }
     }
 
+    public void DoPathfindingTest()
+    {
+        WorldController.Instance.World.SetupPathfindingExample();
+    }
+
     public void SetBuildStructure(string objStructure)
     {
         buildModeObjectType = ""; // Clear this, will get set later

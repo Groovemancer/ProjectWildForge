@@ -53,6 +53,34 @@ public class Tile
         cbTileChanged -= callback;
     }
 
+    public float CalculatedMoveCost()
+    {
+        float movementCost = 1f;
+        switch(Type)
+        {
+            case TileType.Empty:
+                movementCost = 0f;
+                break;
+            case TileType.Dirt:
+            case TileType.Floor:
+            case TileType.Grass:
+                movementCost = 1f;
+                break;
+            case TileType.RoughStone:
+                movementCost = 1.5f;
+                break;
+            case TileType.Marsh:
+            case TileType.ShallowWater:
+                movementCost = 2f;
+                break;
+        }
+
+        if (Structure != null)
+            return movementCost * Structure.MovementCost;
+        else
+            return movementCost;
+    }
+
     public bool PlaceStructure(Structure objInstance)
     {
         if (objInstance == null)
@@ -78,6 +106,43 @@ public class Tile
     {
         return (Mathf.Abs(this.X - this.X) + Mathf.Abs(this.Y - tile.Y) == 1 || // Check hori/vert adjacency
             (diagOkay && (Mathf.Abs(this.X - this.X) == 1 && Mathf.Abs(this.Y - this.Y) == 1))); // Check diag adjacency
+    }
+
+    public Tile[] GetNeighbors(bool diagOkay = false)
+    {
+        Tile[] ns;
+        if (diagOkay == false)
+        {
+            ns = new Tile[4]; // Tile order: N E S W
+        }
+        else
+        {
+            ns = new Tile[8]; // Tile order: N E S W NE SE SW NW
+        }
+
+        Tile n;
+        n = World.GetTileAt(X, Y + 1);
+        ns[0] = n;
+        n = World.GetTileAt(X + 1, Y);
+        ns[1] = n;
+        n = World.GetTileAt(X, Y - 1);
+        ns[2] = n;
+        n = World.GetTileAt(X - 1, Y);
+        ns[3] = n;
+
+        if (diagOkay == true)
+        {
+            n = World.GetTileAt(X + 1, Y + 1);
+            ns[4] = n;
+            n = World.GetTileAt(X + 1, Y - 1);
+            ns[5] = n;
+            n = World.GetTileAt(X - 1, Y - 1);
+            ns[6] = n;
+            n = World.GetTileAt(X - 1, Y + 1);
+            ns[7] = n;
+        }
+
+        return ns;
     }
 }
 

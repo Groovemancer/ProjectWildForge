@@ -33,11 +33,6 @@ public class WorldController : MonoBehaviour
         World.Update(Time.deltaTime);
     }
 
-    public void SetupPathfindingExample()
-    {
-        World.SetupPathfindingExample();
-    }
-
     public Tile GetTileAtWorldCoord(Vector3 coord)
     {
         int x = Mathf.FloorToInt(coord.x);
