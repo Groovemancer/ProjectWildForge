@@ -10,7 +10,7 @@ public class Job
 
     public Tile Tile { get; protected set; }
 
-    float jobTime;
+    float jobCost;
 
     // FIXME: Hard-coding a parameter for structure. Do not like.
     public string jobObjectType
@@ -21,19 +21,20 @@ public class Job
     Action<Job> cbJobComplete;
     Action<Job> cbJobCancel;
 
-    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime = 1f)
+    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobCost = 100f)
     {
         this.Tile = tile;
         this.jobObjectType = jobObjectType;
         this.cbJobComplete += cbJobComplete;
-        this.jobTime = jobTime;
+        this.jobCost = jobCost;
     }
 
-    public void DoWork(float workTime)
+    public void DoWork(float workCost)
     {
-        jobTime -= workTime;
+        jobCost -= workCost;
+        Debug.Log("Remaining Job Cost: " + jobCost);
 
-        if (jobTime <= 0)
+        if (jobCost <= 0)
         {
             if (cbJobComplete != null)
                 cbJobComplete(this);

@@ -73,7 +73,7 @@ public class BuildModeController : MonoBehaviour
                     WorldController.Instance.World.PlaceStructure(structureType, theJob.Tile);
                     t.PendingStructureJob = null;
                 },
-                200 // AUTs needed to complete
+                300 // AUTs needed to complete
                 );
 
                 // FIXME: I don't like having to manually and explicitly set

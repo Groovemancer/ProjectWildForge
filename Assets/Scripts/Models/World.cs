@@ -9,7 +9,7 @@ public class World
     List<Actor> actors;
 
     // The pathfinding graph used to navigate our world map.
-    PathTileGraph tileGraph;
+    public PathTileGraph tileGraph;
 
     Dictionary<string, Structure> structurePrototypes;
 

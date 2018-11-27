@@ -8,7 +8,7 @@ public class PathTileGraph
     // of our world. Each tile is a node. Each WALKABLE neighbor
     // from a tile is linked via an edge connection.
 
-    Dictionary<Tile, PathNode<Tile>> nodes;
+    public Dictionary<Tile, PathNode<Tile>> nodes;
 
     public PathTileGraph(World world)
     {
@@ -25,12 +25,9 @@ public class PathTileGraph
             {
                 Tile t = world.GetTileAt(x, y);
 
-                if (t.CalculatedMoveCost() > 0)     // Tiles with a move cost of 0 are unwalkable
-                {
-                    PathNode<Tile> n = new PathNode<Tile>();
-                    n.data = t;
-                    nodes.Add(t, n);
-                }
+                PathNode<Tile> n = new PathNode<Tile>();
+                n.data = t;
+                nodes.Add(t, n);
             }
         }
 

@@ -104,8 +104,8 @@ public class Tile
 
     public bool IsNeighbor(Tile tile, bool diagOkay = false)
     {
-        return (Mathf.Abs(this.X - this.X) + Mathf.Abs(this.Y - tile.Y) == 1 || // Check hori/vert adjacency
-            (diagOkay && (Mathf.Abs(this.X - this.X) == 1 && Mathf.Abs(this.Y - this.Y) == 1))); // Check diag adjacency
+        return (Mathf.Abs(tile.X - this.X) + Mathf.Abs(tile.Y - this.Y) == 1 || // Check hori/vert adjacency
+            (diagOkay && (Mathf.Abs(tile.X - this.X) == 1 && Mathf.Abs(tile.Y - this.Y) == 1))); // Check diag adjacency
     }
 
     public Tile[] GetNeighbors(bool diagOkay = false)

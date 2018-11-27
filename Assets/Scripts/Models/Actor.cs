@@ -9,8 +9,14 @@ public class Actor
 
     public Tile CurrTile { get; protected set; }
     Tile destTile;
+    Tile nextTile;
+
+    PathAStar pathAStar;
 
     float movementCost = 25f; // Amount of action points required to move 1 tile.
+
+    float workCost = 25f;   // Amount of action points required to do any amount of work
+    float workRate = 50f;   // Amount of work completed per DoWork attempt
 
     float actionPoints = 0f;
 
@@ -23,8 +29,7 @@ public class Actor
         CurrTile = destTile = tile;
     }
 
-    // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
-    public void Update(float deltaAuts)
+    bool UpdateDoJob(float deltaAuts)
     {
         // Do I have a job?
         if (myJob == null)
@@ -45,16 +50,87 @@ public class Actor
         if (CurrTile == destTile)
         {
             if (myJob != null)
-                myJob.DoWork(deltaAuts);
-
-            return;
+            {
+                if (actionPoints >= workCost)
+                {
+                    myJob.DoWork(workRate);
+                    actionPoints -= workCost;
+                }
+                return true;
+            }
         }
 
+        return false;
+    }
+
+    // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
+    public void Update(float deltaAuts)
+    {
+        bool didSomething = false;
         actionPoints += deltaAuts;
 
-        float distToTravel = Mathf.Sqrt(Mathf.Pow(CurrTile.X - destTile.X, 2) + Mathf.Pow(CurrTile.Y - destTile.Y, 2));
+        if (UpdateDoJob(deltaAuts))
+            didSomething = true;
 
-        Vector2 heading = new Vector2(destTile.X - CurrTile.X, destTile.Y - CurrTile.Y);
+        if (UpdateHandleMovement())
+            didSomething = true;
+
+        if (didSomething == false)
+            actionPoints -= deltaAuts;
+
+        if (cbActorChanged != null)
+            cbActorChanged(this);
+    }
+
+    public void AbandonJob()
+    {
+        nextTile = destTile = CurrTile;
+        pathAStar = null;
+        myJob.UnregisterJobCancelCallback(OnJobEnded);
+        myJob.UnregisterJobCompleteCallback(OnJobEnded);
+        CurrTile.World.jobQueue.Enqueue(myJob);
+        myJob = null;
+    }
+
+    bool UpdateHandleMovement()
+    {
+        if (CurrTile == destTile)
+        {
+            pathAStar = null;
+            return false;
+        }
+
+        if (nextTile == null || nextTile == CurrTile)
+        {
+            // Get the next tile from the pathfinder
+            if (pathAStar == null || pathAStar.Length() == 0)
+            {
+                // Generate a path to our destination
+                pathAStar = new PathAStar(CurrTile.World, CurrTile, destTile); // This will calculate a path from curr to dest.
+                if (pathAStar.Length() == 0)
+                {
+                    Debug.LogError("PathAStar returned no path to destination!");
+                    // FIXME: Job should maybe be re-enqued instead?
+                    AbandonJob();
+                    pathAStar = null;
+                    return false;
+                }
+            }
+
+            // Grab the next waypoint from the pathing system!
+            nextTile = pathAStar.Dequeue();
+
+            if (nextTile == CurrTile)
+            {
+                //Debug.LogError("UpdateHandleMovement - nextTile is currtile?");
+            }
+        }
+
+        // At this point we should have a valid nextTile to move to.
+
+        float moveCost = CalculatedMoveCost();
+
+        Vector2 heading = new Vector2(nextTile.X - CurrTile.X, nextTile.Y - CurrTile.Y);
         float distance = heading.magnitude;
         Vector2 direction = heading / distance;
 
@@ -75,9 +151,8 @@ public class Actor
         else
             dirY = 0;
 
-        float moveCost = CalculatedMoveCost();
 
-        if (CurrTile != destTile)
+        if (CurrTile != nextTile)
         {
             if (actionPoints >= moveCost)
             {
@@ -93,22 +168,22 @@ public class Actor
                 {
                     CurrTile = CurrTile.World.GetTileAt(CurrTile.X, CurrTile.Y + dirY);
                 }
-                
-                if (CurrTile == destTile)
+
+                if (CurrTile == nextTile)
                 {
                     // TODO: Get the next tile from the pathfinding system.
                     //       If there are no more tiles, then we have TRULY
                     //       reached our destination.
 
-                    CurrTile = destTile;
+                    CurrTile = nextTile;
                     Debug.Log("Arrived!");
-                }   
+                }
                 actionPoints -= moveCost;
             }
+            return true;
         }
 
-        if (cbActorChanged != null)
-            cbActorChanged(this);
+        return false;
     }
 
     public float CalculatedMoveCost()

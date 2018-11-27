@@ -26,7 +26,6 @@ public class ActorSpriteController : MonoBehaviour
 
         // DEBUG
         Actor a = World.CreateActor(World.GetTileAt(World.Width / 2, World.Height / 2));
-        a.SetDestination(World.GetTileAt(World.Width / 2 + 5, World.Height / 2 + 2));
     }
 
     private void LoadSprites()
