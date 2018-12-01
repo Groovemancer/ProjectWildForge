@@ -67,6 +67,7 @@ public class WorldController : MonoBehaviour
         Debug.Log(writer.ToString());
 
         PlayerPrefs.SetString("SaveGame00", writer.ToString());
+
     }
 
     public void LoadWorld()

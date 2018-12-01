@@ -124,6 +124,8 @@ public class Actor : IXmlSerializable
                     pathAStar = null;
                     return false;
                 }
+                // Let's ignore the first tile, because that's the tile we're currently in.
+                nextTile = pathAStar.Dequeue();
             }
 
             // Grab the next waypoint from the pathing system!
@@ -133,6 +135,26 @@ public class Actor : IXmlSerializable
             {
                 //Debug.LogError("UpdateHandleMovement - nextTile is currtile?");
             }
+        }
+
+        if (nextTile.IsEnterable() == Enterability.Never)
+        {
+            //FIXME: Ideally, when a wall gets spawned, we should invalidate our path immediately,
+            //      so that we don't waste a bunch of time walking towards a dead end.
+            //      To save CPU, maybe we can only check every so often?
+            //      Or maybe we should register a callback to the OnTileChanged event?
+            Debug.LogError("FIXME: A character was trying to enter an unwalkable tile.");
+            nextTile = null;    // our next tile is a no-go
+            pathAStar = null;   // clearly our pathfinding is out of date.
+            return false;
+        }
+        else if (nextTile.IsEnterable() == Enterability.Soon)
+        {
+            // We can't enter NOW, but we should be able to in the
+            // future. This is likely a DOOR.
+            // So we DON'T bail on our movement/path, but we do return
+            // now and don't actually process the movement.
+            return false;
         }
 
         // At this point we should have a valid nextTile to move to.
@@ -197,7 +219,10 @@ public class Actor : IXmlSerializable
 
     public float CalculatedMoveCost()
     {
-        return movementCost;
+        float tileCost = nextTile.CalculatedMoveCost();
+        if (tileCost == 0)
+            tileCost = 1f;
+        return movementCost * tileCost;
     }
 
     public void SetDestination(Tile tile)

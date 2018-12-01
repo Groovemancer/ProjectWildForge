@@ -10,6 +10,17 @@ using UnityEngine;
 
 public class Structure : IXmlSerializable
 {
+    public Dictionary<string, float> structureParameters;
+    public Action<Structure, float> updateActions;
+
+    public Func<Structure, Enterability> IsEnterable;
+
+    public void Update(float deltaAuts)
+    {
+        if (updateActions != null)
+            updateActions(this, deltaAuts);
+    }
+
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
     // multiple tiles.
     public Tile Tile { get; protected set; }
@@ -39,23 +50,49 @@ public class Structure : IXmlSerializable
     // TODO: Implement larger objects
     // TODO: Implement object rotation
 
-    public Structure() { }
-    
-    public static Structure CreatePrototype(string objectType, float movementCost = 1f,
+    // Empty constructor is used for serialization
+    public Structure()
+    {
+        structureParameters = new Dictionary<string, float>();
+    }
+
+    // Copy Constructor
+    protected Structure(Structure other)
+    {
+        this.ObjectType = other.ObjectType;
+        this.MovementCost = other.MovementCost;
+        this.width = other.width;
+        this.height = other.height;
+        this.LinksToNeighbor = other.LinksToNeighbor;
+        this.AllowedTileTypes = other.AllowedTileTypes;
+
+        this.structureParameters = new Dictionary<string, float>(other.structureParameters);
+
+        if (other.updateActions != null)
+            this.updateActions = (Action<Structure, float>)other.updateActions.Clone();
+
+        this.IsEnterable = other.IsEnterable;
+    }
+
+    public virtual Structure Clone()
+    {
+        return new Structure(this);
+    }
+
+    // Create structure from parameters -- this will probably ONLY ever be used for prototype
+    public Structure(string objectType, float movementCost = 1f,
         int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All)
     {
-        Structure obj = new Structure();
+        this.ObjectType = objectType;
+        this.MovementCost = movementCost;
+        this.width = width;
+        this.height = height;
+        this.LinksToNeighbor = linksToNeighbor;
+        this.AllowedTileTypes = allowedTileTypes;
 
-        obj.ObjectType = objectType;
-        obj.MovementCost = movementCost;
-        obj.width = width;
-        obj.height = height;
-        obj.LinksToNeighbor = linksToNeighbor;
-        obj.AllowedTileTypes = allowedTileTypes;
+        this.funcPositionValidation = this.__IsValidPosition;
 
-        obj.funcPositionValidation = obj.__IsValidPosition;
-
-        return obj;
+        structureParameters = new Dictionary<string, float>();
     }
 
     public static Structure PlaceInstance(Structure proto, Tile tile)
@@ -67,16 +104,7 @@ public class Structure : IXmlSerializable
         }
 
         // We know our placement destination is valid.
-
-        Structure obj = new Structure();
-
-        obj.ObjectType = proto.ObjectType;
-        obj.MovementCost = proto.MovementCost;
-        obj.width = proto.width;
-        obj.height = proto.height;
-        obj.LinksToNeighbor = proto.LinksToNeighbor;
-        obj.AllowedTileTypes = proto.AllowedTileTypes;
-
+        Structure obj = proto.Clone();
         obj.Tile = tile;
 
         // FIXME: This assumes we are 1x1!
@@ -136,13 +164,16 @@ public class Structure : IXmlSerializable
     // so they probably shouldn't be public functions
     public bool __IsValidPosition(Tile t)
     {
+        Debug.Log("AllowedTypes: " + AllowedTileTypes);
         // Make sure tile is of allowed types
         // Make sure tile doesn't already have structure
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
         {
+            Debug.Log("Old IsValidPosition: false");
             return false;
         }
 
+        Debug.Log("Old IsValidPosition: true");
         return true;
     }
 
@@ -163,12 +194,14 @@ public class Structure : IXmlSerializable
         cbOnChanged -= callbackFunc;
     }
 
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///                     SAVING & LOADING
     /// 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     public XmlSchema GetSchema()
     {
         return null;
@@ -179,8 +212,15 @@ public class Structure : IXmlSerializable
         writer.WriteAttributeString("X", Tile.X.ToString());
         writer.WriteAttributeString("Y", Tile.Y.ToString());
         writer.WriteAttributeString("objectType", ObjectType);
-        writer.WriteAttributeString("movementCost", MovementCost.ToString());
 
+        foreach (string k in structureParameters.Keys)
+        {
+            writer.WriteStartElement("Param");
+            writer.WriteAttributeString("name", k);
+            writer.WriteAttributeString("value", structureParameters[k].ToString());
+            Debug.Log("Write Param name: " + k + " val: " + structureParameters[k].ToString());
+            writer.WriteEndElement();
+        }
     }
 
     public void ReadXml(XmlReader reader)
@@ -188,6 +228,15 @@ public class Structure : IXmlSerializable
         // X, Y, and objectType has already been set, and we should already
         // be assigned to a tile. So just read extra data.
 
-        MovementCost = float.Parse(reader.GetAttribute("movementCost"));
+        if (reader.ReadToDescendant("Param"))
+        {
+            do
+            {
+                string k = reader.GetAttribute("name");
+                Debug.Log("Read Param name: " + k);
+                float v = float.Parse(reader.GetAttribute("value"));
+                structureParameters[k] = v;
+            } while (reader.ReadToNextSibling("Param"));
+        }
     }
 }

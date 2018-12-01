@@ -75,6 +75,11 @@ public class World : IXmlSerializable
         {
             a.Update(deltaAuts);
         }
+
+        foreach (Structure s in structures)
+        {
+            s.Update(deltaAuts);
+        }
     }
 
     public Actor CreateActor(Tile t)
@@ -91,24 +96,38 @@ public class World : IXmlSerializable
 
     private void CreateStructurePrototypes()
     {
+        // This will be replacd by a function that reads all of our structure data
+        // from a text file in the future
+
         structurePrototypes = new Dictionary<string, Structure>();
 
         structurePrototypes.Add("Wall",
-            Structure.CreatePrototype(
+            new Structure(
                 "Wall",
                 0,      // Impassable
                 1,      // Width
                 1,      // Height
-                true,    // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone
+                true,   // Links to neighbors and "sort of" becomes part of a large object
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road
             )
         );
 
-        //Debug.Log("CreateStructurePrototypes:");
-        //foreach (KeyValuePair<string, Structure> kvpair in structurePrototypes)
-        //{
-        //    Debug.Log("\tKey: " + kvpair.Key);
-        //}
+        structurePrototypes.Add("Door",
+            new Structure(
+                "Door",
+                1,      // Door Pathfinding Cost
+                1,      // Width
+                1,      // Height
+                false,   // Links to neighbors and "sort of" becomes part of a large object
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road
+            )
+        );
+
+        structurePrototypes["Door"].structureParameters["openness"] = 0f; // 0 = closed door, 1 = fully open door, in between is partially opened
+        structurePrototypes["Door"].structureParameters["isOpening"] = 0;
+        structurePrototypes["Door"].structureParameters["doorOpenTime"] = 15f; // Amount of AUTs to open door
+        structurePrototypes["Door"].updateActions += StructureActions.Door_UpdateAction;
+        structurePrototypes["Door"].IsEnterable = StructureActions.Door_IsEnterable;
     }
 
     public void SetupPathfindingExample()
@@ -285,9 +304,12 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                writer.WriteStartElement("Tile");
-                tiles[x, y].WriteXml(writer);
-                writer.WriteEndElement();
+                if (tiles[x, y].Type != TileType.Empty)
+                {
+                    writer.WriteStartElement("Tile");
+                    tiles[x, y].WriteXml(writer);
+                    writer.WriteEndElement();
+                }
             }
         }
         writer.WriteEndElement();
@@ -342,44 +364,46 @@ public class World : IXmlSerializable
     {
         // We are in the "Tiles" element, so read elements until
         // we run out of "Tile" nodes.
-        while (reader.Read())
-        {
-            if (reader.Name != "Tile")
-                return; // We are out of tiles.
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
-            tiles[x, y].ReadXml(reader);
+        if (reader.ReadToDescendant("Tile"))
+        {
+            // We have at least one tile, so do something with it.
+            do
+            {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
+                tiles[x, y].ReadXml(reader);
+            } while (reader.ReadToNextSibling("Tile"));
         }
     }
 
     void ReadXmlStructures(XmlReader reader)
     {
-        while (reader.Read())
+        if (reader.ReadToDescendant("Structure"))
         {
-            if (reader.Name != "Structure")
-                return; // We are out of tiles.
+            do
+            {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
-
-            Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y]);
-            structure.ReadXml(reader);
+                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y]);
+                structure.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Structure"));
         }
     }
 
     void ReadXmlActors(XmlReader reader)
     {
-        while (reader.Read())
+        if (reader.ReadToDescendant("Actor"))
         {
-            if (reader.Name != "Actor")
-                return; // We are out of tiles.
+            do
+            {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
 
-            int x = int.Parse(reader.GetAttribute("X"));
-            int y = int.Parse(reader.GetAttribute("Y"));
-
-            Actor actor = CreateActor(tiles[x, y]);
-            actor.ReadXml(reader);
+                Actor actor = CreateActor(tiles[x, y]);
+                actor.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Actor"));
         }
     }
 }

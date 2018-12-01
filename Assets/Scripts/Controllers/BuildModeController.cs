@@ -25,6 +25,10 @@ public class BuildModeController : MonoBehaviour
         buildMode = buildState.State;
         switch (buildState.State)
         {
+            case BuildMode.BuildRoad:
+                buildModeIsObjects = false;
+                buildModeTile = TileType.Road;
+                break;
             case BuildMode.BuildTile:
                 buildModeIsObjects = false;
                 buildModeTile = TileType.Floor;
@@ -46,7 +50,6 @@ public class BuildModeController : MonoBehaviour
 
     public void SetBuildStructure(string objStructure)
     {
-        buildModeObjectType = ""; // Clear this, will get set later
         buildModeObjectType = objStructure;
     }
 

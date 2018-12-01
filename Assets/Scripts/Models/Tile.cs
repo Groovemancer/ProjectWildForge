@@ -7,7 +7,12 @@ using System.Xml.Serialization;
 using UnityEngine;
 
 [Flags]
-public enum TileType { Empty = 0x00, Dirt = 0x01, RoughStone = 0x02, Marsh = 0x04, ShallowWater = 0x08, Grass = 0x10, Floor = 0x20, All = 0x30 };
+public enum TileType {
+    Empty = 0, Dirt = 1 << 0, RoughStone = 1 << 2, Marsh = 1 << 3, ShallowWater = 1 << 4,
+    Grass = 1 << 5, Floor = 1 << 6, Road = 1 << 7, All = 1 << 8
+};
+
+public enum Enterability { Yes, Never, Soon };
 
 [Serializable]
 public class Tile : IXmlSerializable
@@ -64,8 +69,11 @@ public class Tile : IXmlSerializable
             case TileType.Empty:
                 movementCost = 0f;
                 break;
-            case TileType.Dirt:
+            case TileType.Road:
+                movementCost = 0.5f;
+                break;
             case TileType.Floor:
+            case TileType.Dirt:
             case TileType.Grass:
                 movementCost = 1f;
                 break;
@@ -103,6 +111,21 @@ public class Tile : IXmlSerializable
         // At this point, everything's fine!
         Structure = objInstance;
         return true;
+    }
+
+    public Enterability IsEnterable()
+    {
+        // Returns true if you can enter this tile right this moment.
+        if (CalculatedMoveCost() == 0)
+            return Enterability.Never;
+
+        // Check out structure to see if it has a special block on enterability
+        if (Structure != null && Structure.IsEnterable != null)
+        {
+            return Structure.IsEnterable(Structure);
+        }
+
+        return Enterability.Yes;
     }
 
     public bool IsNeighbor(Tile tile, bool diagOkay = false)
