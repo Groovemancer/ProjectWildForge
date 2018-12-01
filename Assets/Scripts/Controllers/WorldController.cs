@@ -3,12 +3,17 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Xml.Serialization;
+using System.IO;
 
 public class WorldController : MonoBehaviour
 {
     public static WorldController Instance { get; protected set; }
     
     public World World { get; protected set; }
+
+    static bool loadWorld = false;
     
     // Use this for initialization
     void OnEnable()
@@ -19,13 +24,15 @@ public class WorldController : MonoBehaviour
         }
         Instance = this;
 
-        // Create a world with Empty tiles
-        World = new World();
-        
-        // Center the camera
-        Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
-
-        World.RandomizeTiles();
+        if (loadWorld)
+        {
+            loadWorld = false;
+            CreateEmptyWorldFromSaveFile();
+        }
+        else
+        {
+            CreateEmptyWorld();
+        }
     }
 
     void Update()
@@ -39,5 +46,63 @@ public class WorldController : MonoBehaviour
         int y = Mathf.FloorToInt(coord.y);
 
         return World.GetTileAt(x, y);
+    }
+
+    public void NewWorld()
+    {
+        Debug.Log("NewWorld button was clicked!");
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void SaveWorld()
+    {
+        Debug.Log("SaveWorld button was clicked!");
+
+        XmlSerializer serializer = new XmlSerializer(typeof(World));
+        TextWriter writer = new StringWriter();
+        serializer.Serialize(writer, World);
+        writer.Close();
+
+        Debug.Log(writer.ToString());
+
+        PlayerPrefs.SetString("SaveGame00", writer.ToString());
+    }
+
+    public void LoadWorld()
+    {
+        Debug.Log("LoadWorld button was clicked!");
+
+        // Reload the scene to reset all data (and purge old references)
+        loadWorld = true;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void CreateEmptyWorld()
+    {
+        // Create a world with Empty tiles
+        World = new World(100, 100);
+
+        // Center the camera
+        Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
+
+        World.RandomizeTiles();
+    }
+
+    private void CreateEmptyWorldFromSaveFile()
+    {
+        Debug.Log("CreateEmptyWorldFromSaveFile");
+        // Create a world from our save file data.
+
+        XmlSerializer serializer = new XmlSerializer(typeof(World));
+        TextReader reader = new StringReader(PlayerPrefs.GetString("SaveGame00"));
+        World = (World)serializer.Deserialize(reader);
+        reader.Close();
+
+
+        // Center the camera
+        Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
+
+        //World.RandomizeTiles();
     }
 }

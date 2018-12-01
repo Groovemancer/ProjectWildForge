@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
-public class World
+public class World : IXmlSerializable
 {
     Tile[,] tiles;
-    List<Actor> actors;
+    public List<Actor> actors;
+    public List<Structure> structures;
 
     // The pathfinding graph used to navigate our world map.
     public PathTileGraph tileGraph;
@@ -29,10 +33,18 @@ public class World
     // For now, this is just a PUBLIC member of world
     public JobQueue jobQueue;
 
-    public World(int width = 100, int height = 100)
+    public World(int width, int height)
+    {
+        // Creates an empty world.
+        SetupWorld(width, height);
+
+        // Make one actor
+        Actor a = CreateActor(GetTileAt(Width / 2, Height / 2));
+    }
+
+    void SetupWorld(int width, int height)
     {
         jobQueue = new JobQueue();
-
         Width = width;
         Height = height;
 
@@ -47,16 +59,17 @@ public class World
             }
         }
 
-        Debug.Log("World created with " + (Width * Height) + " tiles.");
+        //Debug.Log("World created with " + (Width * Height) + " tiles.");
 
         CreateStructurePrototypes();
 
         actors = new List<Actor>();
+        structures = new List<Structure>();
     }
 
     public void Update(float deltaTime)
     {
-        float deltaAuts = autsPerSec* gameSpeed * deltaTime;
+        float deltaAuts = autsPerSec * gameSpeed * deltaTime;
 
         foreach (Actor a in actors)
         {
@@ -91,16 +104,16 @@ public class World
             )
         );
 
-        Debug.Log("CreateStructurePrototypes:");
-        foreach (KeyValuePair<string, Structure> kvpair in structurePrototypes)
-        {
-            Debug.Log("\tKey: " + kvpair.Key);
-        }
+        //Debug.Log("CreateStructurePrototypes:");
+        //foreach (KeyValuePair<string, Structure> kvpair in structurePrototypes)
+        //{
+        //    Debug.Log("\tKey: " + kvpair.Key);
+        //}
     }
 
     public void SetupPathfindingExample()
     {
-        Debug.Log("SetupPathfindingExample");
+        //Debug.Log("SetupPathfindingExample");
 
         int l = Width / 2 - 5;
         int b = Height / 2 - 5;
@@ -152,30 +165,34 @@ public class World
         return tiles[x, y];
     }
 
-    public void PlaceStructure(string structureType, Tile t)
+    public Structure PlaceStructure(string structureType, Tile t)
     {
         //TODO: This function assumes 1x1 tiles -- change this later!
 
         if (structurePrototypes.ContainsKey(structureType) == false)
         {
             Debug.LogError("structurePrototypes doesn't contain a proto for key: " + structureType);
-            return;
+            return null;
         }
 
-        Structure obj = Structure.PlaceInstance(structurePrototypes[structureType], t);
+        Structure structure = Structure.PlaceInstance(structurePrototypes[structureType], t);
 
-        if (obj == null)
+        if (structure == null)
         {
             // Failed to place object -- most likely there was already something there.
-            return;
+            return null;
         }
+
+        structures.Add(structure);
 
         if (cbStructureCreated != null)
         {
-            cbStructureCreated(obj);
+            cbStructureCreated(structure);
         }
 
         InvalidateTileGraph();
+
+        return structure;
     }
 
     // This should be called whenever a change to the world
@@ -231,7 +248,7 @@ public class World
         return structurePrototypes[structureType].IsValidPosition(t);
     }
 
-    public Structure GetStructurePrototype( string objType)
+    public Structure GetStructurePrototype(string objType)
     {
         if (structurePrototypes.ContainsKey(objType) == false)
         {
@@ -240,5 +257,129 @@ public class World
         }
 
         return structurePrototypes[objType];
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///                     SAVING & LOADING
+    /// 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public World()
+    {
+    }
+
+    public XmlSchema GetSchema()
+    {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        // Save info here
+        writer.WriteAttributeString("Width", Width.ToString());
+        writer.WriteAttributeString("Height", Height.ToString());
+
+        writer.WriteStartElement("Tiles");
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                writer.WriteStartElement("Tile");
+                tiles[x, y].WriteXml(writer);
+                writer.WriteEndElement();
+            }
+        }
+        writer.WriteEndElement();
+
+        writer.WriteStartElement("Structures");
+        foreach (Structure structure in structures)
+        {
+            writer.WriteStartElement("Structure");
+            structure.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+
+        writer.WriteStartElement("Actors");
+        foreach (Actor actor in actors)
+        {
+            writer.WriteStartElement("Actor");
+            actor.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+        Debug.Log("ReadXML");
+        // Load info here
+
+        Width = int.Parse(reader.GetAttribute("Width"));
+        Height = int.Parse(reader.GetAttribute("Height"));
+
+        SetupWorld(Width, Height);
+
+        while (reader.Read())
+        {
+            switch (reader.Name)
+            {
+                case "Tiles":
+                    ReadXmlTiles(reader);
+                    break;
+                case "Structures":
+                    ReadXmlStructures(reader);
+                    break;
+                case "Actors":
+                    ReadXmlActors(reader);
+                    break;
+            }
+        }
+    }
+
+    void ReadXmlTiles(XmlReader reader)
+    {
+        // We are in the "Tiles" element, so read elements until
+        // we run out of "Tile" nodes.
+        while (reader.Read())
+        {
+            if (reader.Name != "Tile")
+                return; // We are out of tiles.
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+            tiles[x, y].ReadXml(reader);
+        }
+    }
+
+    void ReadXmlStructures(XmlReader reader)
+    {
+        while (reader.Read())
+        {
+            if (reader.Name != "Structure")
+                return; // We are out of tiles.
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+
+            Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y]);
+            structure.ReadXml(reader);
+        }
+    }
+
+    void ReadXmlActors(XmlReader reader)
+    {
+        while (reader.Read())
+        {
+            if (reader.Name != "Actor")
+                return; // We are out of tiles.
+
+            int x = int.Parse(reader.GetAttribute("X"));
+            int y = int.Parse(reader.GetAttribute("Y"));
+
+            Actor actor = CreateActor(tiles[x, y]);
+            actor.ReadXml(reader);
+        }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
 // Structures are things like walls, doors, and furniture (e.g. table)
 
-public class Structure
+public class Structure : IXmlSerializable
 {
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
     // multiple tiles.
@@ -36,7 +39,7 @@ public class Structure
     // TODO: Implement larger objects
     // TODO: Implement object rotation
 
-    protected Structure() { }
+    public Structure() { }
     
     public static Structure CreatePrototype(string objectType, float movementCost = 1f,
         int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All)
@@ -97,25 +100,25 @@ public class Structure
             int y = tile.Y;
 
             t = tile.World.GetTileAt(x, y + 1);
-            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x + 1, y);
-            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x, y - 1);
-            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
             t = tile.World.GetTileAt(x - 1, y);
-            if (t != null && t.Structure != null && t.Structure.ObjectType == obj.ObjectType)
+            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
@@ -158,5 +161,33 @@ public class Structure
     public void UnregisterOnChangedCallback(Action<Structure> callbackFunc)
     {
         cbOnChanged -= callbackFunc;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///                     SAVING & LOADING
+    /// 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    public XmlSchema GetSchema()
+    {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString("X", Tile.X.ToString());
+        writer.WriteAttributeString("Y", Tile.Y.ToString());
+        writer.WriteAttributeString("objectType", ObjectType);
+        writer.WriteAttributeString("movementCost", MovementCost.ToString());
+
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+        // X, Y, and objectType has already been set, and we should already
+        // be assigned to a tile. So just read extra data.
+
+        MovementCost = float.Parse(reader.GetAttribute("movementCost"));
     }
 }

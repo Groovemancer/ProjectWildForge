@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
 [Flags]
 public enum TileType { Empty = 0x00, Dirt = 0x01, RoughStone = 0x02, Marsh = 0x04, ShallowWater = 0x08, Grass = 0x10, Floor = 0x20, All = 0x30 };
 
 [Serializable]
-public class Tile
+public class Tile : IXmlSerializable
 {
     TileType _type = TileType.Dirt;
     public TileType Type
@@ -143,6 +146,33 @@ public class Tile
         }
 
         return ns;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///                     SAVING & LOADING
+    /// 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public Tile()
+    {
+    }
+
+    public XmlSchema GetSchema()
+    {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString("X", X.ToString());
+        writer.WriteAttributeString("Y", Y.ToString());
+        writer.WriteAttributeString("Type", ((int)Type).ToString());
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+        Type = (TileType)int.Parse(reader.GetAttribute("Type"));
     }
 }
 

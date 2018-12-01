@@ -1,8 +1,11 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
-public class Actor
+public class Actor : IXmlSerializable
 {
     int x;
     int y;
@@ -23,6 +26,11 @@ public class Actor
     Action<Actor> cbActorChanged;
 
     Job myJob;
+
+    public Actor()
+    {
+        // Use only for serialization
+    }
 
     public Actor(Tile tile)
     {
@@ -84,6 +92,7 @@ public class Actor
 
     public void AbandonJob()
     {
+        Debug.Log("Abandon Job");
         nextTile = destTile = CurrTile;
         pathAStar = null;
         myJob.UnregisterJobCancelCallback(OnJobEnded);
@@ -221,5 +230,28 @@ public class Actor
         }
 
         myJob = null;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    ///                     SAVING & LOADING
+    /// 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public XmlSchema GetSchema()
+    {
+        return null;
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString("X", CurrTile.X.ToString());
+        writer.WriteAttributeString("Y", CurrTile.Y.ToString());
+
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+        
     }
 }

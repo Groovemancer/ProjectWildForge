@@ -24,8 +24,11 @@ public class ActorSpriteController : MonoBehaviour
 
         World.RegisterActorCreated(OnActorCreated);
 
-        // DEBUG
-        Actor a = World.CreateActor(World.GetTileAt(World.Width / 2, World.Height / 2));
+        // Check for pre-existing actors, which won't do the callback.
+        foreach (Actor a in World.actors)
+        {
+            OnActorCreated(a);
+        }
     }
 
     private void LoadSprites()
@@ -33,10 +36,10 @@ public class ActorSpriteController : MonoBehaviour
         actorSprites = new Dictionary<string, Sprite>();
         Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Actors");
 
-        Debug.Log("LOADED RESOURCES:");
+        //Debug.Log("LOADED RESOURCES:");
         foreach (Sprite s in sprites)
         {
-            Debug.Log(s);
+            //Debug.Log(s);
             actorSprites[s.name] = s;
         }
     }

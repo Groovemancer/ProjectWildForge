@@ -24,6 +24,11 @@ public class StructureSpriteController : MonoBehaviour
         structureGameObjectMap = new Dictionary<Structure, GameObject>();
 
         World.RegisterStructureCreated(OnStructureCreated);
+
+        foreach (Structure structure in World.structures)
+        {
+            OnStructureCreated(structure);
+        }
     }
 
     private void LoadSprites()
@@ -31,10 +36,10 @@ public class StructureSpriteController : MonoBehaviour
         structureSprites = new Dictionary<string, Sprite>();
         Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Structures");
 
-        Debug.Log("LOADED RESOURCES:");
+        //Debug.Log("LOADED RESOURCES:");
         foreach (Sprite s in sprites)
         {
-            Debug.Log(s);
+            //Debug.Log(s);
             structureSprites[s.name] = s;
         }
     }
