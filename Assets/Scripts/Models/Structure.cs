@@ -43,7 +43,7 @@ public class Structure : IXmlSerializable
 
     public bool LinksToNeighbor { get; protected set; }
 
-    Action<Structure> cbOnChanged;
+    public Action<Structure> cbOnChanged;
 
     Func<Tile, bool> funcPositionValidation;
 

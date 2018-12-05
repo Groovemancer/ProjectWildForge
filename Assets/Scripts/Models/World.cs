@@ -125,7 +125,7 @@ public class World : IXmlSerializable
 
         structurePrototypes["Door"].structureParameters["openness"] = 0f; // 0 = closed door, 1 = fully open door, in between is partially opened
         structurePrototypes["Door"].structureParameters["isOpening"] = 0;
-        structurePrototypes["Door"].structureParameters["doorOpenTime"] = 15f; // Amount of AUTs to open door
+        structurePrototypes["Door"].structureParameters["doorOpenTime"] = 25f; // Amount of AUTs to open door
         structurePrototypes["Door"].updateActions += StructureActions.Door_UpdateAction;
         structurePrototypes["Door"].IsEnterable = StructureActions.Door_IsEnterable;
     }

@@ -7,7 +7,7 @@ public static class StructureActions
     {
         if (structure.structureParameters["isOpening"] >= 1)
         {
-            Debug.Log("Door_UpdateAction: " + structure.structureParameters["openness"] + ", deltaAuts: " + deltaAuts);
+            //Debug.Log("Door_UpdateAction: " + structure.structureParameters["openness"] + ", deltaAuts: " + deltaAuts);
             structure.structureParameters["openness"] += deltaAuts;
             if (structure.structureParameters["openness"] >= structure.structureParameters["doorOpenTime"])
             {
@@ -21,11 +21,13 @@ public static class StructureActions
 
         structure.structureParameters["openness"] = Mathf.Clamp(structure.structureParameters["openness"], 0,
             structure.structureParameters["doorOpenTime"]);
+
+        structure.cbOnChanged(structure);
     }
 
     public static Enterability Door_IsEnterable(Structure structure)
     {
-        Debug.Log("Door_IsEnterable");
+        //Debug.Log("Door_IsEnterable");
         structure.structureParameters["isOpening"] = 1;
 
         if (structure.structureParameters["openness"] >= structure.structureParameters["doorOpenTime"])
