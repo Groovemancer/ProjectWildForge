@@ -178,11 +178,6 @@ public class StructureSpriteController : MonoBehaviour
             Debug.LogError("GetSpriteForStructure -- No sprites with name: " + spriteName);
             return null;
         }
-
-        Debug.Log("We hit this!");
-
-        
-
         return structureSprites[spriteName];
     }
 

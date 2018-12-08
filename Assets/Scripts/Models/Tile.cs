@@ -37,6 +37,8 @@ public class Tile : IXmlSerializable
 
     LooseObject looseObject;
 
+    public Room Room;
+
     public Structure Structure { get; protected set; }
     public Job PendingStructureJob;
 
@@ -147,13 +149,13 @@ public class Tile : IXmlSerializable
         }
 
         Tile n;
-        n = World.GetTileAt(X, Y + 1);
+        n = North();
         ns[0] = n;
-        n = World.GetTileAt(X + 1, Y);
+        n = East();
         ns[1] = n;
-        n = World.GetTileAt(X, Y - 1);
+        n = South();
         ns[2] = n;
-        n = World.GetTileAt(X - 1, Y);
+        n = West();
         ns[3] = n;
 
         if (diagOkay == true)
@@ -169,6 +171,26 @@ public class Tile : IXmlSerializable
         }
 
         return ns;
+    }
+
+    public Tile North()
+    {
+        return World.GetTileAt(X, Y + 1);
+    }
+
+    public Tile South()
+    {
+        return World.GetTileAt(X, Y - 1);
+    }
+
+    public Tile East()
+    {
+        return World.GetTileAt(X + 1, Y);
+    }
+
+    public Tile West()
+    {
+        return World.GetTileAt(X - 1, Y);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

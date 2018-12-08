@@ -11,6 +11,7 @@ public class World : IXmlSerializable
     Tile[,] tiles;
     public List<Actor> actors;
     public List<Structure> structures;
+    public List<Room> rooms;
 
     // The pathfinding graph used to navigate our world map.
     public PathTileGraph tileGraph;
@@ -42,6 +43,32 @@ public class World : IXmlSerializable
         Actor a = CreateActor(GetTileAt(Width / 2, Height / 2));
     }
 
+    public Room GetOutsideRoom()
+    {
+        return rooms[0];
+    }
+
+    public void AddRoom(Room r)
+    {
+        rooms.Add(r);
+    }
+
+    public void DeleteRoom(Room r)
+    {
+        if (r == GetOutsideRoom())
+        {
+            Debug.LogError("Tried to delete the outside room.");
+            return;
+        }
+
+        // Remove this room from our rooms list.
+        rooms.Remove(r);
+
+        // All tiles that belonged to this room should be re-assigned to
+        // the outside.
+        r.UnAssignAllTiles();
+    }
+
     void SetupWorld(int width, int height)
     {
         jobQueue = new JobQueue();
@@ -50,12 +77,16 @@ public class World : IXmlSerializable
 
         tiles = new Tile[Width, Height];
 
+        rooms = new List<Room>();
+        rooms.Add(new Room()); // Create the outside?
+
         for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
             {
                 tiles[x, y] = new Tile(this, x, y);
                 tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
+                tiles[x, y].Room = rooms[0]; // Rooms 0 is always going to be outside, and that is our default room
             }
         }
 
@@ -108,7 +139,8 @@ public class World : IXmlSerializable
                 1,      // Width
                 1,      // Height
                 true,   // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                true    // Enclose rooms
             )
         );
 
@@ -119,7 +151,8 @@ public class World : IXmlSerializable
                 1,      // Width
                 1,      // Height
                 false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                true    // Enclose rooms
             )
         );
 
@@ -204,12 +237,18 @@ public class World : IXmlSerializable
 
         structures.Add(structure);
 
+        // Do we need to recalculate our rooms?
+        if (structure.RoomEnclosure)
+        {
+            Room.DoRoomFloodFill(structure);
+        }
+
         if (cbStructureCreated != null)
         {
             cbStructureCreated(structure);
         }
 
-        InvalidateTileGraph();
+        InvalidateTileGraph(); // Reset the pathfinding system
 
         return structure;
     }

@@ -22,6 +22,21 @@ public class MouseController : MonoBehaviour
         dragPreviewGameObjects = new List<GameObject>();
     }
 
+    /// <summary>
+    /// Gets the mouse position in world space.
+    /// </summary>
+    public Vector3 GetMousePosition()
+    {
+        return currFramePosition;
+    }
+
+    public Tile GetMouseOverTile()
+    {
+        return WorldController.Instance.World.GetTileAt(
+            Mathf.FloorToInt(currFramePosition.x),
+            Mathf.FloorToInt(currFramePosition.y));
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -55,9 +70,9 @@ public class MouseController : MonoBehaviour
         }
 
         int start_x = Mathf.FloorToInt(dragStartPosition.x);
-        int end_x   = Mathf.FloorToInt(currFramePosition.x);
+        int end_x = Mathf.FloorToInt(currFramePosition.x);
         int start_y = Mathf.FloorToInt(dragStartPosition.y);
-        int end_y   = Mathf.FloorToInt(currFramePosition.y);
+        int end_y = Mathf.FloorToInt(currFramePosition.y);
 
         // We may be dragging in the "wrong" direction, so flip things if needed
         if (end_x < start_x)
@@ -103,8 +118,6 @@ public class MouseController : MonoBehaviour
         // End Drag
         if (Input.GetMouseButtonUp(0))
         {
-            
-
             for (int x = start_x; x <= end_x; x++)
             {
                 for (int y = start_y; y <= end_y; y++)

@@ -37,6 +37,8 @@ public class Structure : IXmlSerializable
     // SPECIAL: If movementCost = 0, then this tile is impassable. (e.g. a wall).
     public float MovementCost { get; protected set; }
 
+    public bool RoomEnclosure { get; protected set; }
+
     // For example, a sofa might be a 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room
     int width;
     int height;
@@ -61,6 +63,7 @@ public class Structure : IXmlSerializable
     {
         this.ObjectType = other.ObjectType;
         this.MovementCost = other.MovementCost;
+        this.RoomEnclosure = other.RoomEnclosure;
         this.width = other.width;
         this.height = other.height;
         this.LinksToNeighbor = other.LinksToNeighbor;
@@ -81,10 +84,12 @@ public class Structure : IXmlSerializable
 
     // Create structure from parameters -- this will probably ONLY ever be used for prototype
     public Structure(string objectType, float movementCost = 1f,
-        int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All)
+        int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All,
+        bool roomEnclosure = false)
     {
         this.ObjectType = objectType;
         this.MovementCost = movementCost;
+        this.RoomEnclosure = roomEnclosure;
         this.width = width;
         this.height = height;
         this.LinksToNeighbor = linksToNeighbor;
