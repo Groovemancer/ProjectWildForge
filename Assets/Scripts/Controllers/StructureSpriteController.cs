@@ -110,17 +110,17 @@ public class StructureSpriteController : MonoBehaviour
             // FIXME: All this hardcoding needs to be generalized later
             if (strct.ObjectType == "Door")
             {
-                if (strct.structureParameters["openness"] < 0.1f)
+                if (strct.GetParameter("openness") < 0.1f)
                 {
                     // Door is closed
                     spriteName = "Door";
                 }
-                else if (strct.structureParameters["openness"] < 0.5f)
+                else if (strct.GetParameter("openness") < 0.5f)
                 {
                     // Door is a bit open
                     spriteName = "Door_openness_1";
                 }
-                else if (strct.structureParameters["openness"] < 0.9f)
+                else if (strct.GetParameter("openness") < 0.9f)
                 {
                     // Door is a lot open
                     spriteName = "Door_openness_2";

@@ -40,7 +40,7 @@ public class World : IXmlSerializable
         SetupWorld(width, height);
 
         // Make one actor
-        Actor a = CreateActor(GetTileAt(Width / 2, Height / 2));
+        CreateActor(GetTileAt(Width / 2, Height / 2));
     }
 
     public Room GetOutsideRoom()
@@ -156,10 +156,10 @@ public class World : IXmlSerializable
             )
         );
 
-        structurePrototypes["Door"].structureParameters["openness"] = 0f; // 0 = closed door, 1 = fully open door, in between is partially opened
-        structurePrototypes["Door"].structureParameters["isOpening"] = 0;
-        structurePrototypes["Door"].structureParameters["doorOpenTime"] = 25f; // Amount of AUTs to open door
-        structurePrototypes["Door"].updateActions += StructureActions.Door_UpdateAction;
+        structurePrototypes["Door"].SetParameter("openness", 0f); // 0 = closed door, 1 = fully open door, in between is partially opened
+        structurePrototypes["Door"].SetParameter("isOpening", 0);
+        structurePrototypes["Door"].SetParameter("doorOpenTime", 25f); // Amount of AUTs to open door
+        structurePrototypes["Door"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
         structurePrototypes["Door"].IsEnterable = StructureActions.Door_IsEnterable;
     }
 
@@ -240,7 +240,8 @@ public class World : IXmlSerializable
         // Do we need to recalculate our rooms?
         if (structure.RoomEnclosure)
         {
-            Room.DoRoomFloodFill(structure);
+            // TODO: Not sure if I'll be using rooms just yet.
+            //Room.DoRoomFloodFill(structure);
         }
 
         if (cbStructureCreated != null)

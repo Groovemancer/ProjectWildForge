@@ -38,7 +38,7 @@ public class MouseOverStructureTypeText : MonoBehaviour
         Tile t = mouseController.GetMouseOverTile();
 
         string s = "NULL";
-        if (t.Structure != null)
+        if (t != null && t.Structure != null)
         {
             s = t.Structure.ObjectType;
         }

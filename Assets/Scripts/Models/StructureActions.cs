@@ -5,22 +5,22 @@ public static class StructureActions
 {
     public static void Door_UpdateAction(Structure structure, float deltaAuts)
     {
-        if (structure.structureParameters["isOpening"] >= 1)
+        if (structure.GetParameter("isOpening") >= 1)
         {
-            //Debug.Log("Door_UpdateAction: " + structure.structureParameters["openness"] + ", deltaAuts: " + deltaAuts);
-            structure.structureParameters["openness"] += deltaAuts;
-            if (structure.structureParameters["openness"] >= structure.structureParameters["doorOpenTime"])
+            //Debug.Log("Door_UpdateAction: " + structure.GetParameter("openness") + ", deltaAuts: " + deltaAuts);
+            structure.ChangeParameter("openness", deltaAuts);
+            if (structure.GetParameter("openness") >= structure.GetParameter("doorOpenTime"))
             {
-                structure.structureParameters["isOpening"] = 0;
+                structure.SetParameter("isOpening", 0);
             }
         }
         else
         {
-            structure.structureParameters["openness"] -= deltaAuts;
+            structure.ChangeParameter("openness", -deltaAuts);
         }
 
-        structure.structureParameters["openness"] = Mathf.Clamp(structure.structureParameters["openness"], 0,
-            structure.structureParameters["doorOpenTime"]);
+        structure.SetParameter("openness", Mathf.Clamp(structure.GetParameter("openness"), 0,
+            structure.GetParameter("doorOpenTime")));
 
         structure.cbOnChanged(structure);
     }
@@ -28,9 +28,9 @@ public static class StructureActions
     public static Enterability Door_IsEnterable(Structure structure)
     {
         //Debug.Log("Door_IsEnterable");
-        structure.structureParameters["isOpening"] = 1;
+        structure.SetParameter("isOpening", 1);
 
-        if (structure.structureParameters["openness"] >= structure.structureParameters["doorOpenTime"])
+        if (structure.GetParameter("openness") >= structure.GetParameter("doorOpenTime"))
         {
             return Enterability.Yes;
         }

@@ -137,6 +137,9 @@ public class Room
             }
         }
 
+        // TODO: Copy data from old room to new room
+        // newRoom.data = oldRoom.data;
+
         // Tell the world that a new room has been formed.
         tile.World.AddRoom(newRoom);
     }

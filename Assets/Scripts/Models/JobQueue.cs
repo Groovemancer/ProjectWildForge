@@ -17,7 +17,6 @@ public class JobQueue
     {
         jobQueue.Enqueue(j);
 
-        // TODO: Callbacks
         if (cbJobCreated != null)
             cbJobCreated(j);
     }

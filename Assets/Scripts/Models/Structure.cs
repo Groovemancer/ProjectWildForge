@@ -10,8 +10,19 @@ using UnityEngine;
 
 public class Structure : IXmlSerializable
 {
-    public Dictionary<string, float> structureParameters;
-    public Action<Structure, float> updateActions;
+    /// <summary>
+    /// Custom parameters for this particular structure. We
+    /// are using a dictionary because later, custom Lua functions will
+    /// be able to use whatever parameters teh user/modder would like.
+    /// Basically, the Lua code will bind to this dictionary.
+    /// </summary>
+    protected Dictionary<string, float> structureParameters;
+
+    /// <summary>
+    /// These actions are called every update. They get passed the structure
+    /// they belong to, plus a deltaTime.
+    /// </summary>
+    protected Action<Structure, float> updateActions;
 
     public Func<Structure, Enterability> IsEnterable;
 
@@ -58,7 +69,8 @@ public class Structure : IXmlSerializable
         structureParameters = new Dictionary<string, float>();
     }
 
-    // Copy Constructor
+    // Copy Constructor -- don't call this directly, unless we never
+    // do ANY sub-classing. Instead use Clone(), which is more virtual.
     protected Structure(Structure other)
     {
         this.ObjectType = other.ObjectType;
@@ -77,6 +89,9 @@ public class Structure : IXmlSerializable
         this.IsEnterable = other.IsEnterable;
     }
 
+    // Make a copy of the current structure. Sub-classes should
+    // override this Clone() if a different (sub-classed) copy
+    // constructor should be run.
     public virtual Structure Clone()
     {
         return new Structure(this);
@@ -95,7 +110,7 @@ public class Structure : IXmlSerializable
         this.LinksToNeighbor = linksToNeighbor;
         this.AllowedTileTypes = allowedTileTypes;
 
-        this.funcPositionValidation = this.__IsValidPosition;
+        this.funcPositionValidation = this.DefaulIsValidPosition;
 
         structureParameters = new Dictionary<string, float>();
     }
@@ -167,7 +182,11 @@ public class Structure : IXmlSerializable
 
     // FIXME: These functions should never be called directly,
     // so they probably shouldn't be public functions
-    public bool __IsValidPosition(Tile t)
+    // This will be replaced by validation checks fed to us from
+    // Lua files that will be customizable for each structure.
+    // For example, a door might specify that it needs two walls
+    // to connect to.
+    protected bool DefaulIsValidPosition(Tile t)
     {
         Debug.Log("AllowedTypes: " + AllowedTileTypes);
         // Make sure tile is of allowed types
@@ -175,6 +194,12 @@ public class Structure : IXmlSerializable
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
         {
             Debug.Log("Old IsValidPosition: false");
+            return false;
+        }
+
+        // Make sure tile doesn't already have a structure
+        if (t.Structure != null)
+        {
             return false;
         }
 
@@ -199,7 +224,46 @@ public class Structure : IXmlSerializable
         cbOnChanged -= callbackFunc;
     }
 
+    /// <summary>
+    /// Gets the custom structure parameter from a string key.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <returns></returns>
+    public float GetParameter(string key, float defaultValue = 0)
+    {
+        if (structureParameters.ContainsKey(key) == false)
+        {
+            return defaultValue;
+        }
+        return structureParameters[key];
+    }
 
+    public void SetParameter(string key, float value)
+    {
+        structureParameters[key] = value;
+    }
+
+    public void ChangeParameter(string key, float value)
+    {
+        if (structureParameters.ContainsKey(key))
+            structureParameters[key] += value;
+    }
+
+    /// <summary>
+    /// Registers a function that will be called every Update.
+    /// </summary>
+    public void RegisterUpdateAction(Action<Structure, float> a)
+    {
+        updateActions += a;
+    }
+
+    public void UnregisterUpdateAction(Action<Structure, float> a)
+    {
+        updateActions -= a;
+    }
+
+    #region Saving & Loading
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///
@@ -244,4 +308,6 @@ public class Structure : IXmlSerializable
             } while (reader.ReadToNextSibling("Param"));
         }
     }
+
+    #endregion
 }
