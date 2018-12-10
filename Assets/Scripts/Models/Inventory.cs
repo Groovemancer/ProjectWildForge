@@ -7,5 +7,27 @@ using UnityEngine;
 
 public class Inventory
 {
+    public string objectType = "RawStone";
+    public int maxStackSize = 64;
+    public int stackSize = 1;
 
+    public Tile tile;
+    public Actor actor;
+
+    public Inventory()
+    {
+
+    }
+
+    protected Inventory(Inventory other)
+    {
+        objectType      = other.objectType;
+        maxStackSize    = other.maxStackSize;
+        stackSize       = other.stackSize;
+    }
+
+    public virtual Inventory Clone()
+    {
+        return new Inventory(this);
+    }
 }

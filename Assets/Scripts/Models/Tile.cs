@@ -35,7 +35,7 @@ public class Tile : IXmlSerializable
     // The function we callback any time our tile data changes
     Action<Tile> cbTileChanged;
 
-    Inventory inventory;
+    public Inventory Inventory { get; protected set; }
 
     public Room Room;
 
@@ -106,12 +106,58 @@ public class Tile : IXmlSerializable
         // objInstance isn't null
         if (Structure != null)
         {
-            Debug.LogError("Trying to assign an structure to a tile that already has one!");
+            Debug.LogError("Trying to assign a structure to a tile that already has one!");
             return false;
         }
 
         // At this point, everything's fine!
         Structure = objInstance;
+        return true;
+    }
+
+    public bool PlaceInventory(Inventory inv)
+    {
+        if (inv == null)
+        {
+            Inventory = null;
+            return true;
+        }
+
+        if (Inventory != null)
+        {
+            // There's already inventory here. Maybe we can combine a stack?
+
+            if (Inventory.objectType != inv.objectType)
+            {
+                Debug.LogError("Trying to assign inventory to a tile that already has some of a different type!");
+                return false;
+            }
+
+            if (Inventory.stackSize + inv.stackSize > inv.maxStackSize)
+            {
+                Debug.LogError("Trying to assign inventory to a tile that would exceed max stack size!");
+                return false;
+            }
+
+            int numToMove = inv.stackSize;
+            if (Inventory.stackSize + inv.stackSize > Inventory.maxStackSize)
+            {
+                numToMove = Inventory.maxStackSize - Inventory.stackSize;
+            }
+
+            Inventory.stackSize += numToMove;
+            inv.stackSize -= numToMove;
+
+            return true;
+        }
+
+        // At this point, we know that our current inventory is actually
+        // null. Now we can't just do a direct assignment, because
+        // the inventory manager needs to know that the old stack is now
+        // empty and has to be removed from the previous lists.
+        Inventory = inv.Clone();
+        Inventory.tile = this;
+        inv.stackSize = 0;
         return true;
     }
 

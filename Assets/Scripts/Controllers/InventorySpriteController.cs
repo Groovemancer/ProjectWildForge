@@ -1,0 +1,93 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class InventorySpriteController : MonoBehaviour
+{
+
+    Dictionary<Inventory, GameObject> inventoryGameObjectMap;
+
+    Dictionary<string, Sprite> inventorySprites;
+
+    World World
+    {
+        get { return WorldController.Instance.World; }
+    }
+
+    // Use this for initialization
+    void Start()
+    {
+        LoadSprites();
+
+        // Instantiate our dictionary that tracks which GameObject is rendering which Tile data.
+        inventoryGameObjectMap = new Dictionary<Inventory, GameObject>();
+
+        World.RegisterInventoryCreated(OnInventoryCreated);
+
+        // Check for pre-existing inventorys, which won't do the callback.
+        foreach (string objectType in World.inventoryManager.inventories.Keys)
+        {
+            foreach (Inventory inv in World.inventoryManager.inventories[objectType])
+            {
+                OnInventoryCreated(inv);
+            }
+        }
+    }
+
+    private void LoadSprites()
+    {
+        inventorySprites = new Dictionary<string, Sprite>();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Inventory");
+
+        Debug.Log("LOADED RESOURCES:");
+        foreach (Sprite s in sprites)
+        {
+            Debug.Log(s);
+            inventorySprites[s.name] = s;
+        }
+    }
+
+    public void OnInventoryCreated(Inventory inv)
+    {
+        Debug.Log("Created item: " + inv.objectType);
+        // Create a visual GameObject linked to this data.
+
+        // FIXME: Does not consider multi-tile objects nor rotated objects
+
+        GameObject inv_go = new GameObject();
+
+        // Add our tile/GO pair to the dictionary.
+        inventoryGameObjectMap.Add(inv, inv_go);
+
+        inv_go.name = inv.objectType;
+        inv_go.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
+        inv_go.transform.SetParent(this.transform, true);
+
+        // FIXME: We assume that the object must be a wall, so use
+        // the hardcoded reference to the wall sprite
+        SpriteRenderer spr = inv_go.AddComponent<SpriteRenderer>();
+        spr.sprite = inventorySprites[inv.objectType];
+        spr.sortingLayerName = "Inventory";
+
+        // Register our callback so that our GameObject gets updated whenever
+        // the object's info changes.
+        // FIXME: Add on changed callbacks
+        //inv.RegisterOnChangedCallback(OnActorChanged);
+    }
+
+    void OnActorChanged(Inventory inventory)
+    {
+        // FIXME: Still needs to work! And get called!
+
+        // Make sure the inventory's graphics are correct.
+        if (inventoryGameObjectMap.ContainsKey(inventory) == false)
+        {
+            Debug.LogError("OnActorChanged -- trying to change visuals for inventory not in our map.");
+            return;
+        }
+        GameObject inventory_go = inventoryGameObjectMap[inventory];
+        //inventory_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(obj);
+
+        inventory_go.transform.position = new Vector3(inventory.tile.X, inventory.tile.Y, 0);
+    }
+}

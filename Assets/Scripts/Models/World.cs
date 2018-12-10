@@ -9,9 +9,10 @@ using UnityEngine;
 public class World : IXmlSerializable
 {
     Tile[,] tiles;
-    public List<Actor> actors;
-    public List<Structure> structures;
-    public List<Room> rooms;
+    public List<Actor>      actors;
+    public List<Structure>  structures;
+    public List<Room>       rooms;
+    public InventoryManager inventoryManager;
 
     // The pathfinding graph used to navigate our world map.
     public PathTileGraph tileGraph;
@@ -24,6 +25,7 @@ public class World : IXmlSerializable
     Action<Structure> cbStructureCreated;
     Action<Tile> cbTileObjectChanged;
     Action<Actor> cbActorCreated;
+    Action<Inventory> cbInventoryCreated;
 
     float gameSpeed = 1.0f;
     float autsPerSec = 100f;
@@ -41,6 +43,14 @@ public class World : IXmlSerializable
 
         // Make one actor
         CreateActor(GetTileAt(Width / 2, Height / 2));
+    }
+
+    /// <summary>
+    /// Default constructor, used when loading a file.
+    /// </summary>
+    public World()
+    {
+
     }
 
     public Room GetOutsideRoom()
@@ -94,8 +104,9 @@ public class World : IXmlSerializable
 
         CreateStructurePrototypes();
 
-        actors = new List<Actor>();
-        structures = new List<Structure>();
+        actors              = new List<Actor>();
+        structures          = new List<Structure>();
+        inventoryManager    = new InventoryManager();
     }
 
     public void Update(float deltaTime)
@@ -254,6 +265,8 @@ public class World : IXmlSerializable
         return structure;
     }
 
+    
+
     // This should be called whenever a change to the world
     // means that our old pathfinding info is invalid
     public void InvalidateTileGraph()
@@ -279,6 +292,16 @@ public class World : IXmlSerializable
     public void UnregisterActorCreated(Action<Actor> callbackfunc)
     {
         cbActorCreated -= callbackfunc;
+    }
+
+    public void RegisterInventoryCreated(Action<Inventory> callbackfunc)
+    {
+        cbInventoryCreated += callbackfunc;
+    }
+
+    public void UnregisterInventoryCreated(Action<Inventory> callbackfunc)
+    {
+        cbInventoryCreated -= callbackfunc;
     }
 
     public void RegisterTileChanged(Action<Tile> callbackfunc)
@@ -324,9 +347,7 @@ public class World : IXmlSerializable
     /// 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public World()
-    {
-    }
+    
 
     public XmlSchema GetSchema()
     {
@@ -397,6 +418,35 @@ public class World : IXmlSerializable
                     ReadXmlActors(reader);
                     break;
             }
+        }
+
+        // DEBUGGING ONLY! REMOVE ME LATER!
+        // Create an Inventory Item
+        Inventory inv = new Inventory();
+        inv.stackSize = 10;
+        Tile t = GetTileAt(Width / 2, Height / 2);
+        inventoryManager.PlaceInventory(t, inv);
+        if (cbInventoryCreated != null)
+        {
+            cbInventoryCreated(t.Inventory);
+        }
+
+        inv = new Inventory();
+        inv.stackSize = 18;
+        t = GetTileAt(Width / 2 + 2, Height / 2);
+        inventoryManager.PlaceInventory(t, inv);
+        if (cbInventoryCreated != null)
+        {
+            cbInventoryCreated(t.Inventory);
+        }
+
+        inv = new Inventory();
+        inv.stackSize = 34;
+        t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
+        inventoryManager.PlaceInventory(t, inv);
+        if (cbInventoryCreated != null)
+        {
+            cbInventoryCreated(t.Inventory);
         }
     }
 
