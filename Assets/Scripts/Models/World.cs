@@ -27,6 +27,11 @@ public class World : IXmlSerializable
     Action<Actor> cbActorCreated;
     Action<Inventory> cbInventoryCreated;
 
+    const float PAUSE_GAME_SPEED        = 0.0f;
+    const float NORMAL_GAME_SPEED       = 1.0f;
+    const float FAST_GAME_SPEED         = 2.0f;
+    const float VERY_FAST_GAME_SPEED    = 3.0f;
+
     float gameSpeed = 1.0f;
     float autsPerSec = 100f;
 
@@ -121,6 +126,25 @@ public class World : IXmlSerializable
         foreach (Structure s in structures)
         {
             s.Update(deltaAuts);
+        }
+    }
+
+    public void SetGameSpeed(GameSpeed desiredSpeed)
+    {
+        switch (desiredSpeed)
+        {
+            case GameSpeed.Pause:
+                gameSpeed = PAUSE_GAME_SPEED;
+                break;
+            case GameSpeed.Normal:
+                gameSpeed = NORMAL_GAME_SPEED;
+                break;
+            case GameSpeed.Fast:
+                gameSpeed = FAST_GAME_SPEED;
+                break;
+            case GameSpeed.VeryFast:
+                gameSpeed = VERY_FAST_GAME_SPEED;
+                break;
         }
     }
 

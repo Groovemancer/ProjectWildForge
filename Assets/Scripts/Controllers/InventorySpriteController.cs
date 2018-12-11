@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventorySpriteController : MonoBehaviour
 {
+    public GameObject inventoryUIPrefab;
 
     Dictionary<Inventory, GameObject> inventoryGameObjectMap;
 
@@ -39,10 +41,10 @@ public class InventorySpriteController : MonoBehaviour
         inventorySprites = new Dictionary<string, Sprite>();
         Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Inventory");
 
-        Debug.Log("LOADED RESOURCES:");
+        //Debug.Log("LOADED RESOURCES:");
         foreach (Sprite s in sprites)
         {
-            Debug.Log(s);
+            //Debug.Log(s);
             inventorySprites[s.name] = s;
         }
     }
@@ -68,6 +70,17 @@ public class InventorySpriteController : MonoBehaviour
         SpriteRenderer spr = inv_go.AddComponent<SpriteRenderer>();
         spr.sprite = inventorySprites[inv.objectType];
         spr.sortingLayerName = "Inventory";
+
+        if (inv.maxStackSize > 1)
+        {
+            // This is a stackable object, so let's add a InventoryUI component
+            // (which is text that shows the current stackSize.)
+
+            GameObject ui_go = Instantiate(inventoryUIPrefab);
+            ui_go.transform.SetParent(inv_go.transform);
+            ui_go.transform.localPosition = new Vector3(0.5f, 0.5f, 0);     // If we change the sprite anchor, this may need to be modified.
+            ui_go.GetComponentInChildren<Text>().text = inv.stackSize.ToString();
+        }
 
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.

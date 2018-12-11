@@ -73,7 +73,7 @@ public class StructureSpriteController : MonoBehaviour
                 northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")
             {
                 strct_go.transform.rotation = Quaternion.Euler(0, 0, 90);
-                strct_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!
+                //strct_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!
             }
         }
 

@@ -47,11 +47,14 @@ TagManager:
   - name: Structures
     uniqueID: 223915675
     locked: 0
+  - name: Jobs
+    uniqueID: 2018631631
+    locked: 0
   - name: Inventory
     uniqueID: 1202429365
     locked: 0
-  - name: Jobs
-    uniqueID: 2018631631
+  - name: InventoryUI
+    uniqueID: 309522997
     locked: 0
   - name: Actors
     uniqueID: 989739271

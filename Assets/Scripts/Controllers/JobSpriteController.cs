@@ -62,7 +62,7 @@ public class JobSpriteController : MonoBehaviour
                 northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")
             {
                 job_go.transform.rotation = Quaternion.Euler(0, 0, 90);
-                job_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!
+                //job_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!
             }
         }
 

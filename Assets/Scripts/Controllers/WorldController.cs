@@ -40,10 +40,15 @@ public class WorldController : MonoBehaviour
         World.Update(Time.deltaTime);
     }
 
+    public void SetGameSpeed(GameSpeed gameSpeed)
+    {
+        World.SetGameSpeed(gameSpeed);
+    }
+
     public Tile GetTileAtWorldCoord(Vector3 coord)
     {
-        int x = Mathf.FloorToInt(coord.x);
-        int y = Mathf.FloorToInt(coord.y);
+        int x = Mathf.FloorToInt(coord.x + 0.5f);
+        int y = Mathf.FloorToInt(coord.y + 0.5f);
 
         return World.GetTileAt(x, y);
     }
