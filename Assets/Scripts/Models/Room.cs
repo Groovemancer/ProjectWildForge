@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 public class Room
 {
     List<Tile> tiles;
+
+    static int floodIterations = 0;
 
     public Room()
     {
@@ -51,10 +54,13 @@ public class Room
         foreach (Tile t in sourceStruct.Tile.GetNeighbors())
         {
             FloodFill(t, oldRoom);
+            //NewFloodFill(t, oldRoom);
         }
 
         sourceStruct.Tile.Room = null;
         oldRoom.tiles.Remove(sourceStruct.Tile);
+
+        Debug.Log("Flood Fill iterations: " + floodIterations);
 
         // If this structure was added to an existing room
         // (which should always be true assuming with consider "outside"
@@ -63,7 +69,7 @@ public class Room
 
         // We know all tiles now point to another room so we can just force the old
         // rooms tiles list to be blank.
-        
+
         if (oldRoom != world.GetOutsideRoom())
         {
             // At this point, oldRoom shouldn't have any more tiles left in it,
@@ -101,7 +107,7 @@ public class Room
             // we can't do a room here.
             return;
         }
-        
+
         // If we get to this point, then we know that we need to create a new room.
         Room newRoom = new Room();
         Queue<Tile> tilesToCheck = new Queue<Tile>();
@@ -133,6 +139,7 @@ public class Room
                     {
                         tilesToCheck.Enqueue(t2);
                     }
+                    floodIterations++;
                 }
             }
         }
@@ -141,6 +148,83 @@ public class Room
         // newRoom.data = oldRoom.data;
 
         // Tell the world that a new room has been formed.
+        tile.World.AddRoom(newRoom);
+    }
+
+    private static void NewFloodFill(Tile tile, Room oldRoom)
+    {
+        if (tile == null)
+        {
+            // We are trying to flood fill off the map, so just return
+            // without doing anything.
+            return;
+        }
+
+        if (tile.Room != oldRoom)
+        {
+            // This tile was already assigned to another "new" room, which means
+            // that the direction picked isn't isolated. So we can just return
+            // without creating a new room.
+            return;
+        }
+        if (tile.Structure != null && tile.Structure.RoomEnclosure)
+        {
+            // This tile has a wall/door/whatever in it, so clearly
+            // we can't do a room here.
+            return;
+        }
+        Room newRoom = new Room();
+        int x = tile.X;
+        int y = tile.Y;
+
+        int maxX = tile.World.Tiles.GetLength(0) - 1;
+        int maxY = tile.World.Tiles.GetLength(1) - 1;
+        Debug.Log("MaxX: " + maxX + ", MaxY: " + maxY);
+        int[,] stack = new int[(maxX + 1) * (maxY + 1), 2];
+        int index = 0;
+        stack[0, 0] = x;
+        stack[0, 1] = y;
+        tile.World.Tiles[x, y].Room = newRoom;
+
+        while (index >= 0)
+        {
+            x = stack[index, 0];
+            y = stack[index, 1];
+            index--;
+
+            if ((x > 0) && (tile.World.Tiles[x - 1, y].Room == oldRoom))
+            {
+                tile.World.Tiles[x - 1, y].Room = newRoom;
+                index++;
+                stack[index, 0] = x - 1;
+                stack[index, 1] = y;
+            }
+
+            if ((x < maxX) && (tile.World.Tiles[x + 1, y].Room == oldRoom))
+            {
+                tile.World.Tiles[x + 1, y].Room = newRoom;
+                index++;
+                stack[index, 0] = x + 1;
+                stack[index, 1] = y;
+            }
+
+            if ((y > 0) && (tile.World.Tiles[x, y - 1].Room == oldRoom))
+            {
+                tile.World.Tiles[x, y - 1].Room = newRoom;
+                index++;
+                stack[index, 0] = x;
+                stack[index, 1] = y - 1;
+            }
+
+            if ((y < maxY) && (tile.World.Tiles[x, y + 1].Room == oldRoom))
+            {
+                tile.World.Tiles[x, y + 1].Room = newRoom;
+                index++;
+                stack[index, 0] = x;
+                stack[index, 1] = y + 1;
+            }
+        }
+
         tile.World.AddRoom(newRoom);
     }
 }

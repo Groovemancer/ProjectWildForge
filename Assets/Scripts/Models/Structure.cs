@@ -188,12 +188,12 @@ public class Structure : IXmlSerializable
     // to connect to.
     protected bool DefaulIsValidPosition(Tile t)
     {
-        Debug.Log("AllowedTypes: " + AllowedTileTypes);
+        //Debug.Log("AllowedTypes: " + AllowedTileTypes);
         // Make sure tile is of allowed types
         // Make sure tile doesn't already have structure
         if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
         {
-            Debug.Log("Old IsValidPosition: false");
+            //Debug.Log("Old IsValidPosition: false");
             return false;
         }
 
@@ -203,7 +203,7 @@ public class Structure : IXmlSerializable
             return false;
         }
 
-        Debug.Log("Old IsValidPosition: true");
+        //Debug.Log("Old IsValidPosition: true");
         return true;
     }
 

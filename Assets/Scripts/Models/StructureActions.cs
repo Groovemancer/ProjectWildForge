@@ -37,4 +37,10 @@ public static class StructureActions
 
         return Enterability.Soon;
     }
+
+    public static void JobComplete_StructureBuilding(Job theJob)
+    {
+        WorldController.Instance.World.PlaceStructure(theJob.jobObjectType, theJob.Tile);
+        theJob.Tile.PendingStructureJob = null;
+    }
 }

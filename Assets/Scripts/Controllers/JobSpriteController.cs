@@ -26,7 +26,6 @@ public class JobSpriteController : MonoBehaviour
     {
         // FIXME: We can only do structure-building jobs.
 
-        // TODO: Sprite
         if (jobGameObjectMap.ContainsKey(job))
         {
             Debug.LogError("OnJobCreated for a jobGO that already exists -- most likely a job being RE-QUEUED as opposed to created.");

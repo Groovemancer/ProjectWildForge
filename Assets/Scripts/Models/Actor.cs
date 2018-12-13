@@ -48,6 +48,13 @@ public class Actor : IXmlSerializable
             if (myJob != null)
             {
                 // We have a job!
+
+                // TODO: Check to see if the job is REACHABLE!
+
+                // TODO: Does the job still need materials?
+                //       If so, we need to go fetch them, rather than
+                //       just walk to the job site.
+
                 destTile = myJob.Tile;
                 myJob.RegisterJobCompleteCallback(OnJobEnded);
                 myJob.RegisterJobCancelCallback(OnJobEnded);
@@ -57,6 +64,10 @@ public class Actor : IXmlSerializable
         // We are at our destination
         if (CurrTile == destTile)
         {
+            // We are at the correct tile for our job, so
+            // execute the job's "DoWork", which is mostly
+            // going to countdown jobTime and potentially
+            // call its "Job Complete" callback.
             if (myJob != null)
             {
                 if (actionPoints >= workCost)

@@ -19,6 +19,13 @@ public class Inventory
 
     }
 
+    public Inventory(string objectType, int maxStackSize, int stackSize)
+    {
+        this.objectType = objectType;
+        this.maxStackSize = maxStackSize;
+        this.stackSize = stackSize;
+    }
+
     protected Inventory(Inventory other)
     {
         objectType      = other.objectType;

@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Job
 {
@@ -8,7 +9,7 @@ public class Job
     // things like placing structures, moving stored loose items
     // working at a desk, and maybe even fighting enemies.
 
-    public Tile Tile { get; protected set; }
+    public Tile Tile;// { get; protected set; }
 
     float jobCost;
 
@@ -21,12 +22,47 @@ public class Job
     Action<Job> cbJobComplete;
     Action<Job> cbJobCancel;
 
-    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobCost = 100f)
+    Dictionary<string, Inventory> inventoryRequirements;
+
+    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobCost, Inventory[] invReqs)
     {
         this.Tile = tile;
         this.jobObjectType = jobObjectType;
         this.cbJobComplete += cbJobComplete;
         this.jobCost = jobCost;
+
+        inventoryRequirements = new Dictionary<string, Inventory>();
+
+        if (invReqs != null)
+        {
+            foreach (Inventory inv in invReqs)
+            {
+                inventoryRequirements[inv.objectType] = inv.Clone();
+            }
+        }
+    }
+
+    protected Job(Job other)
+    {
+        this.Tile = other.Tile;
+        this.jobObjectType = other.jobObjectType;
+        this.cbJobComplete += other.cbJobComplete;
+        this.jobCost = other.jobCost;
+
+        this.inventoryRequirements = new Dictionary<string, Inventory>();
+
+        if (other.inventoryRequirements != null)
+        {
+            foreach (Inventory inv in other.inventoryRequirements.Values)
+            {
+                this.inventoryRequirements[inv.objectType] = inv.Clone();
+            }
+        }
+    }
+
+    public virtual Job Clone()
+    {
+        return new Job(this);
     }
 
     public void DoWork(float workCost)

@@ -8,7 +8,13 @@ using UnityEngine;
 
 public class World : IXmlSerializable
 {
-    Tile[,] tiles;
+    public Tile[,] Tiles { get; protected set; }
+
+    public Tile[,] GetTiles()
+    {
+        return Tiles;
+    }
+
     public List<Actor>      actors;
     public List<Structure>  structures;
     public List<Room>       rooms;
@@ -18,6 +24,7 @@ public class World : IXmlSerializable
     public PathTileGraph tileGraph;
 
     Dictionary<string, Structure> structurePrototypes;
+    public Dictionary<string, Job> structureJobPrototypes;
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
@@ -90,7 +97,7 @@ public class World : IXmlSerializable
         Width = width;
         Height = height;
 
-        tiles = new Tile[Width, Height];
+        Tiles = new Tile[Width, Height];
 
         rooms = new List<Room>();
         rooms.Add(new Room()); // Create the outside?
@@ -99,9 +106,9 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                tiles[x, y] = new Tile(this, x, y);
-                tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
-                tiles[x, y].Room = rooms[0]; // Rooms 0 is always going to be outside, and that is our default room
+                Tiles[x, y] = new Tile(this, x, y);
+                Tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
+                Tiles[x, y].Room = rooms[0]; // Rooms 0 is always going to be outside, and that is our default room
             }
         }
 
@@ -166,6 +173,7 @@ public class World : IXmlSerializable
         // from a text file in the future
 
         structurePrototypes = new Dictionary<string, Structure>();
+        structureJobPrototypes = new Dictionary<string, Job>();
 
         structurePrototypes.Add("Wall",
             new Structure(
@@ -176,6 +184,15 @@ public class World : IXmlSerializable
                 true,   // Links to neighbors and "sort of" becomes part of a large object
                 TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
                 true    // Enclose rooms
+            )
+        );
+
+        structureJobPrototypes.Add("Wall",
+            new Job(null, "Wall", StructureActions.JobComplete_StructureBuilding,
+            300,
+            new Inventory[] {
+                new Inventory("RawStone", 5, 0)
+                }
             )
         );
 
@@ -209,13 +226,13 @@ public class World : IXmlSerializable
         {
             for (int y = b - 5; y < b + 15; y++)
             {
-                tiles[x, y].Type = TileType.Floor;
+                Tiles[x, y].Type = TileType.Floor;
 
                 if (x == l || x == (l + 9) || y == b || y == (b + 9))
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        PlaceStructure("Wall", tiles[x, y]);
+                        PlaceStructure("Wall", Tiles[x, y]);
                     }
                 }
             }
@@ -231,11 +248,11 @@ public class World : IXmlSerializable
             {
                 if (UnityEngine.Random.Range(0, 2) == 0)
                 {
-                    tiles[x, y].Type = TileType.Dirt;
+                    Tiles[x, y].Type = TileType.Dirt;
                 }
                 else
                 {
-                    tiles[x, y].Type = TileType.Grass;
+                    Tiles[x, y].Type = TileType.Grass;
                 }
             }
         }
@@ -249,7 +266,7 @@ public class World : IXmlSerializable
             return null;
         }
 
-        return tiles[x, y];
+        return Tiles[x, y];
     }
 
     public Structure PlaceStructure(string structureType, Tile t)
@@ -365,13 +382,14 @@ public class World : IXmlSerializable
         return structurePrototypes[objType];
     }
 
+
+    #region Saving & Loading
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ///
     ///                     SAVING & LOADING
     /// 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    
 
     public XmlSchema GetSchema()
     {
@@ -389,10 +407,10 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                if (tiles[x, y].Type != TileType.Empty)
+                if (Tiles[x, y].Type != TileType.Empty)
                 {
                     writer.WriteStartElement("Tile");
-                    tiles[x, y].WriteXml(writer);
+                    Tiles[x, y].WriteXml(writer);
                     writer.WriteEndElement();
                 }
             }
@@ -486,7 +504,7 @@ public class World : IXmlSerializable
             {
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
-                tiles[x, y].ReadXml(reader);
+                Tiles[x, y].ReadXml(reader);
             } while (reader.ReadToNextSibling("Tile"));
         }
     }
@@ -500,7 +518,7 @@ public class World : IXmlSerializable
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
 
-                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y]);
+                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y]);
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
         }
@@ -515,9 +533,11 @@ public class World : IXmlSerializable
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
 
-                Actor actor = CreateActor(tiles[x, y]);
+                Actor actor = CreateActor(Tiles[x, y]);
                 actor.ReadXml(reader);
             } while (reader.ReadToNextSibling("Actor"));
         }
     }
+
+    #endregion
 }

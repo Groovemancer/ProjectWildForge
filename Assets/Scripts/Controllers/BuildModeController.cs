@@ -9,7 +9,7 @@ public class BuildModeController : MonoBehaviour
     bool buildModeIsObjects = false;
     TileType buildModeTile = TileType.Empty;
     string buildModeObjectType;
-    
+
     void OnStructureJobComplete(string objectType, Tile t)
     {
         WorldController.Instance.World.PlaceStructure(objectType, t);
@@ -71,13 +71,22 @@ public class BuildModeController : MonoBehaviour
             {
                 // This tile position is valid for this object
                 // Create a job for it to be build
-                Job j = new Job(t, structureType, (theJob) =>
+                Job j;
+
+                if (WorldController.Instance.World.structureJobPrototypes.ContainsKey(structureType))
                 {
-                    WorldController.Instance.World.PlaceStructure(structureType, theJob.Tile);
-                    t.PendingStructureJob = null;
-                },
-                300 // AUTs needed to complete
-                );
+                    // Make a clone of the job prototype
+                    j = WorldController.Instance.World.structureJobPrototypes[structureType].Clone();
+                    // Assign the correct tile.
+                    j.Tile = t;
+                }
+                else
+                {
+                    j = new Job(t, structureType, StructureActions.JobComplete_StructureBuilding,
+                        100, // AUTs needed to complete
+                        null
+                    );
+                }
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!

@@ -12,8 +12,6 @@ public class GameSpeedButtons : MonoBehaviour
     GameSpeed prevGameSpeed;
     GameSpeed currentGameSpeed;
 
-    bool init = false;
-
     // Use this for initialization
     void Start()
     {
@@ -22,7 +20,6 @@ public class GameSpeedButtons : MonoBehaviour
         prevGameSpeed = GameSpeed.Normal;
         currentGameSpeed = GameSpeed.Pause;
         SetGameSpeed(currentGameSpeed);
-        init = true;
     }
 
     // Update is called once per frame
