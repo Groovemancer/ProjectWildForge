@@ -85,22 +85,26 @@ public class InventorySpriteController : MonoBehaviour
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
         // FIXME: Add on changed callbacks
-        //inv.RegisterOnChangedCallback(OnActorChanged);
+        inv.RegisterOnChangedCallback(OnInventoryChanged);
     }
 
-    void OnActorChanged(Inventory inventory)
+    void OnInventoryChanged(Inventory inv)
     {
         // FIXME: Still needs to work! And get called!
 
         // Make sure the inventory's graphics are correct.
-        if (inventoryGameObjectMap.ContainsKey(inventory) == false)
+        if (inventoryGameObjectMap.ContainsKey(inv) == false)
         {
-            Debug.LogError("OnActorChanged -- trying to change visuals for inventory not in our map.");
+            Debug.LogError("OnInventoryChanged -- trying to change visuals for inventory not in our map.");
             return;
         }
-        GameObject inventory_go = inventoryGameObjectMap[inventory];
-        //inventory_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(obj);
+        GameObject inv_go = inventoryGameObjectMap[inv];
+        Text text = inv_go.GetComponentInChildren<Text>();
 
-        inventory_go.transform.position = new Vector3(inventory.tile.X, inventory.tile.Y, 0);
+        // FIXME: If maxStackSize changed to/from 1, then we either need to create or destroy the text
+        if (text != null)
+        {
+            text.text = inv.stackSize.ToString();
+        }
     }
 }

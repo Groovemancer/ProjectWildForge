@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 // Inventory are things that are lying on the floor/stockpile, like a bunch of metal bars
@@ -9,7 +10,25 @@ public class Inventory
 {
     public string objectType = "RawStone";
     public int maxStackSize = 64;
-    public int stackSize = 1;
+
+    protected int _stackSize = 1;
+    public int stackSize
+    {
+        get { return _stackSize; }
+        set
+        {
+            if (_stackSize != value)
+            {
+                _stackSize = value;
+                if (tile != null && cbInventoryChanged != null)
+                {
+                    cbInventoryChanged(this);
+                }
+            }
+        }
+    }
+
+    Action<Inventory> cbInventoryChanged;
 
     public Tile tile;
     public Actor actor;
@@ -36,5 +55,15 @@ public class Inventory
     public virtual Inventory Clone()
     {
         return new Inventory(this);
+    }
+
+    public void RegisterOnChangedCallback(Action<Inventory> callback)
+    {
+        cbInventoryChanged += callback;
+    }
+
+    public void UnregisterInventoryOnChangedCallback(Action<Inventory> callback)
+    {
+        cbInventoryChanged -= callback;
     }
 }

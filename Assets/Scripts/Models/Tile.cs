@@ -35,7 +35,7 @@ public class Tile : IXmlSerializable
     // The function we callback any time our tile data changes
     Action<Tile> cbTileChanged;
 
-    public Inventory Inventory { get; protected set; }
+    public Inventory Inventory;
 
     public Room Room;
 
