@@ -86,7 +86,13 @@ public class InventoryManager
     public bool PlaceInventory(Actor actor, Inventory sourceInventory, int amount = -1)
     {
         if (amount < 0)
+        {
             amount = sourceInventory.stackSize;
+        }
+        else
+        {
+            amount = Mathf.Min(amount, sourceInventory.stackSize);
+        }
 
         if (actor.inventory == null)
         {

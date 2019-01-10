@@ -154,7 +154,11 @@ public class Actor : IXmlSerializable
                 if (CurrTile.Inventory != null && myJob.DesiresInventoryType(CurrTile.Inventory) > 0)
                 {
                     // Pick up the stuff!
-                    CurrTile.World.inventoryManager.PlaceInventory(this, CurrTile.Inventory, myJob.DesiresInventoryType(CurrTile.Inventory));
+                    CurrTile.World.inventoryManager.PlaceInventory(
+                        this,
+                        CurrTile.Inventory,
+                        myJob.DesiresInventoryType(CurrTile.Inventory)
+                    );
                 }
                 else
                 {
