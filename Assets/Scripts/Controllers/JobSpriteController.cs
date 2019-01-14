@@ -24,6 +24,12 @@ public class JobSpriteController : MonoBehaviour
 
     void OnJobCreated(Job job)
     {
+        if (job.jobObjectType == null)
+        {
+            // This job doesn't really have an associated sprite with it, so no need to render.
+            return;
+        }
+
         // FIXME: We can only do structure-building jobs.
 
         if (jobGameObjectMap.ContainsKey(job))

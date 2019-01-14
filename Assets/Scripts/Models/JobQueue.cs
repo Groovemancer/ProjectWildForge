@@ -15,6 +15,15 @@ public class JobQueue
 
     public void Enqueue(Job j)
     {
+        if (j.jobCost < 0)
+        {
+            // Job has a negative job cost, so it's not actually
+            // supposed to be queued up. Just insta-complete it.
+
+            j.DoWork(0);
+            return;
+        }
+
         jobQueue.Enqueue(j);
 
         if (cbJobCreated != null)
@@ -37,5 +46,20 @@ public class JobQueue
     public void UnregisterJobCreationCallback(Action<Job> cb)
     {
         cbJobCreated -= cb;
+    }
+
+    public void Remove(Job j)
+    {
+        // TODO: Check docs to see if there's a less memory/swappy solution
+        List<Job> jobs = new List<Job>(jobQueue);
+
+        if (jobs.Contains(j) == false)
+        {
+            Debug.LogError("Trying to remove a job that doesn't exist on the queue.");
+            return;
+        }
+
+        jobs.Remove(j);
+        jobQueue = new Queue<Job>(jobs);
     }
 }

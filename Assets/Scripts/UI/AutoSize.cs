@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class AutoSize : MonoBehaviour
 {
     public enum AutoSizeAlignment { Horizontal, Vertical }
@@ -16,6 +17,11 @@ public class AutoSize : MonoBehaviour
 
     // Use this for initialization
     void Start()
+    {
+        AdjustSize();
+    }
+
+    void Update()
     {
         AdjustSize();
     }

@@ -112,6 +112,10 @@ public class Actor : IXmlSerializable
                     {
                         // We are at the job's site, so drop the inventory
                         CurrTile.World.inventoryManager.PlaceInventory(myJob, inventory);
+                        myJob.DoWork(0); // This will call all cbJobWorked callbacks, because even though
+                                        // we aren't progressing, it might want to do something with the fact
+                                        // that the requirements are being met.
+
                         // Are we still carrying things?
                         if (inventory.stackSize == 0)
                         {

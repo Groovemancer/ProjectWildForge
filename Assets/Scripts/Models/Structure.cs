@@ -26,6 +26,8 @@ public class Structure : IXmlSerializable
 
     public Func<Structure, Enterability> IsEnterable;
 
+    List<Job> jobs;
+
     public void Update(float deltaAuts)
     {
         if (updateActions != null)
@@ -67,6 +69,7 @@ public class Structure : IXmlSerializable
     public Structure()
     {
         structureParameters = new Dictionary<string, float>();
+        jobs = new List<Job>();
     }
 
     // Copy Constructor -- don't call this directly, unless we never
@@ -82,6 +85,7 @@ public class Structure : IXmlSerializable
         this.AllowedTileTypes = other.AllowedTileTypes;
 
         this.structureParameters = new Dictionary<string, float>(other.structureParameters);
+        jobs = new List<Job>();
 
         if (other.updateActions != null)
             this.updateActions = (Action<Structure, float>)other.updateActions.Clone();
@@ -261,6 +265,32 @@ public class Structure : IXmlSerializable
     public void UnregisterUpdateAction(Action<Structure, float> a)
     {
         updateActions -= a;
+    }
+
+    public int JobCount()
+    {
+        return jobs.Count;
+    }
+
+    public void AddJob(Job j)
+    {
+        jobs.Add(j);
+        Tile.World.jobQueue.Enqueue(j);
+    }
+
+    public void RemoveJob(Job j)
+    {
+        jobs.Remove(j);
+        j.CancelJob();
+        Tile.World.jobQueue.Remove(j);
+    }
+
+    public void ClearJobs()
+    {
+        foreach (Job j in jobs)
+        {
+            RemoveJob(j);
+        }
     }
 
     #region Saving & Loading

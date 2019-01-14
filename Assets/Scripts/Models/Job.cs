@@ -11,7 +11,11 @@ public class Job
 
     public Tile Tile;// { get; protected set; }
 
-    float jobCost;
+    public float jobCost
+    {
+        get;
+        protected set;
+    }
 
     // FIXME: Hard-coding a parameter for structure. Do not like.
     public string jobObjectType
@@ -19,8 +23,11 @@ public class Job
         get; protected set;
     }
 
+    bool acceptsAnyInventoryItem = false;
+
     Action<Job> cbJobComplete;
     Action<Job> cbJobCancel;
+    Action<Job> cbJobWorked;
 
     public Dictionary<string, Inventory> inventoryRequirements;
 
@@ -70,6 +77,9 @@ public class Job
         jobCost -= workCost;
         Debug.Log("Remaining Job Cost: " + jobCost);
 
+        if (cbJobWorked != null)
+            cbJobWorked(this);
+
         if (jobCost <= 0)
         {
             if (cbJobComplete != null)
@@ -81,6 +91,8 @@ public class Job
     {
         if (cbJobCancel != null)
             cbJobCancel(this);
+
+        Tile.World.jobQueue.Remove(this);
     }
 
     public void RegisterJobCompleteCallback(Action<Job> cb)
@@ -93,6 +105,11 @@ public class Job
         cbJobCancel += cb;
     }
 
+    public void RegisterJobWorkedCallback(Action<Job> cb)
+    {
+        cbJobWorked += cb;
+    }
+
     public void UnregisterJobCompleteCallback(Action<Job> cb)
     {
         cbJobComplete -= cb;
@@ -101,6 +118,11 @@ public class Job
     public void UnregisterJobCancelCallback(Action<Job> cb)
     {
         cbJobCancel -= cb;
+    }
+
+    public void UnregisterJobWorkedCallback(Action<Job> cb)
+    {
+        cbJobWorked -= cb;
     }
 
     public bool HasAllMaterial()
@@ -116,6 +138,11 @@ public class Job
 
     public int DesiresInventoryType(Inventory inv)
     {
+        if (acceptsAnyInventoryItem)
+        {
+            return inv.maxStackSize;
+        }
+
         if (inventoryRequirements.ContainsKey(inv.objectType) == false)
         {
             return 0;

@@ -213,6 +213,29 @@ public class World : IXmlSerializable
         structurePrototypes["Door"].SetParameter("doorOpenTime", 25f); // Amount of AUTs to open door
         structurePrototypes["Door"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
         structurePrototypes["Door"].IsEnterable = StructureActions.Door_IsEnterable;
+
+        structurePrototypes.Add("Stockpile",
+            new Structure(
+                "Stockpile",
+                1,      // Not Impassable
+                1,      // Width
+                1,      // Height
+                false,   // Links to neighbors and "sort of" becomes part of a large object
+                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                false    // Enclose rooms
+            )
+        );
+
+        structurePrototypes["Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+        structureJobPrototypes.Add("Stockpile",
+            new Job(
+                null,
+                "Stockpile",
+                StructureActions.JobComplete_StructureBuilding,
+                -1,
+                null
+            )
+        );
     }
 
     public void SetupPathfindingExample()
@@ -464,8 +487,7 @@ public class World : IXmlSerializable
 
         // DEBUGGING ONLY! REMOVE ME LATER!
         // Create an Inventory Item
-        Inventory inv = new Inventory();
-        inv.stackSize = 10;
+        Inventory inv = new Inventory("RawStone", 50, 2);
         Tile t = GetTileAt(Width / 2, Height / 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
@@ -473,8 +495,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory();
-        inv.stackSize = 18;
+        inv = new Inventory("RawStone", 50, 4);
         t = GetTileAt(Width / 2 + 2, Height / 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
@@ -482,8 +503,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory();
-        inv.stackSize = 34;
+        inv = new Inventory("RawStone", 50, 3);
         t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
