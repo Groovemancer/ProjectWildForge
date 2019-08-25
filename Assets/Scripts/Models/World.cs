@@ -182,7 +182,8 @@ public class World : IXmlSerializable
                 1,      // Width
                 1,      // Height
                 true,   // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
+                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
                 true    // Enclose rooms
             )
         );
@@ -203,7 +204,8 @@ public class World : IXmlSerializable
                 1,      // Width
                 1,      // Height
                 false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
+                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
                 true    // Enclose rooms
             )
         );
@@ -220,13 +222,15 @@ public class World : IXmlSerializable
                 1,      // Not Impassable
                 1,      // Width
                 1,      // Height
-                false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileType.Dirt | TileType.Floor | TileType.Grass | TileType.RoughStone | TileType.Road,
+                true,   // Links to neighbors and "sort of" becomes part of a large object
+                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
+                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
                 false    // Enclose rooms
             )
         );
 
         structurePrototypes["Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+        structurePrototypes["Stockpile"].tint = new Color32(255, 0, 255, 255);
         structureJobPrototypes.Add("Stockpile",
             new Job(
                 null,
@@ -249,7 +253,7 @@ public class World : IXmlSerializable
         {
             for (int y = b - 5; y < b + 15; y++)
             {
-                Tiles[x, y].Type = TileType.Floor;
+                Tiles[x, y].Type = TileTypeData.GetByFlagName("Floor");
 
                 if (x == l || x == (l + 9) || y == b || y == (b + 9))
                 {
@@ -271,11 +275,11 @@ public class World : IXmlSerializable
             {
                 if (UnityEngine.Random.Range(0, 2) == 0)
                 {
-                    Tiles[x, y].Type = TileType.Dirt;
+                    Tiles[x, y].Type = TileTypeData.GetByFlagName("Dirt");
                 }
                 else
                 {
-                    Tiles[x, y].Type = TileType.Grass;
+                    Tiles[x, y].Type = TileTypeData.GetByFlagName("Grass");
                 }
             }
         }
@@ -405,6 +409,12 @@ public class World : IXmlSerializable
         return structurePrototypes[objType];
     }
 
+    public void OnInventoryCreated(Inventory inv)
+    {
+        if (cbInventoryCreated != null)
+            cbInventoryCreated(inv);
+    }
+
 
     #region Saving & Loading
 
@@ -430,7 +440,7 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                if (Tiles[x, y].Type != TileType.Empty)
+                if (Tiles[x, y].Type != TileTypeData.GetByFlagName("Empty"))
                 {
                     writer.WriteStartElement("Tile");
                     Tiles[x, y].WriteXml(writer);
@@ -487,7 +497,7 @@ public class World : IXmlSerializable
 
         // DEBUGGING ONLY! REMOVE ME LATER!
         // Create an Inventory Item
-        Inventory inv = new Inventory("RawStone", 50, 2);
+        Inventory inv = new Inventory("RawStone", 50, 50);
         Tile t = GetTileAt(Width / 2, Height / 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)

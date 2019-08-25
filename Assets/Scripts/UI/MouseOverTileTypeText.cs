@@ -38,7 +38,7 @@ public class MouseOverTileTypeText : MonoBehaviour
         Tile t = mouseController.GetMouseOverTile();
         if (t != null)
         {
-            myText.text = "Tile Type: " + t.Type.ToString();
+            myText.text = "Tile Type: " + LocaleData.GetText(LocaleData.CurrentLocale(), t.Type.NameLocaleId);
         }
     }
 }

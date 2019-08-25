@@ -124,7 +124,7 @@ public class Room
                 Tile[] ns = t.GetNeighbors();
                 foreach (Tile t2 in ns)
                 {
-                    if (t2 == null || t2.Type == TileType.Empty)
+                    if (t2 == null || t2.Type == TileTypeData.GetByFlagName("Empty"))
                     {
                         // we have hit open space (either by being the edge of the map or being an empty tile)
                         // so this "room" we're building is actually part of the Outside.

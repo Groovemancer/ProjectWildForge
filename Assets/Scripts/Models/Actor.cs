@@ -155,7 +155,9 @@ public class Actor : IXmlSerializable
 
                 // Are we standing on a tile with goods that are desired by the job?
 
-                if (CurrTile.Inventory != null && myJob.DesiresInventoryType(CurrTile.Inventory) > 0)
+                if (CurrTile.Inventory != null &&
+                    (myJob.canTakeFromStockpile || CurrTile.Structure == null || CurrTile.Structure.IsStockpile() == false) &&
+                    myJob.DesiresInventoryType(CurrTile.Inventory) > 0)
                 {
                     // Pick up the stuff!
                     CurrTile.World.inventoryManager.PlaceInventory(
@@ -174,7 +176,8 @@ public class Actor : IXmlSerializable
                     Inventory supplier = CurrTile.World.inventoryManager.GetClosestInventoryOfType(
                         desired.objectType,
                         CurrTile,
-                        desired.maxStackSize - desired.stackSize
+                        desired.maxStackSize - desired.stackSize,
+                        myJob.canTakeFromStockpile
                     );
 
                     if (supplier == null)
@@ -393,6 +396,10 @@ public class Actor : IXmlSerializable
     void OnJobEnded(Job j)
     {
         // Job completed or was cancelled.
+
+        j.UnregisterJobCancelCallback(OnJobEnded);
+        j.UnregisterJobCompleteCallback(OnJobEnded);
+
         if (j != myJob)
         {
             Debug.LogError("Actor being told about job that isn't there's. You forgot to unregister something.");

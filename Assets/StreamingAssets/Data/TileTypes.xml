@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<TileTypes>
+	<TileType id="0">
+		<FlagName>Empty</FlagName>
+		<NameLocaleId>comment#tile_type_empty</NameLocaleId>
+		<MoveCost>0</MoveCost>
+	</TileType>
+	<TileType id="1">
+		<FlagName>All</FlagName>
+		<NameLocaleId>comment#tile_type_all</NameLocaleId>
+		<MoveCost>1</MoveCost>
+		<All/>
+	</TileType>
+	<TileType id="2">		
+		<Default/>
+		<FlagName>Dirt</FlagName>
+		<NameLocaleId>comment#tile_type_dirt</NameLocaleId>
+		<MoveCost>1</MoveCost>
+		<Sprite>Dirt</Sprite>
+	</TileType>
+	<TileType id="3">
+		<FlagName>RoughStone</FlagName>
+		<NameLocaleId>comment#tile_type_roughstone</NameLocaleId>
+		<MoveCost>1.5</MoveCost>
+		<Sprite>RoughStone</Sprite>
+	</TileType>
+	<TileType id="4">
+		<FlagName>Marsh</FlagName>
+		<NameLocaleId>comment#tile_type_marsh</NameLocaleId>
+		<MoveCost>2</MoveCost>
+		<Sprite>Marsh</Sprite>
+	</TileType>
+	<TileType id="5">
+		<FlagName>ShallowWater</FlagName>
+		<NameLocaleId>comment#tile_type_shallowwater</NameLocaleId>
+		<MoveCost>2</MoveCost>
+		<Sprite>ShallowWater</Sprite>
+	</TileType>
+	<TileType id="6">
+		<FlagName>Grass</FlagName>
+		<NameLocaleId>comment#tile_type_grass</NameLocaleId>
+		<MoveCost>1</MoveCost>
+		<Sprite>Grass</Sprite>
+	</TileType>
+	<TileType id="7">
+		<FlagName>Floor</FlagName>
+		<NameLocaleId>comment#tile_type_floor</NameLocaleId>
+		<MoveCost>1</MoveCost>
+		<Sprite>Floor</Sprite>
+	</TileType>
+	<TileType id="8">
+		<FlagName>Road</FlagName>
+		<NameLocaleId>comment#tile_type_road</NameLocaleId>
+		<MoveCost>0.5</MoveCost>
+		<Sprite>Road</Sprite>
+	</TileType>
+</TileTypes>

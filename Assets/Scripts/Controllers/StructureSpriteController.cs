@@ -82,6 +82,7 @@ public class StructureSpriteController : MonoBehaviour
         SpriteRenderer spr = strct_go.AddComponent<SpriteRenderer>();
         spr.sprite = GetSpriteForStructure(strct);
         spr.sortingLayerName = "Structures";
+        spr.color = strct.tint;
 
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
@@ -98,6 +99,7 @@ public class StructureSpriteController : MonoBehaviour
         }
         GameObject obj_go = structureGameObjectMap[strct];
         obj_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(strct);
+        obj_go.GetComponent<SpriteRenderer>().color = strct.tint;
     }
 
     public Sprite GetSpriteForStructure(Structure strct)

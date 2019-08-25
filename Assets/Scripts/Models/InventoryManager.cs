@@ -54,6 +54,8 @@ public class InventoryManager
                 inventories[tile.Inventory.objectType] = new List<Inventory>();
             }
             inventories[tile.Inventory.objectType].Add(tile.Inventory);
+
+            tile.World.OnInventoryCreated(tile.Inventory);
         }
 
         return true;
@@ -68,7 +70,7 @@ public class InventoryManager
         }
         job.inventoryRequirements[inv.objectType].stackSize += inv.stackSize;
 
-        if (job.inventoryRequirements[inv.objectType].stackSize > job.inventoryRequirements[inv.objectType].maxStackSize)
+        if (job.inventoryRequirements[inv.objectType].maxStackSize < job.inventoryRequirements[inv.objectType].stackSize)
         {
             inv.stackSize = job.inventoryRequirements[inv.objectType].stackSize - job.inventoryRequirements[inv.objectType].maxStackSize;
             job.inventoryRequirements[inv.objectType].stackSize = job.inventoryRequirements[inv.objectType].maxStackSize;
@@ -108,7 +110,7 @@ public class InventoryManager
 
         actor.inventory.stackSize += amount;
 
-        if (actor.inventory.stackSize > actor.inventory.maxStackSize)
+        if (actor.inventory.maxStackSize < actor.inventory.stackSize)
         {
             sourceInventory.stackSize = actor.inventory.stackSize - actor.inventory.maxStackSize;
             actor.inventory.stackSize = actor.inventory.maxStackSize;
@@ -129,7 +131,7 @@ public class InventoryManager
     /// <param name="objectType"></param>
     /// <param name="t"></param>
     /// <param name="desiredAmount">Desired amount. If no stack has enough, it instead returns the largest</param>
-    public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredAmount)
+    public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredAmount, bool canTakeFromStockpile)
     {
         // FIXME:
         //      a) We are LYING about returning the closest item.
@@ -146,7 +148,8 @@ public class InventoryManager
 
         foreach (Inventory inv in inventories[objectType])
         {
-            if (inv.tile != null)
+            if (inv.tile != null &&
+                (canTakeFromStockpile || inv.tile.Structure == null || inv.tile.Structure.IsStockpile() == false))
             {
                 return inv;
             }

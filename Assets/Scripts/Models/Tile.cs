@@ -6,18 +6,18 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using UnityEngine;
 
-[Flags]
-public enum TileType {
-    Empty = 0, Dirt = 1 << 0, RoughStone = 1 << 2, Marsh = 1 << 3, ShallowWater = 1 << 4,
-    Grass = 1 << 5, Floor = 1 << 6, Road = 1 << 7, All = 1 << 8
-};
+//[Flags]
+//public enum TileType {
+//    Empty = 0, Dirt = 1 << 0, RoughStone = 1 << 2, Marsh = 1 << 3, ShallowWater = 1 << 4,
+//    Grass = 1 << 5, Floor = 1 << 6, Road = 1 << 7, All = 1 << 8
+//};
 
 public enum Enterability { Yes, Never, Soon };
 
 [Serializable]
 public class Tile : IXmlSerializable
 {
-    TileType _type = TileType.Dirt;
+    TileType _type = TileTypeData.GetByFlagName("Dirt");
     public TileType Type
     {
         get { return _type; }
@@ -51,6 +51,7 @@ public class Tile : IXmlSerializable
         this.World = world;
         this.X = x;
         this.Y = y;
+        this.Type = TileTypeData.Instance.DefaultType;
     }
 
     public void RegisterTileChangedCallback(Action<Tile> callback)
@@ -66,26 +67,10 @@ public class Tile : IXmlSerializable
     public float CalculatedMoveCost()
     {
         float movementCost = 1f;
-        switch(Type)
+
+        if (Type != null)
         {
-            case TileType.Empty:
-                movementCost = 0f;
-                break;
-            case TileType.Road:
-                movementCost = 0.5f;
-                break;
-            case TileType.Floor:
-            case TileType.Dirt:
-            case TileType.Grass:
-                movementCost = 1f;
-                break;
-            case TileType.RoughStone:
-                movementCost = 1.5f;
-                break;
-            case TileType.Marsh:
-            case TileType.ShallowWater:
-                movementCost = 2f;
-                break;
+            movementCost = Type.MoveCost;
         }
 
         if (Structure != null)
@@ -133,14 +118,8 @@ public class Tile : IXmlSerializable
                 return false;
             }
 
-            if (Inventory.stackSize + inv.stackSize > inv.maxStackSize)
-            {
-                Debug.LogError("Trying to assign inventory to a tile that would exceed max stack size!");
-                return false;
-            }
-
             int numToMove = inv.stackSize;
-            if (Inventory.stackSize + inv.stackSize > Inventory.maxStackSize)
+            if (Inventory.stackSize + numToMove > Inventory.maxStackSize)
             {
                 numToMove = Inventory.maxStackSize - Inventory.stackSize;
             }
@@ -258,12 +237,12 @@ public class Tile : IXmlSerializable
     {
         writer.WriteAttributeString("X", X.ToString());
         writer.WriteAttributeString("Y", Y.ToString());
-        writer.WriteAttributeString("Type", ((int)Type).ToString());
+        writer.WriteAttributeString("Type", Type.FlagName);
     }
 
     public void ReadXml(XmlReader reader)
     {
-        Type = (TileType)int.Parse(reader.GetAttribute("Type"));
+        Type = TileTypeData.GetByFlagName(reader.GetAttribute("Type"));
     }
 }
 
@@ -271,7 +250,7 @@ public class Tile : IXmlSerializable
 public struct TileSprite
 {
     [SerializeField]
-    public TileType Type;
+    public string FlagName;
 
     [SerializeField]
     public Sprite Sprite;

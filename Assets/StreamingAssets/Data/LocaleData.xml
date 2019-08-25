@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Last Updated: 8/24/2019 3:37:54 PM-->
+<LocaleData>
+	<Locales>
+		<Default>en-US</Default>
+		<Locale>en-US</Locale>
+		<Locale>es-ES</Locale>
+		<Locale>fr-FR</Locale>
+		<Locale>de-DE</Locale>
+		<Locale>ru-RU</Locale>
+	</Locales>
+	<Entry Id="0">
+		<Comment>game_title</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Project Wild Forge</en-US>
+			<de-DE>Projekt Wilde Schmiede</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="1">
+		<Comment>start_button</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Start Game</en-US>
+			<de-DE>Spiel Beginnen</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="2">
+		<Comment>tile_type_empty</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Empty</en-US>
+			<de-DE>Leeren</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="3">
+		<Comment>tile_type_all</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>All</en-US>
+			<de-DE>Alle</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="4">
+		<Comment>tile_type_dirt</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Dirt</en-US>
+			<de-DE>Erde</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="5">
+		<Comment>tile_type_roughstone</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Rough Stone</en-US>
+			<de-DE>Rauer Stein</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="6">
+		<Comment>tile_type_marsh</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Marsh</en-US>
+			<de-DE>Sumpf</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="7">
+		<Comment>tile_type_shallowwater</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Shallow Water</en-US>
+		</Text>
+	</Entry>
+	<Entry Id="8">
+		<Comment>tile_type_grass</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Grass</en-US>
+			<de-DE>Gras</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="9">
+		<Comment>tile_type_floor</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Floor</en-US>
+			<de-DE>Fußboden</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="10">
+		<Comment>tile_type_road</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Road</en-US>
+			<de-DE>Straße</de-DE>
+		</Text>
+	</Entry>
+</LocaleData>

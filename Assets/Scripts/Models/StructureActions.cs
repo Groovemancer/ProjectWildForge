@@ -44,65 +44,102 @@ public static class StructureActions
         theJob.Tile.PendingStructureJob = null;
     }
 
+    public static Inventory[] Stockpile_GetItemsFromFilter()
+    {
+        // TODO: This should be reading from some kind of UI for this
+        // particular stockpile
+
+        // Since jobs copy arrays automatically, we could already have
+        // an Inventory[] prepared and just return that (as a sort of example filter)
+
+        return new Inventory[1] { new Inventory("RawStone", 50, 0) };
+    }
+
     public static void Stockpile_UpdateAction(Structure structure, float deltaAuts)
     {
-        Debug.Log("Stockpile_UpdateAction");
+        DebugUtils.Log("Stockpile_UpdateAction");
         // We need to ensure that we have a job on the queue
         // asking for either:
         //  (if we are empty): That ANY loose inventory be brought to us.
         //  (if we have something: Then IF we are still below the max stack size,
         //                          that more of the same should be brought to us.
 
+        // TODO: This function doesn't need to run each update. Once we get a lot
+        // of structures in a running game, this will run a LOT more than required.
+        // Instead, it only really needs to run whenever:
+        //      -- It gets created
+        //      -- A good gets delivered (at which point we reset the job)
+        //      -- A good gets picked up (at which point we reset the job)
+        //      -- The UI's filter of allowed items gets changed
+
+        if (structure.Tile.Inventory != null && structure.Tile.Inventory.stackSize >= structure.Tile.Inventory.maxStackSize)
+        {
+            // We are full
+            structure.ClearJobs();
+            return;
+        }
+
+        // Maybe we already hae a job queued up?
+        if (structure.JobCount() > 0)
+        {
+            // Cool, all done.
+            return;
+        }
+
+        // We currently are NOT full, but we don't have a job either.
+        // Two possibilities: Either we have SOME inventory, or we have NO inventory
+        
+        // Third possibility: Something is WHACK
+        if (structure.Tile.Inventory != null && structure.Tile.Inventory.stackSize == 0)
+        {
+            DebugUtils.LogError("Stockpile has a zero-size stack. This is clearly WRONG!");
+            structure.ClearJobs();
+            return;
+        }
+
+        // TODO: In the future, stockpiles -- rather than being a bunch of individual
+        // 1x1 tiles -- should manifest themselves as single, large objects (this
+        // would represent our first and probably only VARIABLE sized structure --
+        // at what happens if there's a "hole" in our stockpile because we have an
+        // actual structure (like a cooking station) installed in the middle of our stockpile?
+        // In any case, once we implement "mega stockpiles", then the job-creation system
+        // could be a lot smarter, in that even if the stockpile has some stuff in it, it
+        // can also still be requesting different object types in its job creation.
+
+        Inventory[] itemsDesired;
+
         if (structure.Tile.Inventory == null)
         {
-            // We are empty -- just ask for ANYTHING to be brought here.
-
-            // Do we already have a job?
-            if (structure.JobCount() > 0)
-            {
-                return;
-            }
-
-            Job j = new Job(
-                structure.Tile,
-                null,
-                null,
-                0,
-                new Inventory[1] { new Inventory("RawStone", 50, 0) }   // FIXME: Need to be able to indicate all/any type is okay
-            );
-            j.RegisterJobWorkedCallback(Stockpile_JobWorked);
-
-            structure.AddJob(j);
+            Debug.Log("Creating job for new stack.");
+            itemsDesired = Stockpile_GetItemsFromFilter();
         }
-        else if (structure.Tile.Inventory.stackSize < structure.Tile.Inventory.maxStackSize)
+        else
         {
-            // We have a stack of something started but we're not full yet.
-
-            // Do we already have a job?
-            if (structure.JobCount() > 0)
-            {
-                return;
-            }
-
+            Debug.Log("Creating job for existing stack.");
             Inventory desInv = structure.Tile.Inventory.Clone();
             desInv.maxStackSize -= desInv.stackSize;
             desInv.stackSize = 0;
 
-            Job j = new Job(
+            itemsDesired = new Inventory[] { desInv };
+        }
+
+        Job j = new Job(
                 structure.Tile,
                 null,
                 null,
                 0,
-                new Inventory[1] { desInv }   // FIXME: Need to be able to indicate all/any type is okay
+                itemsDesired
             );
-            j.RegisterJobWorkedCallback(Stockpile_JobWorked);
-
-            structure.AddJob(j);
-        }
+        // TODO: Later on, add stockpile priorities, so that we can take from a lower
+        // priority stockpile for a higher priority one.
+        j.canTakeFromStockpile = false;
+        j.RegisterJobWorkedCallback(Stockpile_JobWorked);
+        structure.AddJob(j);
     }
 
     static void Stockpile_JobWorked(Job j)
     {
+        Debug.Log("Stockpile_JobWorked");
         j.Tile.Structure.RemoveJob(j);
 
         // TODO: Change this when we figure out what we're doing for the all/any pickup job.

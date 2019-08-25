@@ -7,7 +7,7 @@ public class BuildModeController : MonoBehaviour
 {
     BuildMode buildMode = BuildMode.Nothing;
     bool buildModeIsObjects = false;
-    TileType buildModeTile = TileType.Empty;
+    TileType buildModeTile = null;
     string buildModeObjectType;
 
     void OnStructureJobComplete(string objectType, Tile t)
@@ -27,15 +27,15 @@ public class BuildModeController : MonoBehaviour
         {
             case BuildMode.BuildRoad:
                 buildModeIsObjects = false;
-                buildModeTile = TileType.Road;
+                buildModeTile = TileTypeData.GetByFlagName("Road");
                 break;
             case BuildMode.BuildTile:
                 buildModeIsObjects = false;
-                buildModeTile = TileType.Floor;
+                buildModeTile = TileTypeData.GetByFlagName("Floor");
                 break;
             case BuildMode.RemoveTile:
                 buildModeIsObjects = false;
-                buildModeTile = TileType.Dirt;
+                buildModeTile = TileTypeData.GetByFlagName("Dirt");
                 break;
             case BuildMode.BuildObject:
                 buildModeIsObjects = true;

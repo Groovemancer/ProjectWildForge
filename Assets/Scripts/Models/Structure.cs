@@ -41,7 +41,7 @@ public class Structure : IXmlSerializable
     // This "objectType" will be queried by the visual system to know what sprite to render for this object
     public string ObjectType { get; protected set; }
 
-    public TileType AllowedTileTypes { get; protected set; }
+    public uint AllowedTileTypes { get; protected set; }
 
     // This is a multiplier. So a value of "2" here, means you move twice as slowly (i.e. at half speed)
     // Tile types and other environmental effects may be combined.
@@ -55,6 +55,8 @@ public class Structure : IXmlSerializable
     // For example, a sofa might be a 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room
     int width;
     int height;
+
+    public Color tint = Color.white;
 
     public bool LinksToNeighbor { get; protected set; }
 
@@ -81,6 +83,7 @@ public class Structure : IXmlSerializable
         this.RoomEnclosure = other.RoomEnclosure;
         this.width = other.width;
         this.height = other.height;
+        this.tint = other.tint;
         this.LinksToNeighbor = other.LinksToNeighbor;
         this.AllowedTileTypes = other.AllowedTileTypes;
 
@@ -103,7 +106,7 @@ public class Structure : IXmlSerializable
 
     // Create structure from parameters -- this will probably ONLY ever be used for prototype
     public Structure(string objectType, float movementCost = 1f,
-        int width = 1, int height = 1, bool linksToNeighbor = false, TileType allowedTileTypes = TileType.All,
+        int width = 1, int height = 1, bool linksToNeighbor = false, uint allowedTileTypes = 1,
         bool roomEnclosure = false)
     {
         this.ObjectType = objectType;
@@ -195,7 +198,7 @@ public class Structure : IXmlSerializable
         //Debug.Log("AllowedTypes: " + AllowedTileTypes);
         // Make sure tile is of allowed types
         // Make sure tile doesn't already have structure
-        if ((AllowedTileTypes & t.Type) != t.Type && t.Type != TileType.All)
+        if ((AllowedTileTypes & t.Type.Flag) != t.Type.Flag && t.Type.Flag != TileTypeData.Instance.AllFlag)
         {
             //Debug.Log("Old IsValidPosition: false");
             return false;
@@ -291,6 +294,11 @@ public class Structure : IXmlSerializable
         {
             RemoveJob(j);
         }
+    }
+
+    public bool IsStockpile()
+    {
+        return ObjectType == "Stockpile";
     }
 
     #region Saving & Loading

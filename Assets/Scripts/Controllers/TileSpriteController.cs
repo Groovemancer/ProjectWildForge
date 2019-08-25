@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class TileSpriteController : MonoBehaviour
 {
-    public List<TileSprite> Sprites; // FIXME
+    Dictionary<string, Sprite> tileSprites;
 
     Dictionary<Tile, GameObject> tileGameObjectMap;
     
@@ -18,6 +18,8 @@ public class TileSpriteController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        LoadSprites();
+
         // Instantiate our dictionary that tracks which GameObject is rendering which Tile data.
         tileGameObjectMap = new Dictionary<Tile, GameObject>();
 
@@ -38,14 +40,37 @@ public class TileSpriteController : MonoBehaviour
                 tile_go.transform.SetParent(this.transform, true);
 
                 SpriteRenderer sr = tile_go.AddComponent<SpriteRenderer>();
-                sr.sprite = Sprites.Find(spr => spr.Type == tile_data.Type).Sprite;
+
+                sr.sprite = null;
+                foreach (Sprite spr in tileSprites.Values)
+                {
+                    if (tile_data.Type.Sprite == spr.name)
+                    {
+                        sr.sprite = spr;
+                        break;
+                    }
+                }
+
                 sr.sortingLayerName = "Tiles";
             }
         }
 
         World.RegisterTileChanged(OnTileChanged);
     }
-    
+
+    private void LoadSprites()
+    {
+        tileSprites = new Dictionary<string, Sprite>();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Tiles");
+
+        //Debug.Log("LOADED RESOURCES:");
+        foreach (Sprite s in sprites)
+        {
+            //Debug.Log(s);
+            tileSprites[s.name] = s;
+        }
+    }
+
     // EXAMPLE
     void DestroyAllTileGameObjects()
     {
@@ -79,7 +104,15 @@ public class TileSpriteController : MonoBehaviour
         }
 
         SpriteRenderer sprRenderer = tile_go.GetComponent<SpriteRenderer>();
-        sprRenderer.sprite = Sprites.Find(spr => spr.Type == tile_data.Type).Sprite;
+        sprRenderer.sprite = null;
+        foreach (Sprite spr in tileSprites.Values)
+        {
+            if (tile_data.Type.Sprite == spr.name)
+            {
+                sprRenderer.sprite = spr;
+                break;
+            }
+        }
         sprRenderer.sortingLayerName = "Tiles";
     }
 }

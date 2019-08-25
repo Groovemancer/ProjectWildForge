@@ -25,6 +25,8 @@ public class Job
 
     bool acceptsAnyInventoryItem = false;
 
+    public bool canTakeFromStockpile = true;
+
     Action<Job> cbJobComplete;
     Action<Job> cbJobCancel;
     Action<Job> cbJobWorked;
@@ -74,6 +76,20 @@ public class Job
 
     public void DoWork(float workCost)
     {
+        // Check to make sure we actually have everything we need.
+        // If not, don't register the work cost.
+        if (HasAllMaterial() == false)
+        {
+            //Debug.LogError("Tried to do work on a job that doesn't have all the materials.");
+
+            // Job can't actually be worked, but still call the callbacks
+            // so that animations and whatnot can be updated.
+            if (cbJobWorked != null)
+                cbJobWorked(this);
+
+            return;
+        }
+
         jobCost -= workCost;
         Debug.Log("Remaining Job Cost: " + jobCost);
 

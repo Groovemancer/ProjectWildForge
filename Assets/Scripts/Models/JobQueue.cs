@@ -55,7 +55,8 @@ public class JobQueue
 
         if (jobs.Contains(j) == false)
         {
-            Debug.LogError("Trying to remove a job that doesn't exist on the queue.");
+            //Debug.LogError("Trying to remove a job that doesn't exist on the queue.");
+            // Most likely, this job wasn't on the queue because a character was working it
             return;
         }
 
