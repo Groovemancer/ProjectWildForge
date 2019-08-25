@@ -23,6 +23,8 @@ public class Job
         get; protected set;
     }
 
+    public Structure structurePrototype;
+
     bool acceptsAnyInventoryItem = false;
 
     public bool canTakeFromStockpile = true;

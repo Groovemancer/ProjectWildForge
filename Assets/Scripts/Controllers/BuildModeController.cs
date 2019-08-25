@@ -10,6 +10,67 @@ public class BuildModeController : MonoBehaviour
     TileType buildModeTile = null;
     string buildModeObjectType;
 
+    GameObject structurePreview;
+
+    StructureSpriteController ssc;
+
+    MouseController mouseController;
+
+    private void Start()
+    {
+        ssc = GameObject.FindObjectOfType<StructureSpriteController>();
+        mouseController = GameObject.FindObjectOfType<MouseController>();
+
+        structurePreview = new GameObject();
+        structurePreview.transform.SetParent(this.transform);
+        structurePreview.AddComponent<SpriteRenderer>().sortingLayerName = "Jobs";
+        structurePreview.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (buildModeIsObjects == true && !string.IsNullOrEmpty(buildModeObjectType))
+        {
+            // Show a transparent preview of the object that is color-coded based
+            // on whether or not you can actually build the object here.
+            ShowStructureSpriteAtTile(buildModeObjectType, mouseController.GetMouseOverTile());
+        }
+    }
+
+    public bool IsObjectDraggable()
+    {
+        if (buildModeIsObjects == false)
+        {
+            // floors are draggable
+            return true;
+        }
+
+        Structure proto = WorldController.Instance.World.GetStructurePrototype(buildModeObjectType);
+
+        return proto.Width == 1 && proto.Height == 1;
+    }
+
+    void ShowStructureSpriteAtTile(string structureType, Tile t)
+    {
+        structurePreview.SetActive(true);
+
+        SpriteRenderer spr = structurePreview.GetComponent<SpriteRenderer>();
+        spr.sprite = ssc.GetSpriteForStructure(structureType);
+
+        if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t))
+        {
+            spr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
+        }
+        else
+        {
+            spr.color = new Color(1f, 0.5f, 0.5f, 0.25f);
+        }
+
+        Structure proto = t.World.GetStructurePrototype(structureType);
+
+        structurePreview.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
+    }
+
     void OnStructureJobComplete(string objectType, Tile t)
     {
         WorldController.Instance.World.PlaceStructure(objectType, t);
@@ -87,6 +148,8 @@ public class BuildModeController : MonoBehaviour
                         null
                     );
                 }
+
+                j.structurePrototype = WorldController.Instance.World.GetStructurePrototype(structureType);
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!

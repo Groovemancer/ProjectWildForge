@@ -56,7 +56,7 @@ public class StructureSpriteController : MonoBehaviour
         structureGameObjectMap.Add(strct, strct_go);
 
         strct_go.name = strct.ObjectType + "_" + strct.Tile.X + "_" + strct.Tile.Y;
-        strct_go.transform.position = new Vector3(strct.Tile.X, strct.Tile.Y, 0);
+        strct_go.transform.position = new Vector3(strct.Tile.X + ((strct.Width - 1) / 2f), strct.Tile.Y + ((strct.Height - 1) / 2f), 0);
         strct_go.transform.SetParent(this.transform, true);
 
         // FIXME: This hardcoding is not ideal!

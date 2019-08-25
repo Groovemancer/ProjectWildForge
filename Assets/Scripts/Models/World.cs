@@ -240,6 +240,20 @@ public class World : IXmlSerializable
                 null
             )
         );
+
+
+        structurePrototypes.Add("WorkStation",
+            new Structure(
+                "WorkStation",
+                10,      // Door Pathfinding Cost
+                2,      // Width
+                2,      // Height
+                false,   // Links to neighbors and "sort of" becomes part of a large object
+                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
+                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
+                true    // Enclose rooms
+            )
+        );
     }
 
     public void SetupPathfindingExample()

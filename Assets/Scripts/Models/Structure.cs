@@ -53,8 +53,8 @@ public class Structure : IXmlSerializable
     public bool RoomEnclosure { get; protected set; }
 
     // For example, a sofa might be a 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room
-    int width;
-    int height;
+    public int Width { get; protected set; }
+    public int Height { get; protected set; }
 
     public Color tint = Color.white;
 
@@ -81,8 +81,8 @@ public class Structure : IXmlSerializable
         this.ObjectType = other.ObjectType;
         this.MovementCost = other.MovementCost;
         this.RoomEnclosure = other.RoomEnclosure;
-        this.width = other.width;
-        this.height = other.height;
+        this.Width = other.Width;
+        this.Height = other.Height;
         this.tint = other.tint;
         this.LinksToNeighbor = other.LinksToNeighbor;
         this.AllowedTileTypes = other.AllowedTileTypes;
@@ -92,6 +92,9 @@ public class Structure : IXmlSerializable
 
         if (other.updateActions != null)
             this.updateActions = (Action<Structure, float>)other.updateActions.Clone();
+
+        if (other.funcPositionValidation != null)
+            this.funcPositionValidation = (Func<Tile, bool>)other.funcPositionValidation.Clone();
 
         this.IsEnterable = other.IsEnterable;
     }
@@ -112,8 +115,8 @@ public class Structure : IXmlSerializable
         this.ObjectType = objectType;
         this.MovementCost = movementCost;
         this.RoomEnclosure = roomEnclosure;
-        this.width = width;
-        this.height = height;
+        this.Width = width;
+        this.Height = height;
         this.LinksToNeighbor = linksToNeighbor;
         this.AllowedTileTypes = allowedTileTypes;
 
@@ -195,19 +198,27 @@ public class Structure : IXmlSerializable
     // to connect to.
     protected bool DefaulIsValidPosition(Tile t)
     {
-        //Debug.Log("AllowedTypes: " + AllowedTileTypes);
-        // Make sure tile is of allowed types
-        // Make sure tile doesn't already have structure
-        if ((AllowedTileTypes & t.Type.Flag) != t.Type.Flag && t.Type.Flag != TileTypeData.Instance.AllFlag)
+        for (int x_off = t.X; x_off < (t.X + Width); x_off++)
         {
-            //Debug.Log("Old IsValidPosition: false");
-            return false;
-        }
+            for (int y_off = t.Y; y_off < (t.Y + Height); y_off++)
+            {
+                Tile t2 = t.World.GetTileAt(x_off, y_off);
 
-        // Make sure tile doesn't already have a structure
-        if (t.Structure != null)
-        {
-            return false;
+                //Debug.Log("AllowedTypes: " + AllowedTileTypes);
+                // Make sure tile is of allowed types
+                // Make sure tile doesn't already have structure
+                if ((AllowedTileTypes & t2.Type.Flag) != t2.Type.Flag && t2.Type.Flag != TileTypeData.Instance.AllFlag)
+                {
+                    //Debug.Log("Old IsValidPosition: false");
+                    return false;
+                }
+
+                // Make sure tile doesn't already have a structure
+                if (t2.Structure != null)
+                {
+                    return false;
+                }
+            }
         }
 
         //Debug.Log("Old IsValidPosition: true");

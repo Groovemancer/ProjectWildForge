@@ -16,9 +16,12 @@ public class MouseController : MonoBehaviour
 
     List<GameObject> dragPreviewGameObjects;
 
+    BuildModeController bmc;
+
     // Use this for initialization
     void Start()
     {
+        bmc = GameObject.FindObjectOfType<BuildModeController>();
         dragPreviewGameObjects = new List<GameObject>();
     }
 
@@ -55,14 +58,17 @@ public class MouseController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
-        BuildModeController bmc = GameObject.FindObjectOfType<BuildModeController>();
-
         // If we are in Hover mode, bail out.
         if (bmc.GetBuildMode() == BuildMode.Nothing)
             return;
 
         // Start Drag
         if (Input.GetMouseButtonDown(0))
+        {
+            dragStartPosition = currFramePosition;
+        }
+
+        if (bmc.IsObjectDraggable() == false)
         {
             dragStartPosition = currFramePosition;
         }

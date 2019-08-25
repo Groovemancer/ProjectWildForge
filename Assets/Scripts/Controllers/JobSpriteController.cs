@@ -35,7 +35,7 @@ public class JobSpriteController : MonoBehaviour
         if (jobGameObjectMap.ContainsKey(job))
         {
             Debug.LogError("OnJobCreated for a jobGO that already exists -- most likely a job being RE-QUEUED as opposed to created.");
-            DebugUtils.DisplayError("OnJobCreated for a jobGO that already exists -- most likely a job being RE-QUEUED as opposed to created.");
+            //DebugUtils.DisplayError("OnJobCreated for a jobGO that already exists -- most likely a job being RE-QUEUED as opposed to created.");
             return;
         }
 
@@ -44,7 +44,7 @@ public class JobSpriteController : MonoBehaviour
         jobGameObjectMap.Add(job, job_go);
 
         job_go.name = "JOB_" + job.jobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
-        job_go.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0);
+        job_go.transform.position = new Vector3(job.Tile.X + ((job.structurePrototype.Width - 1) / 2f), job.Tile.Y + ((job.structurePrototype.Height - 1) / 2f), 0);
         job_go.transform.SetParent(this.transform, true);
 
         // FIXME: We assume that the object must be a wall, so use

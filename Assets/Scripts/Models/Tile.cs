@@ -79,24 +79,36 @@ public class Tile : IXmlSerializable
             return movementCost;
     }
 
+    public bool UninstallStructure()
+    {
+        // Just uninstalling. FIXME: What if we have a multi-tile structure?
+        Structure = null;
+        return true;
+    }
+
     public bool PlaceStructure(Structure objInstance)
     {
         if (objInstance == null)
         {
-            // We are uninstalling whatever was here before.
-            Structure = null;
-            return true;
+            return UninstallStructure();
         }
 
-        // objInstance isn't null
-        if (Structure != null)
+        if (objInstance.IsValidPosition(this) == false)
         {
-            Debug.LogError("Trying to assign a structure to a tile that already has one!");
+            Debug.LogError("Trying to assign a structure to a tile that isn't valid!");
             return false;
         }
 
-        // At this point, everything's fine!
-        Structure = objInstance;
+        for (int x_off = X; x_off < (X + objInstance.Width); x_off++)
+        {
+            for (int y_off = Y; y_off < (Y + objInstance.Height); y_off++)
+            {
+                Tile t = World.GetTileAt(x_off, y_off);
+
+                t.Structure = objInstance;
+            }
+        }
+
         return true;
     }
 
