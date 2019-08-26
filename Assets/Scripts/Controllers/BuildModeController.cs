@@ -3,43 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+public enum BuildMode { Tile, Structure, Deconstruct };
+
 public class BuildModeController : MonoBehaviour
 {
-    BuildMode buildMode = BuildMode.Nothing;
-    bool buildModeIsObjects = false;
+    public BuildMode buildMode = BuildMode.Tile;
     TileType buildModeTile = null;
-    string buildModeObjectType;
-
-    GameObject structurePreview;
-
-    StructureSpriteController ssc;
+    public string buildModeObjectType;
 
     MouseController mouseController;
 
     private void Start()
     {
-        ssc = GameObject.FindObjectOfType<StructureSpriteController>();
-        mouseController = GameObject.FindObjectOfType<MouseController>();
-
-        structurePreview = new GameObject();
-        structurePreview.transform.SetParent(this.transform);
-        structurePreview.AddComponent<SpriteRenderer>().sortingLayerName = "Jobs";
-        structurePreview.SetActive(false);
-    }
-
-    private void Update()
-    {
-        if (buildModeIsObjects == true && !string.IsNullOrEmpty(buildModeObjectType))
-        {
-            // Show a transparent preview of the object that is color-coded based
-            // on whether or not you can actually build the object here.
-            ShowStructureSpriteAtTile(buildModeObjectType, mouseController.GetMouseOverTile());
-        }
+        
     }
 
     public bool IsObjectDraggable()
     {
-        if (buildModeIsObjects == false)
+        if (buildMode == BuildMode.Tile || buildMode == BuildMode.Deconstruct)
         {
             // floors are draggable
             return true;
@@ -50,26 +31,6 @@ public class BuildModeController : MonoBehaviour
         return proto.Width == 1 && proto.Height == 1;
     }
 
-    void ShowStructureSpriteAtTile(string structureType, Tile t)
-    {
-        structurePreview.SetActive(true);
-
-        SpriteRenderer spr = structurePreview.GetComponent<SpriteRenderer>();
-        spr.sprite = ssc.GetSpriteForStructure(structureType);
-
-        if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t))
-        {
-            spr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
-        }
-        else
-        {
-            spr.color = new Color(1f, 0.5f, 0.5f, 0.25f);
-        }
-
-        Structure proto = t.World.GetStructurePrototype(structureType);
-
-        structurePreview.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
-    }
 
     void OnStructureJobComplete(string objectType, Tile t)
     {
@@ -81,25 +42,37 @@ public class BuildModeController : MonoBehaviour
         return buildMode;
     }
 
-    public void SetMode(BuildState buildState)
+    public void SetMode_Tile()
     {
-        buildMode = buildState.State;
-        switch (buildState.State)
+        buildMode = BuildMode.Tile;
+        GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+    }
+
+    public void SetMode_Structure()
+    {
+        buildMode = BuildMode.Structure;
+        GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+    }
+
+    public void SetMode_Deconstruct()
+    {
+        buildMode = BuildMode.Deconstruct;
+        GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+    }
+
+    public void SetMode(BuildMode _buildMode)
+    {
+        this.buildMode = _buildMode;
+        switch (buildMode)
         {
-            case BuildMode.BuildRoad:
-                buildModeIsObjects = false;
-                buildModeTile = TileTypeData.GetByFlagName("Road");
+            case BuildMode.Tile:
+                SetMode_Tile();
                 break;
-            case BuildMode.BuildTile:
-                buildModeIsObjects = false;
-                buildModeTile = TileTypeData.GetByFlagName("Floor");
+            case BuildMode.Structure:
+                SetMode_Structure();
                 break;
-            case BuildMode.RemoveTile:
-                buildModeIsObjects = false;
-                buildModeTile = TileTypeData.GetByFlagName("Dirt");
-                break;
-            case BuildMode.BuildObject:
-                buildModeIsObjects = true;
+            case BuildMode.Deconstruct:
+                SetMode_Deconstruct();
                 break;
         }
     }
@@ -109,6 +82,11 @@ public class BuildModeController : MonoBehaviour
         WorldController.Instance.World.SetupPathfindingExample();
     }
 
+    public void SetBuildTileType(string tileType)
+    {
+        buildModeTile = TileTypeData.GetByFlagName(tileType);
+    }
+
     public void SetBuildStructure(string objStructure)
     {
         buildModeObjectType = objStructure;
@@ -116,7 +94,7 @@ public class BuildModeController : MonoBehaviour
 
     public void DoBuild(Tile t)
     {
-        if (buildModeIsObjects)
+        if (buildMode == BuildMode.Structure)
         {
             // Create the Structure and assign it to the tile
 
@@ -161,10 +139,22 @@ public class BuildModeController : MonoBehaviour
                 WorldController.Instance.World.jobQueue.Enqueue(j);
             }
         }
-        else
+        else if (buildMode == BuildMode.Tile)
         {
             // We are in tile-changing mode.
             t.Type = buildModeTile;
+        }
+        else if (buildMode == BuildMode.Deconstruct)
+        {
+            // TODO
+            if (t.Structure != null)
+            {
+                t.Structure.Deconstruct();
+            }
+        }
+        else
+        {
+            Debug.LogError("UNIMPLEMENTED BUILD MODE");
         }
     }
 }

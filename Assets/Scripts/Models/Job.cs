@@ -25,6 +25,8 @@ public class Job
 
     public Structure structurePrototype;
 
+    public Structure structure; // The structure that owns this job. Frequently will be null.
+
     bool acceptsAnyInventoryItem = false;
 
     public bool canTakeFromStockpile = true;

@@ -37,12 +37,12 @@ public class MouseOverStructureTypeText : MonoBehaviour
     {
         Tile t = mouseController.GetMouseOverTile();
 
-        string s = "NULL";
+        string s = StringUtils.GetLocalizedTextFiltered("comment#null").ToUpper();
         if (t != null && t.Structure != null)
         {
             s = t.Structure.ObjectType;
         }
 
-        myText.text = "Structure: " + s;
+        myText.text = StringUtils.GetLocalizedText("12") + s; // Structure: 
     }
 }

@@ -7,9 +7,6 @@ using System.Xml.Serialization;
 
 public class Actor : IXmlSerializable
 {
-    int x;
-    int y;
-
     public Tile CurrTile { get; protected set; }
 
     // If we aren't moving, then destTile = CurrTile

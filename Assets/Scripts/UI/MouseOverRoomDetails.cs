@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MouseOverTileTypeText : MonoBehaviour
+public class MouseOverRoomDetails : MonoBehaviour
 {
     // Every frame, this script checks to see which tile
     // is under the mouse and then updates the GetComponent<Text>.text
@@ -38,7 +38,13 @@ public class MouseOverTileTypeText : MonoBehaviour
         Tile t = mouseController.GetMouseOverTile();
         if (t != null)
         {
-            myText.text = StringUtils.GetLocalizedText("11") + StringUtils.GetLocalizedTextFiltered(t.Type.NameLocaleId); // Tile Type: 
+            string s = "";
+            foreach (string g in t.Room.GetGasNames())
+            {
+                s += g + ": " + t.Room.GetGasAmount(g) + " (" + (t.Room.GetGasPercentage(g) * 100) + "%) ";
+            }
+            myText.text = s;
+            // myText.text = StringUtils.GetLocalizedText("13") + t.World.rooms.IndexOf(t.Room).ToString(); // Room Index: 
         }
     }
 }

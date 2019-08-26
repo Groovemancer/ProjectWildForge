@@ -87,6 +87,21 @@ public class StructureSpriteController : MonoBehaviour
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
         strct.RegisterOnChangedCallback(OnStructureChanged);
+        strct.RegisterOnRemovedCallback(OnStructureRemoved);
+    }
+
+    void OnStructureRemoved(Structure strct)
+    {
+        // Make sure the structure's graphics are correct.
+        if (structureGameObjectMap.ContainsKey(strct) == false)
+        {
+            Debug.LogError("OnStructureRemoved -- trying to change visuals for structure not in our map.");
+            return;
+        }
+
+        GameObject obj_go = structureGameObjectMap[strct];
+        Destroy(obj_go);
+        structureGameObjectMap.Remove(strct);
     }
 
     void OnStructureChanged(Structure strct)

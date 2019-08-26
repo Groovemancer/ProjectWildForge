@@ -79,10 +79,24 @@ public class Tile : IXmlSerializable
             return movementCost;
     }
 
-    public bool UninstallStructure()
+    public bool UnplaceStructure()
     {
         // Just uninstalling. FIXME: What if we have a multi-tile structure?
-        Structure = null;
+        if (Structure == null)
+            return false;
+
+        Structure s = Structure;
+
+        for (int x_off = X; x_off < (X + s.Width); x_off++)
+        {
+            for (int y_off = Y; y_off < (Y + s.Height); y_off++)
+            {
+                Tile t = World.GetTileAt(x_off, y_off);
+
+                t.Structure = null;
+            }
+        }
+
         return true;
     }
 
@@ -90,7 +104,7 @@ public class Tile : IXmlSerializable
     {
         if (objInstance == null)
         {
-            return UninstallStructure();
+            return UnplaceStructure();
         }
 
         if (objInstance.IsValidPosition(this) == false)

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 8/24/2019 3:37:54 PM-->
+<!--Last Updated: 8/25/2019 5:31:34 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -105,6 +105,42 @@
 		<Text>
 			<en-US>Road</en-US>
 			<de-DE>Straße</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="11">
+		<Comment>tile_type</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>
+			<en-US>Tile Type: </en-US>
+			<de-DE>Kacheltyp: </de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="12">
+		<Comment>structure</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>
+			<en-US>Structure: </en-US>
+			<de-DE>Struktur: </de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="13">
+		<Comment>room_index</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>
+			<en-US>Room Index: </en-US>
+			<de-DE>Raumindex: </de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="14">
+		<Comment>null</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>null</en-US>
+			<de-DE>null</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

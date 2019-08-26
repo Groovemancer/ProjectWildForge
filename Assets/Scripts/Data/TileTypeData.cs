@@ -15,7 +15,6 @@ public class TileType
     public float MoveCost { get; set; }
     public string Sprite { get; set; }
     public bool IsDefault { get; set; }
-    public bool IsAll { get; set; }
 }
 
 [Serializable]
@@ -26,8 +25,6 @@ class TileTypeData
 
     public List<TileType> Data = new List<TileType>();
     private TileType defaultType = null;
-    private TileType allType = null;
-    private uint? allFlag = null;
 
     public TileTypeData()
     {
@@ -62,42 +59,28 @@ class TileTypeData
         }
     }
 
-    public TileType AllType
+    public TileType EmptyType
     {
-        get
-        {
-            if (allType == null)
-            {
-                foreach (TileType type in Data)
-                {
-                    if (type.IsAll)
-                    {
-                        allType = type;
-                        break;
-                    }
-                }
-            }
-            return allType;
-        }
+        get;
+        protected set;
     }
 
-    public uint? AllFlag
+    public uint EmptyFlag
     {
-        get
-        {
-            if (allFlag == null)
-            {
-                foreach (TileType type in Data)
-                {
-                    if (type.IsAll)
-                    {
-                        allFlag = type.Flag;
-                        break;
-                    }
-                }
-            }
-            return allFlag.Value;
-        }
+        get;
+        protected set;
+    }
+
+    public TileType AllType
+    {
+        get;
+        protected set;
+    }
+
+    public uint AllFlag
+    {
+        get;
+        protected set;
     }
 
     public static TileType GetById(uint id)
@@ -138,6 +121,22 @@ class TileTypeData
         return data != null;
     }
 
+    private static void AddDefaultTiles()
+    {
+        Instance.EmptyType = new TileType() {
+            Id = 0, Flag = 1 << 0, FlagName = "Empty", NameLocaleId = "comment#tile_type_empty",
+            MoveCost = 0, IsDefault = false, Sprite = null };
+        Instance.EmptyFlag = Instance.EmptyType.Flag;
+
+        Instance.AllType = new TileType() {
+            Id = 0, Flag = 1 << 1, FlagName = "All", NameLocaleId = "comment#tile_type_all",
+            MoveCost = 0, IsDefault = false, Sprite = null };
+        Instance.AllFlag = Instance.AllType.Flag;
+
+        Instance.Data.Add(Instance.EmptyType);
+        Instance.Data.Add(Instance.AllType);
+    }
+
     public static void LoadData()
     {
         if (!loaded)
@@ -152,6 +151,8 @@ class TileTypeData
                 XmlNode tileTypes = doc.SelectSingleNode("TileTypes");
 
                 Instance.Data.Clear();
+
+                AddDefaultTiles();
 
                 XmlNodeList typeNodes = doc.SelectNodes("TileTypes/TileType");
 
@@ -173,12 +174,6 @@ class TileTypeData
                         DebugUtils.Log("TileTypeData: Warning - Multiple \"default\" types!");
                     }
 
-                    bool isAll = typeNode.SelectSingleNode("All") != null;
-                    if (isDefault && Instance.defaultType != null)
-                    {
-                        DebugUtils.Log("TileTypeData: Warning - Multiple \"all\" types!");
-                    }
-
                     uint flag = (uint)1 << id;
 
                     if (Contains((uint)id))
@@ -192,19 +187,12 @@ class TileTypeData
                     type.MoveCost = moveCost;
                     type.Sprite = sprite;
                     type.IsDefault = isDefault;
-                    type.IsAll = isAll;
 
                     Instance.Data.Add(type);
 
                     if (isDefault)
                     {
                         Instance.defaultType = type;
-                    }
-
-                    if (isAll)
-                    {
-                        Instance.allType = type;
-                        Instance.allFlag = type.Flag;
                     }
                 }
                 DebugUtils.Log("TileTypeData Loaded: " + Instance.Data.Count);

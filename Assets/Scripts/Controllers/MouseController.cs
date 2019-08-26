@@ -14,14 +14,21 @@ public class MouseController : MonoBehaviour
     // The world-position start of our left-mouse drag operation
     Vector3 dragStartPosition;
 
+    bool isDragging = false;
+
     List<GameObject> dragPreviewGameObjects;
 
     BuildModeController bmc;
+    StructureSpriteController ssc;
+
+    MouseMode currentMode = MouseMode.Select;
 
     // Use this for initialization
     void Start()
     {
         bmc = GameObject.FindObjectOfType<BuildModeController>();
+        ssc = GameObject.FindObjectOfType<StructureSpriteController>();
+
         dragPreviewGameObjects = new List<GameObject>();
     }
 
@@ -44,7 +51,20 @@ public class MouseController : MonoBehaviour
         currFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         currFramePosition.z = 0;
 
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (currentMode == MouseMode.Build)
+            {
+                currentMode = MouseMode.Select;
+            }
+            else if (currentMode == MouseMode.Select)
+            {
+                Debug.Log("Show game menu?");
+            }
+        }
+
         //UpdateCursor();
+        
         UpdateDragging();
         UpdateCameraMovement();
 
@@ -58,14 +78,33 @@ public class MouseController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
-        // If we are in Hover mode, bail out.
-        if (bmc.GetBuildMode() == BuildMode.Nothing)
+        // Clean up old drag previews
+        while (dragPreviewGameObjects.Count > 0)
+        {
+            GameObject go = dragPreviewGameObjects[0];
+            dragPreviewGameObjects.RemoveAt(0);
+            SimplePool.Despawn(go);
+        }
+
+        if (currentMode != MouseMode.Build)
             return;
 
         // Start Drag
         if (Input.GetMouseButtonDown(0))
         {
             dragStartPosition = currFramePosition;
+            isDragging = true;
+        }
+        else if (isDragging == false)
+        {
+            dragStartPosition = currFramePosition;
+        }
+
+        if (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape))
+        {
+            // The RIGHT mouse button was released, so we
+            // are cancelling any dragging/build mode.
+            isDragging = false;
         }
 
         if (bmc.IsObjectDraggable() == false)
@@ -92,16 +131,8 @@ public class MouseController : MonoBehaviour
             start_y = tmp;
         }
 
-        // Clean up old drag previews
-        while (dragPreviewGameObjects.Count > 0)
-        {
-            GameObject go = dragPreviewGameObjects[0];
-            dragPreviewGameObjects.RemoveAt(0);
-            SimplePool.Despawn(go);
-        }
-
-        if (Input.GetMouseButton(0))
-        {
+        //if (isDragging)
+        //{
             // Display a preview of the drag area
             for (int x = start_x; x <= end_x; x++)
             {
@@ -110,18 +141,26 @@ public class MouseController : MonoBehaviour
                     Tile t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        // Display the structure hint on top of this tile position
-                        GameObject go = SimplePool.Spawn(circleCursorPrefab, new Vector3(x, y, 0), Quaternion.identity);
-                        go.transform.SetParent(this.transform, true);
-                        dragPreviewGameObjects.Add(go);
+                        if (bmc.buildMode == BuildMode.Structure)
+                        {
+                            ShowStructureSpriteAtTile(bmc.buildModeObjectType, t);
+                        }
+                        else
+                        {
+                            // Display the structure hint on top of this tile position
+                            GameObject go = SimplePool.Spawn(circleCursorPrefab, new Vector3(x, y, 0), Quaternion.identity);
+                            go.transform.SetParent(this.transform, true);
+                            dragPreviewGameObjects.Add(go);
+                        }
                     }
                 }
             }
-        }
+        //}
 
         // End Drag
-        if (Input.GetMouseButtonUp(0))
+        if (isDragging && Input.GetMouseButtonUp(0))
         {
+            isDragging = false;
             for (int x = start_x; x <= end_x; x++)
             {
                 for (int y = start_y; y <= end_y; y++)
@@ -156,4 +195,41 @@ public class MouseController : MonoBehaviour
 
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
     }
+
+
+    void ShowStructureSpriteAtTile(string structureType, Tile t)
+    {
+        GameObject go = new GameObject();
+        go.transform.SetParent(this.transform, true);
+        dragPreviewGameObjects.Add(go);
+
+
+        SpriteRenderer spr = go.AddComponent<SpriteRenderer>();
+        spr.sortingLayerName = "Jobs";
+        spr.sprite = ssc.GetSpriteForStructure(structureType);
+
+        if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t))
+        {
+            spr.color = new Color(0.5f, 1f, 0.5f, 0.5f);
+        }
+        else
+        {
+            spr.color = new Color(1f, 0.5f, 0.5f, 0.5f);
+        }
+
+        Structure proto = t.World.GetStructurePrototype(structureType);
+
+        go.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
+    }
+
+    public void StartBuildMode()
+    {
+        currentMode = MouseMode.Build;
+    }
+}
+
+
+public enum MouseMode
+{
+    Select, Build
 }

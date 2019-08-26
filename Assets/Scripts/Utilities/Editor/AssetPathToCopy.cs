@@ -48,7 +48,7 @@ namespace UnityTools.EditorUtility
 
             var assetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
             string ext = Path.GetExtension(assetPath);
-            assetPath = StringUtility.ReplaceLastOccurrence(assetPath, ext, "");
+            assetPath = StringUtils.ReplaceLastOccurrence(assetPath, ext, "");
             EditorGUIUtility.systemCopyBuffer = assetPath;
         }
 

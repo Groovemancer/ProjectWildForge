@@ -28,6 +28,13 @@ public class Structure : IXmlSerializable
 
     List<Job> jobs;
 
+    // If this structure gets worked by a person,
+    // where is the correct spot for them to stand,
+    // relative to the bottom-left tile of the sprite.
+    // NOTE: This could even be something outside of the actual
+    // structure tile itself!   (In fact, this will probably be common).
+    public Vector2 jobSpotOffset = Vector2.zero;
+
     public void Update(float deltaAuts)
     {
         if (updateActions != null)
@@ -61,6 +68,7 @@ public class Structure : IXmlSerializable
     public bool LinksToNeighbor { get; protected set; }
 
     public Action<Structure> cbOnChanged;
+    public Action<Structure> cbOnRemoved;
 
     Func<Tile, bool> funcPositionValidation;
 
@@ -86,6 +94,8 @@ public class Structure : IXmlSerializable
         this.tint = other.tint;
         this.LinksToNeighbor = other.LinksToNeighbor;
         this.AllowedTileTypes = other.AllowedTileTypes;
+
+        this.jobSpotOffset = other.jobSpotOffset;
 
         this.structureParameters = new Dictionary<string, float>(other.structureParameters);
         jobs = new List<Job>();
@@ -207,7 +217,7 @@ public class Structure : IXmlSerializable
                 //Debug.Log("AllowedTypes: " + AllowedTileTypes);
                 // Make sure tile is of allowed types
                 // Make sure tile doesn't already have structure
-                if ((AllowedTileTypes & t2.Type.Flag) != t2.Type.Flag && t2.Type.Flag != TileTypeData.Instance.AllFlag)
+                if ((AllowedTileTypes & t2.Type.Flag) != t2.Type.Flag && t2.Type != TileTypeData.Instance.AllType)
                 {
                     //Debug.Log("Old IsValidPosition: false");
                     return false;
@@ -240,6 +250,16 @@ public class Structure : IXmlSerializable
     public void UnregisterOnChangedCallback(Action<Structure> callbackFunc)
     {
         cbOnChanged -= callbackFunc;
+    }
+
+    public void RegisterOnRemovedCallback(Action<Structure> callbackFunc)
+    {
+        cbOnRemoved += callbackFunc;
+    }
+
+    public void UnregisterOnRemovedCallback(Action<Structure> callbackFunc)
+    {
+        cbOnRemoved -= callbackFunc;
     }
 
     /// <summary>
@@ -288,6 +308,7 @@ public class Structure : IXmlSerializable
 
     public void AddJob(Job j)
     {
+        j.structure = this;
         jobs.Add(j);
         Tile.World.jobQueue.Enqueue(j);
     }
@@ -296,6 +317,7 @@ public class Structure : IXmlSerializable
     {
         jobs.Remove(j);
         j.CancelJob();
+        j.structure = null;
         Tile.World.jobQueue.Remove(j);
     }
 
@@ -310,6 +332,33 @@ public class Structure : IXmlSerializable
     public bool IsStockpile()
     {
         return ObjectType == "Stockpile";
+    }
+
+    public void Deconstruct()
+    {
+        Debug.Log("Deconstruct");
+
+        Tile.UnplaceStructure();
+
+        if (cbOnRemoved != null)
+            cbOnRemoved(this);
+
+        // Do we need to recalculate our rooms?
+        if (RoomEnclosure)
+        {
+            // TODO: Not sure if I'll be using rooms just yet.
+            Room.DoRoomFloodFill(this.Tile);
+        }
+
+        Tile.World.InvalidateTileGraph();
+
+        // At this point, no DATA structures should be pointing to us, so we
+        // should get garbage-collected.
+    }
+
+    public Tile GetJobSpotTile()
+    {
+        return Tile.World.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y);
     }
 
     #region Saving & Loading

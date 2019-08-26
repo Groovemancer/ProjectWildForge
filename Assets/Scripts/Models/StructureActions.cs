@@ -133,6 +133,7 @@ public static class StructureActions
         // TODO: Later on, add stockpile priorities, so that we can take from a lower
         // priority stockpile for a higher priority one.
         j.canTakeFromStockpile = false;
+
         j.RegisterJobWorkedCallback(Stockpile_JobWorked);
         structure.AddJob(j);
     }
@@ -140,7 +141,7 @@ public static class StructureActions
     static void Stockpile_JobWorked(Job j)
     {
         Debug.Log("Stockpile_JobWorked");
-        j.Tile.Structure.RemoveJob(j);
+        j.structure.RemoveJob(j);
 
         // TODO: Change this when we figure out what we're doing for the all/any pickup job.
         foreach (Inventory inv in j.inventoryRequirements.Values)
@@ -151,5 +152,50 @@ public static class StructureActions
                 return;
             }
         }
+    }
+
+    public static void OxygenGenerator_UpdateAction(Structure structure, float deltaAuts)
+    {
+        if (structure.Tile.Room.GetGasAmount("02") < 0.20f)
+        {
+            //TODO: Change the gas contribution based on the volume of the room
+            structure.Tile.Room.ChangeGas("O2", 0.01f * deltaAuts); // TODO: Replace hardcoded value!
+        }
+    }
+
+    public static void WorkStation_UpdateAction(Structure structure, float deltaAuts)
+    {
+        if (structure.JobCount() > 0)
+        {
+            // We already have a job, so nothing to do.
+            return;
+        }
+
+        Tile jobSpot = structure.GetJobSpotTile();
+
+        if (jobSpot.Inventory != null && (jobSpot.Inventory.stackSize >= jobSpot.Inventory.maxStackSize))
+        {
+            // Our drop spot is already full, so don't create a job.
+            return;
+        }
+
+        Job j = new Job(
+            jobSpot,
+            null,
+            WorkStation_JobComplete,
+            600,
+            null
+        );
+
+        structure.AddJob(j);
+    }
+
+    public static void WorkStation_JobComplete(Job j)
+    {
+        Debug.Log("WorkStation_JobComplete");
+
+        j.Tile.World.inventoryManager.PlaceInventory(j.Tile, new Inventory("RawStone", 50, 2));
+
+        j.structure.RemoveJob(j);
     }
 }

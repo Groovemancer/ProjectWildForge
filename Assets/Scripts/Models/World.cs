@@ -88,7 +88,7 @@ public class World : IXmlSerializable
 
         // All tiles that belonged to this room should be re-assigned to
         // the outside.
-        r.UnAssignAllTiles();
+        r.ReturnTilesToOutsideRoom();
     }
 
     void SetupWorld(int width, int height)
@@ -100,7 +100,7 @@ public class World : IXmlSerializable
         Tiles = new Tile[Width, Height];
 
         rooms = new List<Room>();
-        rooms.Add(new Room()); // Create the outside?
+        rooms.Add(new Room(this)); // Create the outside?
 
         for (int x = 0; x < Width; x++)
         {
@@ -245,15 +245,31 @@ public class World : IXmlSerializable
         structurePrototypes.Add("WorkStation",
             new Structure(
                 "WorkStation",
+                1,      // Pathfinding Cost
+                3,      // Width
+                3,      // Height
+                false,   // Links to neighbors and "sort of" becomes part of a large object
+                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
+                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
+                false    // Enclose rooms
+            )
+        );
+        structurePrototypes["WorkStation"].jobSpotOffset = new Vector2(1, 0);
+        structurePrototypes["WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
+
+        structurePrototypes.Add("OxygenGenerator",
+            new Structure(
+                "OxygenGenerator",
                 10,      // Door Pathfinding Cost
                 2,      // Width
                 2,      // Height
                 false,   // Links to neighbors and "sort of" becomes part of a large object
                 TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
                     TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                true    // Enclose rooms
+                false    // Enclose rooms
             )
         );
+        structurePrototypes["OxygenGenerator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
     }
 
     public void SetupPathfindingExample()
@@ -273,7 +289,7 @@ public class World : IXmlSerializable
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        PlaceStructure("Wall", Tiles[x, y]);
+                        PlaceStructure("Wall", Tiles[x, y], false);
                     }
                 }
             }
@@ -310,7 +326,7 @@ public class World : IXmlSerializable
         return Tiles[x, y];
     }
 
-    public Structure PlaceStructure(string structureType, Tile t)
+    public Structure PlaceStructure(string structureType, Tile t, bool doRoomFloodFill = true)
     {
         //TODO: This function assumes 1x1 tiles -- change this later!
 
@@ -328,13 +344,14 @@ public class World : IXmlSerializable
             return null;
         }
 
+        structure.RegisterOnRemovedCallback(OnStructureRemoved);
         structures.Add(structure);
 
         // Do we need to recalculate our rooms?
-        if (structure.RoomEnclosure)
+        if (doRoomFloodFill && structure.RoomEnclosure)
         {
             // TODO: Not sure if I'll be using rooms just yet.
-            //Room.DoRoomFloodFill(structure);
+            Room.DoRoomFloodFill(structure.Tile);
         }
 
         if (cbStructureCreated != null)
@@ -429,6 +446,10 @@ public class World : IXmlSerializable
             cbInventoryCreated(inv);
     }
 
+    public void OnStructureRemoved(Structure strct)
+    {
+        structures.Remove(strct);
+    }
 
     #region Saving & Loading
 
@@ -454,7 +475,7 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                if (Tiles[x, y].Type != TileTypeData.GetByFlagName("Empty"))
+                if (Tiles[x, y].Type != TileTypeData.Instance.EmptyType)
                 {
                     writer.WriteStartElement("Tile");
                     Tiles[x, y].WriteXml(writer);
@@ -562,9 +583,14 @@ public class World : IXmlSerializable
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
 
-                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y]);
+                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y], false);
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
+
+            foreach (Structure strct in structures)
+            {
+                Room.DoRoomFloodFill(strct.Tile, true);
+            }
         }
     }
 
