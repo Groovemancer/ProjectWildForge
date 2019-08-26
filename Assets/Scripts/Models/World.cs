@@ -260,7 +260,7 @@ public class World : IXmlSerializable
         structurePrototypes.Add("OxygenGenerator",
             new Structure(
                 "OxygenGenerator",
-                10,      // Door Pathfinding Cost
+                10,      // Pathfinding Cost
                 2,      // Width
                 2,      // Height
                 false,   // Links to neighbors and "sort of" becomes part of a large object
