@@ -156,10 +156,10 @@ public static class StructureActions
 
     public static void OxygenGenerator_UpdateAction(Structure structure, float deltaAuts)
     {
-        if (structure.Tile.Room.GetGasAmount("02") < 0.20f)
+        if (structure.Tile.Room.GetGasAmount("O2") < 0.20f)
         {
             //TODO: Change the gas contribution based on the volume of the room
-            structure.Tile.Room.ChangeGas("O2", 0.01f * deltaAuts); // TODO: Replace hardcoded value!
+            structure.Tile.Room.ChangeGas("O2", 0.01f / deltaAuts); // TODO: Replace hardcoded value!
         }
     }
 

@@ -39,9 +39,12 @@ public class MouseOverRoomDetails : MonoBehaviour
         if (t != null)
         {
             string s = "";
-            foreach (string g in t.Room.GetGasNames())
+            if (t.Room != null)
             {
-                s += g + ": " + t.Room.GetGasAmount(g) + " (" + (t.Room.GetGasPercentage(g) * 100) + "%) ";
+                foreach (string g in t.Room.GetGasNames())
+                {
+                    s += g + ": " + t.Room.GetGasAmount(g) + " (" + (t.Room.GetGasPercentage(g) * 100) + "%) ";
+                }
             }
             myText.text = s;
             // myText.text = StringUtils.GetLocalizedText("13") + t.World.rooms.IndexOf(t.Room).ToString(); // Room Index: 
