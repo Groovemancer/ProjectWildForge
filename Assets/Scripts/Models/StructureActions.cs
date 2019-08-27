@@ -75,7 +75,7 @@ public static class StructureActions
         if (structure.Tile.Inventory != null && structure.Tile.Inventory.stackSize >= structure.Tile.Inventory.maxStackSize)
         {
             // We are full
-            structure.ClearJobs();
+            structure.CancelJobs();
             return;
         }
 
@@ -88,12 +88,12 @@ public static class StructureActions
 
         // We currently are NOT full, but we don't have a job either.
         // Two possibilities: Either we have SOME inventory, or we have NO inventory
-        
+
         // Third possibility: Something is WHACK
         if (structure.Tile.Inventory != null && structure.Tile.Inventory.stackSize == 0)
         {
             DebugUtils.LogError("Stockpile has a zero-size stack. This is clearly WRONG!");
-            structure.ClearJobs();
+            structure.CancelJobs();
             return;
         }
 
@@ -141,14 +141,14 @@ public static class StructureActions
     static void Stockpile_JobWorked(Job j)
     {
         Debug.Log("Stockpile_JobWorked");
-        j.structure.RemoveJob(j);
+        j.CancelJob();
 
         // TODO: Change this when we figure out what we're doing for the all/any pickup job.
         foreach (Inventory inv in j.inventoryRequirements.Values)
         {
             if (inv.stackSize > 0)
             {
-                j.Tile.World.inventoryManager.PlaceInventory(j.Tile, inv);
+                World.current.inventoryManager.PlaceInventory(j.Tile, inv);
                 return;
             }
         }
@@ -165,11 +165,28 @@ public static class StructureActions
 
     public static void WorkStation_UpdateAction(Structure structure, float deltaAuts)
     {
+        Tile spawnSpot = structure.GetSpawnSpotTile();
+
         if (structure.JobCount() > 0)
         {
-            // We already have a job, so nothing to do.
+            // Check to see if the Raw Stone destination tile is full.
+            if (spawnSpot.Inventory != null && spawnSpot.Inventory.stackSize >= spawnSpot.Inventory.maxStackSize)
+            {
+                // We should stop this job, because it's impossible to make any more items.
+                structure.CancelJobs();
+            }
+
             return;
         }
+
+        // If we get here, then we have no current job. Check to see if our destination is full.
+        if (spawnSpot.Inventory != null && spawnSpot.Inventory.stackSize >= spawnSpot.Inventory.maxStackSize)
+        {
+            // We are full! Don't make a job.
+            return;
+        }
+
+        // If we get here, we need to CREATE a new job.
 
         Tile jobSpot = structure.GetJobSpotTile();
 
@@ -184,7 +201,8 @@ public static class StructureActions
             null,
             WorkStation_JobComplete,
             600,
-            null
+            null,
+            true    // This job repeats until the destination tile is full.
         );
 
         structure.AddJob(j);
@@ -194,8 +212,6 @@ public static class StructureActions
     {
         Debug.Log("WorkStation_JobComplete");
 
-        j.Tile.World.inventoryManager.PlaceInventory(j.Tile, new Inventory("RawStone", 50, 2));
-
-        j.structure.RemoveJob(j);
+        World.current.inventoryManager.PlaceInventory(j.structure.GetSpawnSpotTile(), new Inventory("RawStone", 50, 10));
     }
 }

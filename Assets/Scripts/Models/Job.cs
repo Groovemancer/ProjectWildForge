@@ -17,6 +17,10 @@ public class Job
         protected set;
     }
 
+    protected float jobCostRequired;
+
+    protected bool jobRepeats = false;
+
     // FIXME: Hard-coding a parameter for structure. Do not like.
     public string jobObjectType
     {
@@ -31,18 +35,19 @@ public class Job
 
     public bool canTakeFromStockpile = true;
 
-    Action<Job> cbJobComplete;
-    Action<Job> cbJobCancel;
-    Action<Job> cbJobWorked;
+    Action<Job> cbJobCompleted; // We have finished the work cycle and so things should probably get built or whatever.
+    Action<Job> cbJobStopped;   // The job has been stopped, either because it's non-repeateing or was cancelled.
+    Action<Job> cbJobWorked;    // Gets called each time some work is performed -- maybe update the UI?
 
     public Dictionary<string, Inventory> inventoryRequirements;
 
-    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobCost, Inventory[] invReqs)
+    public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobCost, Inventory[] invReqs, bool jobRepeats = false)
     {
         this.Tile = tile;
         this.jobObjectType = jobObjectType;
-        this.cbJobComplete += cbJobComplete;
-        this.jobCost = jobCost;
+        this.cbJobCompleted += cbJobComplete;
+        this.jobCostRequired = this.jobCost = jobCost;
+        this.jobRepeats = jobRepeats;
 
         inventoryRequirements = new Dictionary<string, Inventory>();
 
@@ -59,7 +64,7 @@ public class Job
     {
         this.Tile = other.Tile;
         this.jobObjectType = other.jobObjectType;
-        this.cbJobComplete += other.cbJobComplete;
+        this.cbJobCompleted += other.cbJobCompleted;
         this.jobCost = other.jobCost;
 
         this.inventoryRequirements = new Dictionary<string, Inventory>();
@@ -102,27 +107,40 @@ public class Job
 
         if (jobCost <= 0)
         {
-            if (cbJobComplete != null)
-                cbJobComplete(this);
+            // Do whatever is supposed to happen when a job cycle completes.
+            if (cbJobCompleted != null)
+                cbJobCompleted(this);
+
+            if (jobRepeats == false)
+            {
+                // Let everyone know that the job is officially concluded
+                if (cbJobStopped != null)
+                    cbJobStopped(this);
+            }
+            else
+            {
+                // This is a repeating job and must be reset.
+                jobCost += jobCostRequired;
+            }
         }
     }
 
     public void CancelJob()
     {
-        if (cbJobCancel != null)
-            cbJobCancel(this);
+        if (cbJobStopped != null)
+            cbJobStopped(this);
 
-        Tile.World.jobQueue.Remove(this);
+        World.current.jobQueue.Remove(this);
     }
 
-    public void RegisterJobCompleteCallback(Action<Job> cb)
+    public void RegisterJobCompletedCallback(Action<Job> cb)
     {
-        cbJobComplete += cb;
+        cbJobCompleted += cb;
     }
 
-    public void RegisterJobCancelCallback(Action<Job> cb)
+    public void RegisterJobStoppedCallback(Action<Job> cb)
     {
-        cbJobCancel += cb;
+        cbJobStopped += cb;
     }
 
     public void RegisterJobWorkedCallback(Action<Job> cb)
@@ -130,14 +148,14 @@ public class Job
         cbJobWorked += cb;
     }
 
-    public void UnregisterJobCompleteCallback(Action<Job> cb)
+    public void UnregisterJobCompletedCallback(Action<Job> cb)
     {
-        cbJobComplete -= cb;
+        cbJobCompleted -= cb;
     }
 
-    public void UnregisterJobCancelCallback(Action<Job> cb)
+    public void UnregisterJobStoppedCallback(Action<Job> cb)
     {
-        cbJobCancel -= cb;
+        cbJobStopped -= cb;
     }
 
     public void UnregisterJobWorkedCallback(Action<Job> cb)

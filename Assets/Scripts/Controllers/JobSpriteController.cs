@@ -61,8 +61,8 @@ public class JobSpriteController : MonoBehaviour
             // Check to see if we actually have a wall north/south, and if so
             // then rotate this GO by 90 degress
 
-            Tile northTile = job.Tile.World.GetTileAt(job.Tile.X, job.Tile.Y + 1);
-            Tile southTile = job.Tile.World.GetTileAt(job.Tile.X, job.Tile.Y - 1);
+            Tile northTile = World.current.GetTileAt(job.Tile.X, job.Tile.Y + 1);
+            Tile southTile = World.current.GetTileAt(job.Tile.X, job.Tile.Y - 1);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
                 northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")
@@ -72,8 +72,8 @@ public class JobSpriteController : MonoBehaviour
             }
         }
 
-        job.RegisterJobCompleteCallback(OnJobEnded);
-        job.RegisterJobCancelCallback(OnJobEnded);
+        job.RegisterJobCompletedCallback(OnJobEnded);
+        job.RegisterJobStoppedCallback(OnJobEnded);
     }
 
     void OnJobEnded(Job job)
@@ -84,8 +84,8 @@ public class JobSpriteController : MonoBehaviour
 
         GameObject job_go = jobGameObjectMap[job];
 
-        job.UnregisterJobCompleteCallback(OnJobEnded);
-        job.UnregisterJobCancelCallback(OnJobEnded);
+        job.UnregisterJobCompletedCallback(OnJobEnded);
+        job.UnregisterJobStoppedCallback(OnJobEnded);
 
         Destroy(job_go);
     }

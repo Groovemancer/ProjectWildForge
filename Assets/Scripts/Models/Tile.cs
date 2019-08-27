@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using System.Linq;
 using UnityEngine;
 
 //[Flags]
@@ -42,13 +43,11 @@ public class Tile : IXmlSerializable
     public Structure Structure { get; protected set; }
     public Job PendingStructureJob;
 
-    public World World { get; protected set; }
     public int X { get; protected set; }
     public int Y { get; protected set; }
 
-    public Tile(World world, int x, int y)
+    public Tile(int x, int y)
     {
-        this.World = world;
         this.X = x;
         this.Y = y;
         this.Type = TileTypeData.Instance.DefaultType;
@@ -91,7 +90,7 @@ public class Tile : IXmlSerializable
         {
             for (int y_off = Y; y_off < (Y + s.Height); y_off++)
             {
-                Tile t = World.GetTileAt(x_off, y_off);
+                Tile t = World.current.GetTileAt(x_off, y_off);
 
                 t.Structure = null;
             }
@@ -117,7 +116,7 @@ public class Tile : IXmlSerializable
         {
             for (int y_off = Y; y_off < (Y + objInstance.Height); y_off++)
             {
-                Tile t = World.GetTileAt(x_off, y_off);
+                Tile t = World.current.GetTileAt(x_off, y_off);
 
                 t.Structure = objInstance;
             }
@@ -187,61 +186,51 @@ public class Tile : IXmlSerializable
             (diagOkay && (Mathf.Abs(tile.X - this.X) == 1 && Mathf.Abs(tile.Y - this.Y) == 1))); // Check diag adjacency
     }
 
-    public Tile[] GetNeighbors(bool diagOkay = false)
+    public Tile[] GetNeighbors(bool diagOkay = false, bool nullOkay = false)
     {
-        Tile[] ns;
-        if (diagOkay == false)
-        {
-            ns = new Tile[4]; // Tile order: N E S W
-        }
-        else
-        {
-            ns = new Tile[8]; // Tile order: N E S W NE SE SW NW
-        }
+        Tile[] tiles = new Tile[8];
 
-        Tile n;
-        n = North();
-        ns[0] = n;
-        n = East();
-        ns[1] = n;
-        n = South();
-        ns[2] = n;
-        n = West();
-        ns[3] = n;
+        tiles[0] = World.current.GetTileAt(X, Y + 1);
+        tiles[1] = World.current.GetTileAt(X + 1, Y);
+        tiles[2] = World.current.GetTileAt(X, Y - 1);
+        tiles[3] = World.current.GetTileAt(X - 1, Y);
 
         if (diagOkay == true)
         {
-            n = World.GetTileAt(X + 1, Y + 1);
-            ns[4] = n;
-            n = World.GetTileAt(X + 1, Y - 1);
-            ns[5] = n;
-            n = World.GetTileAt(X - 1, Y - 1);
-            ns[6] = n;
-            n = World.GetTileAt(X - 1, Y + 1);
-            ns[7] = n;
+            tiles[4] = World.current.GetTileAt(X + 1, Y + 1);
+            tiles[5] = World.current.GetTileAt(X + 1, Y - 1);
+            tiles[6] = World.current.GetTileAt(X - 1, Y - 1);
+            tiles[7] = World.current.GetTileAt(X - 1, Y + 1);
         }
 
-        return ns;
+        if (!nullOkay)
+        {
+            return tiles.Where(tile => tile != null).ToArray();
+        }
+        else
+        {
+            return tiles;
+        }
     }
 
     public Tile North()
     {
-        return World.GetTileAt(X, Y + 1);
+        return World.current.GetTileAt(X, Y + 1);
     }
 
     public Tile South()
     {
-        return World.GetTileAt(X, Y - 1);
+        return World.current.GetTileAt(X, Y - 1);
     }
 
     public Tile East()
     {
-        return World.GetTileAt(X + 1, Y);
+        return World.current.GetTileAt(X + 1, Y);
     }
 
     public Tile West()
     {
-        return World.GetTileAt(X - 1, Y);
+        return World.current.GetTileAt(X - 1, Y);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,11 +252,16 @@ public class Tile : IXmlSerializable
     {
         writer.WriteAttributeString("X", X.ToString());
         writer.WriteAttributeString("Y", Y.ToString());
+        writer.WriteAttributeString("RoomID", Room == null ? "-1" : Room.Id.ToString());
         writer.WriteAttributeString("Type", Type.FlagName);
     }
 
     public void ReadXml(XmlReader reader)
     {
+        // X and Y have already been read/processed
+
+        Room = World.current.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
+
         Type = TileTypeData.GetByFlagName(reader.GetAttribute("Type"));
     }
 }

@@ -133,7 +133,7 @@ public class BuildModeController : MonoBehaviour
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!
                 t.PendingStructureJob = j;
 
-                j.RegisterJobCancelCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
+                j.RegisterJobStoppedCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
 
                 // Add job to queue later
                 WorldController.Instance.World.jobQueue.Enqueue(j);

@@ -23,7 +23,7 @@ public class World : IXmlSerializable
     // The pathfinding graph used to navigate our world map.
     public PathTileGraph tileGraph;
 
-    Dictionary<string, Structure> structurePrototypes;
+    public Dictionary<string, Structure> structurePrototypes;
     public Dictionary<string, Job> structureJobPrototypes;
 
     public int Width { get; protected set; }
@@ -48,6 +48,8 @@ public class World : IXmlSerializable
     // For now, this is just a PUBLIC member of world
     public JobQueue jobQueue;
 
+    public static World current { get; protected set; }
+
     public World(int width, int height)
     {
         // Creates an empty world.
@@ -68,6 +70,19 @@ public class World : IXmlSerializable
     public Room GetOutsideRoom()
     {
         return rooms[0];
+    }
+
+    public int GetRoomId(Room r)
+    {
+        return rooms.IndexOf(r);
+    }
+
+    public Room GetRoomFromId(int i)
+    {
+        if (i < 0 || i > rooms.Count - 1)
+            return null;
+
+        return rooms[i];
     }
 
     public void AddRoom(Room r)
@@ -94,19 +109,24 @@ public class World : IXmlSerializable
     void SetupWorld(int width, int height)
     {
         jobQueue = new JobQueue();
+
+        // Set the current world to be this world.
+        // TODO: Do we need to do any cleanup of the old world?
+        current = this;
+
         Width = width;
         Height = height;
 
         Tiles = new Tile[Width, Height];
 
         rooms = new List<Room>();
-        rooms.Add(new Room(this)); // Create the outside?
+        rooms.Add(new Room()); // Create the outside?
 
         for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
             {
-                Tiles[x, y] = new Tile(this, x, y);
+                Tiles[x, y] = new Tile(x, y);
                 Tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
                 Tiles[x, y].Room = rooms[0]; // Rooms 0 is always going to be outside, and that is our default room
             }
@@ -351,7 +371,7 @@ public class World : IXmlSerializable
         if (doRoomFloodFill && structure.RoomEnclosure)
         {
             // TODO: Not sure if I'll be using rooms just yet.
-            Room.DoRoomFloodFill(structure.Tile);
+            Room.DoRoomFloodFill(structure.Tile, true);
         }
 
         if (cbStructureCreated != null)
@@ -470,6 +490,18 @@ public class World : IXmlSerializable
         writer.WriteAttributeString("Width", Width.ToString());
         writer.WriteAttributeString("Height", Height.ToString());
 
+        writer.WriteStartElement("Rooms");
+        foreach (Room room in rooms)
+        {
+            if (GetOutsideRoom() == room)
+                continue;   // Skip the outside room
+
+            writer.WriteStartElement("Room");
+            room.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+
         writer.WriteStartElement("Tiles");
         for (int x = 0; x < Width; x++)
         {
@@ -518,6 +550,9 @@ public class World : IXmlSerializable
         {
             switch (reader.Name)
             {
+                case "Rooms":
+                    ReadXmlRooms(reader);
+                    break;
                 case "Tiles":
                     ReadXmlTiles(reader);
                     break;
@@ -587,10 +622,34 @@ public class World : IXmlSerializable
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
 
+            // TODO we don't need to do a flood fill on load, because we're getting room info from the save file
+            /*
             foreach (Structure strct in structures)
             {
                 Room.DoRoomFloodFill(strct.Tile, true);
             }
+            */
+        }
+    }
+
+    void ReadXmlRooms(XmlReader reader)
+    {
+        Debug.Log("ReadXmlRooms");
+        if (reader.ReadToDescendant("Room"))
+        {
+            do
+            {
+                /*
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
+
+                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y], false);
+                structure.ReadXml(reader);
+                */
+                Room r = new Room();
+                rooms.Add(r);
+                r.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Room"));
         }
     }
 

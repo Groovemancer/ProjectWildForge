@@ -38,7 +38,10 @@ public class MouseOverRoomIndexText : MonoBehaviour
         Tile t = mouseController.GetMouseOverTile();
         if (t != null)
         {
-            myText.text = StringUtils.GetLocalizedText("13") + t.World.rooms.IndexOf(t.Room).ToString(); // Room Index: 
+            string roomId = "N/A";
+            if (t.Room != null)
+                roomId = t.Room.Id.ToString();
+            myText.text = StringUtils.GetLocalizedText("13") + roomId; // Room Index: 
         }
     }
 }

@@ -217,7 +217,7 @@ public class MouseController : MonoBehaviour
             spr.color = new Color(1f, 0.5f, 0.5f, 0.5f);
         }
 
-        Structure proto = t.World.GetStructurePrototype(structureType);
+        Structure proto = World.current.GetStructurePrototype(structureType);
 
         go.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
     }

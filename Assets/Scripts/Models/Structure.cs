@@ -35,6 +35,9 @@ public class Structure : IXmlSerializable
     // structure tile itself!   (In fact, this will probably be common).
     public Vector2 jobSpotOffset = Vector2.zero;
 
+    // If the job causes some kind of object to be spawned, where will it appear?
+    public Vector2 jobSpawnSpotOffset = Vector2.zero;
+
     public void Update(float deltaAuts)
     {
         if (updateActions != null)
@@ -167,25 +170,25 @@ public class Structure : IXmlSerializable
             int x = tile.X;
             int y = tile.Y;
 
-            t = tile.World.GetTileAt(x, y + 1);
+            t = World.current.GetTileAt(x, y + 1);
             if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
-            t = tile.World.GetTileAt(x + 1, y);
+            t = World.current.GetTileAt(x + 1, y);
             if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
-            t = tile.World.GetTileAt(x, y - 1);
+            t = World.current.GetTileAt(x, y - 1);
             if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
             }
 
-            t = tile.World.GetTileAt(x - 1, y);
+            t = World.current.GetTileAt(x - 1, y);
             if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
             {
                 t.Structure.cbOnChanged(t.Structure);
@@ -212,7 +215,7 @@ public class Structure : IXmlSerializable
         {
             for (int y_off = t.Y; y_off < (t.Y + Height); y_off++)
             {
-                Tile t2 = t.World.GetTileAt(x_off, y_off);
+                Tile t2 = World.current.GetTileAt(x_off, y_off);
 
                 //Debug.Log("AllowedTypes: " + AllowedTileTypes);
                 // Make sure tile is of allowed types
@@ -310,22 +313,37 @@ public class Structure : IXmlSerializable
     {
         j.structure = this;
         jobs.Add(j);
-        Tile.World.jobQueue.Enqueue(j);
+        j.RegisterJobStoppedCallback(OnJobStopped);
+        World.current.jobQueue.Enqueue(j);
     }
 
-    public void RemoveJob(Job j)
+    public void OnJobStopped(Job j)
     {
+        RemoveJob(j);
+    }
+
+    protected void RemoveJob(Job j)
+    {
+        j.UnregisterJobStoppedCallback(OnJobStopped);
         jobs.Remove(j);
-        j.CancelJob();
         j.structure = null;
-        Tile.World.jobQueue.Remove(j);
     }
 
-    public void ClearJobs()
+    protected void ClearJobs()
     {
-        foreach (Job j in jobs)
+        Job[] jobs_array = jobs.ToArray();
+        foreach (Job j in jobs_array)
         {
             RemoveJob(j);
+        }
+    }
+
+    public void CancelJobs()
+    {
+        Job[] jobs_array = jobs.ToArray();
+        foreach (Job j in jobs_array)
+        {
+            j.CancelJob();
         }
     }
 
@@ -347,10 +365,10 @@ public class Structure : IXmlSerializable
         if (RoomEnclosure)
         {
             // TODO: Not sure if I'll be using rooms just yet.
-            Room.DoRoomFloodFill(this.Tile);
+            Room.DoRoomFloodFill(this.Tile, false);
         }
 
-        Tile.World.InvalidateTileGraph();
+        World.current.InvalidateTileGraph();
 
         // At this point, no DATA structures should be pointing to us, so we
         // should get garbage-collected.
@@ -358,7 +376,12 @@ public class Structure : IXmlSerializable
 
     public Tile GetJobSpotTile()
     {
-        return Tile.World.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y);
+        return World.current.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y);
+    }
+
+    public Tile GetSpawnSpotTile()
+    {
+        return World.current.GetTileAt(Tile.X + (int)jobSpawnSpotOffset.x, Tile.Y + (int)jobSpawnSpotOffset.y);
     }
 
     #region Saving & Loading
