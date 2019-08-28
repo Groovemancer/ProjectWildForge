@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Structures>
+	<Structure objectType="struct_StoneWall">
+		<Name>struct_StoneWall</Name>
+		<MoveCost>0</MoveCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbors>true</LinksToNeighbors>
+		<EnclosesRooms>true</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		
+		<BuildingJob jobCost="300">
+			<Inventory objectType="inv_RawStone" amount="5"/>
+		</BuildingJob>
+		
+		<DeconstructJob jobCost="100">
+			<Inventory objectType="inv_RawStone" amount="3"/>
+		</DeconstructJob>
+	</Structure>
+	<Structure objectType="struct_WoodDoor">
+		<Name>struct_WoodDoor</Name>
+		<MoveCost>1</MoveCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbors>false</LinksToNeighbors>
+		<EnclosesRooms>true</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		
+		<BuildingJob jobCost="300">
+			<Inventory objectType="inv_Wood" amount="2"/>
+		</BuildingJob>
+		
+		<DeconstructJob jobCost="100">
+			<Inventory objectType="inv_Wood" amount="1"/>
+		</DeconstructJob>
+		
+		<Params>
+			<Param name="openness" value="0"/>
+			<Param name="isOpening" value="0"/>
+			<Param name="doorOpenTime" value="25"/>
+		</Params>
+	</Structure>
+	<Structure objectType="struct_Stockpile">
+		<Name>struct_Stockpile</Name>
+		<MoveCost>1</MoveCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbors>true</LinksToNeighbors>
+		<EnclosesRooms>false</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		<Tint>255 0 255 255</Tint>
+		<Tags>
+			<Tag>Stockpile</Tag>
+		</Tags>
+	</Structure>
+	<Structure objectType="struct_WorkStation">
+		<Name>struct_WorkStation</Name>
+		<MoveCost>1</MoveCost>
+		<Width>3</Width>
+		<Height>3</Height>
+		<LinksToNeighbors>false</LinksToNeighbors>
+		<EnclosesRooms>false</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		<JobOffset>1 0</JobOffset>
+		
+		<!--<BuildingJob jobCost="600">
+			<Inventory objectType="inv_Wood" amount="25"/>
+		</BuildingJob>-->
+		
+		<DeconstructJob jobCost="300">
+			<Inventory objectType="inv_RawStone" amount="15"/>
+		</DeconstructJob>
+	</Structure>
+</Structures>

@@ -4,274 +4,274 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 21300000
-    second: Stockpile
+    second: struct_Stockpile
   - first:
       213: 21300002
-    second: Stockpile_1
+    second: struct_Stockpile_1
   - first:
       213: 21300004
-    second: Stockpile_2
+    second: struct_Stockpile_2
   - first:
       213: 21300006
-    second: Stockpile_3
+    second: struct_Stockpile_3
   - first:
       213: 21300008
-    second: Stockpile_4
+    second: struct_Stockpile_4
   - first:
       213: 21300010
-    second: Stockpile_5
+    second: struct_Stockpile_5
   - first:
       213: 21300012
-    second: Stockpile_6
+    second: struct_Stockpile_6
   - first:
       213: 21300014
-    second: Stockpile_E
+    second: struct_Stockpile_E
   - first:
       213: 21300016
-    second: Stockpile_EW
+    second: struct_Stockpile_EW
   - first:
       213: 21300018
-    second: Stockpile_W
+    second: struct_Stockpile_W
   - first:
       213: 21300020
-    second: Stockpile_10
+    second: struct_Stockpile_10
   - first:
       213: 21300022
-    second: Stockpile_11
+    second: struct_Stockpile_11
   - first:
       213: 21300024
-    second: Stockpile_12
+    second: struct_Stockpile_12
   - first:
       213: 21300026
-    second: Stockpile_13
+    second: struct_Stockpile_13
   - first:
       213: 21300028
-    second: Stockpile_14
+    second: struct_Stockpile_14
   - first:
       213: 21300030
-    second: Stockpile_15
+    second: struct_Stockpile_15
   - first:
       213: 21300032
-    second: Stockpile_16
+    second: struct_Stockpile_16
   - first:
       213: 21300034
-    second: Stockpile_17
+    second: struct_Stockpile_17
   - first:
       213: 21300036
-    second: Stockpile_18
+    second: struct_Stockpile_18
   - first:
       213: 21300038
-    second: Stockpile_19
+    second: struct_Stockpile_19
   - first:
       213: 21300040
-    second: Stockpile_20
+    second: struct_Stockpile_20
   - first:
       213: 21300042
-    second: Stockpile_21
+    second: struct_Stockpile_21
   - first:
       213: 21300044
-    second: Stockpile_22
+    second: struct_Stockpile_22
   - first:
       213: 21300046
-    second: Stockpile_23
+    second: struct_Stockpile_23
   - first:
       213: 21300048
-    second: Stockpile_24
+    second: struct_Stockpile_24
   - first:
       213: 21300050
-    second: Stockpile_25
+    second: struct_Stockpile_25
   - first:
       213: 21300052
-    second: Stockpile_26
+    second: struct_Stockpile_26
   - first:
       213: 21300054
-    second: Stockpile_27
+    second: struct_Stockpile_27
   - first:
       213: 21300056
-    second: Stockpile_28
+    second: struct_Stockpile_28
   - first:
       213: 21300058
-    second: Stockpile_29
+    second: struct_Stockpile_29
   - first:
       213: 21300060
-    second: Stockpile_30
+    second: struct_Stockpile_30
   - first:
       213: 21300062
-    second: Stockpile_31
+    second: struct_Stockpile_31
   - first:
       213: 21300064
-    second: Stockpile_32
+    second: struct_Stockpile_32
   - first:
       213: 21300066
-    second: Stockpile_33
+    second: struct_Stockpile_33
   - first:
       213: 21300068
-    second: Stockpile_34
+    second: struct_Stockpile_34
   - first:
       213: 21300070
-    second: Stockpile_35
+    second: struct_Stockpile_35
   - first:
       213: 21300072
-    second: Stockpile_36
+    second: struct_Stockpile_36
   - first:
       213: 21300074
-    second: Stockpile_37
+    second: struct_Stockpile_37
   - first:
       213: 21300076
-    second: Stockpile_38
+    second: struct_Stockpile_38
   - first:
       213: 21300078
-    second: Stockpile_39
+    second: struct_Stockpile_39
   - first:
       213: 21300080
-    second: Stockpile_40
+    second: struct_Stockpile_40
   - first:
       213: 21300082
-    second: Stockpile_41
+    second: struct_Stockpile_41
   - first:
       213: 21300084
-    second: Stockpile_42
+    second: struct_Stockpile_42
   - first:
       213: 21300086
-    second: Stockpile_43
+    second: struct_Stockpile_43
   - first:
       213: 21300088
-    second: Stockpile_
+    second: struct_Stockpile_
   - first:
       213: 21300090
-    second: Stockpile_S
+    second: struct_Stockpile_S
   - first:
       213: 21300092
-    second: Stockpile_2
+    second: struct_Stockpile_2
   - first:
       213: 21300094
-    second: Stockpile_NS
+    second: struct_Stockpile_NS
   - first:
       213: 21300096
-    second: Stockpile_4
+    second: struct_Stockpile_4
   - first:
       213: 21300098
-    second: Stockpile_NES
+    second: struct_Stockpile_NES
   - first:
       213: 21300100
-    second: Stockpile_6
+    second: struct_Stockpile_6
   - first:
       213: 21300102
-    second: Stockpile_N
+    second: struct_Stockpile_N
   - first:
       213: 21300104
-    second: Stockpile_W
+    second: struct_Stockpile_W
   - first:
       213: 21300106
-    second: Stockpile_ES
+    second: struct_Stockpile_ES
   - first:
       213: 21300108
-    second: Stockpile_EW
+    second: struct_Stockpile_EW
   - first:
       213: 21300110
-    second: Stockpile_SW
+    second: struct_Stockpile_SW
   - first:
       213: 21300112
-    second: Stockpile_15
+    second: struct_Stockpile_15
   - first:
       213: 21300114
-    second: Stockpile_16
+    second: struct_Stockpile_16
   - first:
       213: 21300116
-    second: Stockpile_N
+    second: struct_Stockpile_N
   - first:
       213: 21300118
-    second: Stockpile_18
+    second: struct_Stockpile_18
   - first:
       213: 21300120
-    second: Stockpile_NS
+    second: struct_Stockpile_NS
   - first:
       213: 21300122
-    second: Stockpile_20
+    second: struct_Stockpile_20
   - first:
       213: 21300124
-    second: Stockpile_NE
+    second: struct_Stockpile_NE
   - first:
       213: 21300126
-    second: Stockpile_22
+    second: struct_Stockpile_22
   - first:
       213: 21300128
-    second: Stockpile_NW
+    second: struct_Stockpile_NW
   - first:
       213: 21300130
-    second: Stockpile_24
+    second: struct_Stockpile_24
   - first:
       213: 21300132
-    second: Stockpile_NEW
+    second: struct_Stockpile_NEW
   - first:
       213: 21300134
-    second: Stockpile_26
+    second: struct_Stockpile_26
   - first:
       213: 21300136
-    second: Stockpile_27
+    second: struct_Stockpile_27
   - first:
       213: 21300138
-    second: Stockpile_28
+    second: struct_Stockpile_28
   - first:
       213: 21300140
-    second: Stockpile_29
+    second: struct_Stockpile_29
   - first:
       213: 21300142
-    second: Stockpile_30
+    second: struct_Stockpile_30
   - first:
       213: 21300144
-    second: Stockpile_31
+    second: struct_Stockpile_31
   - first:
       213: 21300146
-    second: Stockpile_32
+    second: struct_Stockpile_32
   - first:
       213: 21300148
-    second: Stockpile_33
+    second: struct_Stockpile_33
   - first:
       213: 21300150
-    second: Stockpile_ESW
+    second: struct_Stockpile_ESW
   - first:
       213: 21300152
-    second: Stockpile_35
+    second: struct_Stockpile_35
   - first:
       213: 21300154
-    second: Stockpile_36
+    second: struct_Stockpile_36
   - first:
       213: 21300156
-    second: Stockpile_37
+    second: struct_Stockpile_37
   - first:
       213: 21300158
-    second: Stockpile_38
+    second: struct_Stockpile_38
   - first:
       213: 21300160
-    second: Stockpile_39
+    second: struct_Stockpile_39
   - first:
       213: 21300162
-    second: Stockpile_40
+    second: struct_Stockpile_40
   - first:
       213: 21300164
-    second: Stockpile_41
+    second: struct_Stockpile_41
   - first:
       213: 21300166
-    second: Stockpile_42
+    second: struct_Stockpile_42
   - first:
       213: 21300168
-    second: Stockpile_43
+    second: struct_Stockpile_43
   - first:
       213: 21300170
-    second: Stockpile_1
+    second: struct_Stockpile_1
   - first:
       213: 21300172
-    second: Stockpile_S
+    second: struct_Stockpile_S
   - first:
       213: 21300174
-    second: Stockpile_7
+    second: struct_Stockpile_7
   - first:
       213: 21300176
-    second: Stockpile_NSW
+    second: struct_Stockpile_NSW
   - first:
       213: 21300178
-    second: Stockpile_NESW
+    second: struct_Stockpile_NESW
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -380,7 +380,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stockpile_
+      name: struct_Stockpile_
       rect:
         serializedVersion: 2
         x: 0
@@ -401,7 +401,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_1
+      name: struct_Stockpile_1
       rect:
         serializedVersion: 2
         x: 128
@@ -422,7 +422,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_2
+      name: struct_Stockpile_2
       rect:
         serializedVersion: 2
         x: 256
@@ -443,7 +443,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_S
+      name: struct_Stockpile_S
       rect:
         serializedVersion: 2
         x: 352
@@ -464,7 +464,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NES
+      name: struct_Stockpile_NES
       rect:
         serializedVersion: 2
         x: 128
@@ -485,7 +485,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_6
+      name: struct_Stockpile_6
       rect:
         serializedVersion: 2
         x: 160
@@ -506,7 +506,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_7
+      name: struct_Stockpile_7
       rect:
         serializedVersion: 2
         x: 224
@@ -527,7 +527,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NSW
+      name: struct_Stockpile_NSW
       rect:
         serializedVersion: 2
         x: 256
@@ -548,7 +548,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_E
+      name: struct_Stockpile_E
       rect:
         serializedVersion: 2
         x: 320
@@ -569,7 +569,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NESW
+      name: struct_Stockpile_NESW
       rect:
         serializedVersion: 2
         x: 352
@@ -590,7 +590,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_W
+      name: struct_Stockpile_W
       rect:
         serializedVersion: 2
         x: 384
@@ -611,7 +611,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_ES
+      name: struct_Stockpile_ES
       rect:
         serializedVersion: 2
         x: 0
@@ -632,7 +632,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_EW
+      name: struct_Stockpile_EW
       rect:
         serializedVersion: 2
         x: 32
@@ -653,7 +653,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_SW
+      name: struct_Stockpile_SW
       rect:
         serializedVersion: 2
         x: 64
@@ -674,7 +674,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_15
+      name: struct_Stockpile_15
       rect:
         serializedVersion: 2
         x: 128
@@ -695,7 +695,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_16
+      name: struct_Stockpile_16
       rect:
         serializedVersion: 2
         x: 256
@@ -716,7 +716,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_N
+      name: struct_Stockpile_N
       rect:
         serializedVersion: 2
         x: 352
@@ -737,7 +737,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_18
+      name: struct_Stockpile_18
       rect:
         serializedVersion: 2
         x: 0
@@ -758,7 +758,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NS
+      name: struct_Stockpile_NS
       rect:
         serializedVersion: 2
         x: 64
@@ -779,7 +779,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_20
+      name: struct_Stockpile_20
       rect:
         serializedVersion: 2
         x: 192
@@ -800,7 +800,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NE
+      name: struct_Stockpile_NE
       rect:
         serializedVersion: 2
         x: 0
@@ -821,7 +821,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_22
+      name: struct_Stockpile_22
       rect:
         serializedVersion: 2
         x: 32
@@ -842,7 +842,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NW
+      name: struct_Stockpile_NW
       rect:
         serializedVersion: 2
         x: 64
@@ -863,7 +863,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_24
+      name: struct_Stockpile_24
       rect:
         serializedVersion: 2
         x: 160
@@ -884,7 +884,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_NEW
+      name: struct_Stockpile_NEW
       rect:
         serializedVersion: 2
         x: 192
@@ -905,7 +905,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_26
+      name: struct_Stockpile_26
       rect:
         serializedVersion: 2
         x: 224
@@ -926,7 +926,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_27
+      name: struct_Stockpile_27
       rect:
         serializedVersion: 2
         x: 320
@@ -947,7 +947,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_28
+      name: struct_Stockpile_28
       rect:
         serializedVersion: 2
         x: 352
@@ -968,7 +968,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_29
+      name: struct_Stockpile_29
       rect:
         serializedVersion: 2
         x: 384
@@ -989,7 +989,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_30
+      name: struct_Stockpile_30
       rect:
         serializedVersion: 2
         x: 320
@@ -1010,7 +1010,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_31
+      name: struct_Stockpile_31
       rect:
         serializedVersion: 2
         x: 352
@@ -1031,7 +1031,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_32
+      name: struct_Stockpile_32
       rect:
         serializedVersion: 2
         x: 384
@@ -1052,7 +1052,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_33
+      name: struct_Stockpile_33
       rect:
         serializedVersion: 2
         x: 160
@@ -1073,7 +1073,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_ESW
+      name: struct_Stockpile_ESW
       rect:
         serializedVersion: 2
         x: 192
@@ -1094,7 +1094,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_35
+      name: struct_Stockpile_35
       rect:
         serializedVersion: 2
         x: 224
@@ -1115,7 +1115,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_36
+      name: struct_Stockpile_36
       rect:
         serializedVersion: 2
         x: 320
@@ -1136,7 +1136,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_37
+      name: struct_Stockpile_37
       rect:
         serializedVersion: 2
         x: 352
@@ -1157,7 +1157,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_38
+      name: struct_Stockpile_38
       rect:
         serializedVersion: 2
         x: 384
@@ -1178,7 +1178,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stockpile_39
+      name: struct_Stockpile_39
       rect:
         serializedVersion: 2
         x: 192

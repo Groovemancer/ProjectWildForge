@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1491198957390697473}
   - component: {fileID: 1491198957390697472}
   m_Layer: 5
-  m_Name: Button - Build Door
+  m_Name: Button - Build Structure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38,7 +38,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 140, y: 30}
+  m_SizeDelta: {x: 180, y: 30}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &1491198957390697475
 CanvasRenderer:

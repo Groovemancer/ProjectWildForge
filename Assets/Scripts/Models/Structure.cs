@@ -28,6 +28,8 @@ public class Structure : IXmlSerializable
 
     List<Job> jobs;
 
+    public List<string> Tags;
+
     // If this structure gets worked by a person,
     // where is the correct spot for them to stand,
     // relative to the bottom-left tile of the sprite.
@@ -50,6 +52,23 @@ public class Structure : IXmlSerializable
 
     // This "objectType" will be queried by the visual system to know what sprite to render for this object
     public string ObjectType { get; protected set; }
+
+    private string _Name = null;
+    public string Name
+    {
+        get
+        {
+            if (_Name == null || _Name.Length == 0)
+            {
+                return ObjectType;
+            }
+            return _Name;
+        }
+        set
+        {
+            _Name = value;
+        }
+    }
 
     public uint AllowedTileTypes { get; protected set; }
 
@@ -90,6 +109,7 @@ public class Structure : IXmlSerializable
     protected Structure(Structure other)
     {
         this.ObjectType = other.ObjectType;
+        this.Name = other.Name;
         this.MovementCost = other.MovementCost;
         this.RoomEnclosure = other.RoomEnclosure;
         this.Width = other.Width;
@@ -99,6 +119,8 @@ public class Structure : IXmlSerializable
         this.AllowedTileTypes = other.AllowedTileTypes;
 
         this.jobSpotOffset = other.jobSpotOffset;
+        this.Tags = new List<string>();
+        this.Tags.AddRange(other.Tags);
 
         this.structureParameters = new Dictionary<string, float>(other.structureParameters);
         jobs = new List<Job>();
@@ -121,11 +143,12 @@ public class Structure : IXmlSerializable
     }
 
     // Create structure from parameters -- this will probably ONLY ever be used for prototype
-    public Structure(string objectType, float movementCost = 1f,
+    public Structure(string objectType, string name, float movementCost = 1f,
         int width = 1, int height = 1, bool linksToNeighbor = false, uint allowedTileTypes = 1,
         bool roomEnclosure = false)
     {
         this.ObjectType = objectType;
+        this.Name = name;
         this.MovementCost = movementCost;
         this.RoomEnclosure = roomEnclosure;
         this.Width = width;
@@ -136,6 +159,7 @@ public class Structure : IXmlSerializable
         this.funcPositionValidation = this.DefaulIsValidPosition;
 
         structureParameters = new Dictionary<string, float>();
+        Tags = new List<string>();
     }
 
     public static Structure PlaceInstance(Structure proto, Tile tile)
@@ -349,7 +373,7 @@ public class Structure : IXmlSerializable
 
     public bool IsStockpile()
     {
-        return ObjectType == "Stockpile";
+        return Tags.Contains("Stockpile");
     }
 
     public void Deconstruct()
@@ -414,6 +438,11 @@ public class Structure : IXmlSerializable
     }
 
     public void ReadXml(XmlReader reader)
+    {
+        ReadXmlParams(reader);
+    }
+
+    public void ReadXmlParams(XmlReader reader)
     {
         // X, Y, and objectType has already been set, and we should already
         // be assigned to a tile. So just read extra data.

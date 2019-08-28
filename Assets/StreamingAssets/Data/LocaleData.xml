@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 8/25/2019 11:00:41 PM-->
+<!--Last Updated: 8/27/2019 11:36:48 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -141,6 +141,42 @@
 		<Text>
 			<en-US>null</en-US>
 			<de-DE>null</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="15">
+		<Comment>struct_StoneWall</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Stone Wall</en-US>
+			<de-DE>Steinwand</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="16">
+		<Comment>struct_WoodDoor</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Wood Door</en-US>
+			<de-DE>Holztür</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="17">
+		<Comment>struct_Stockpile</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Stockpile</en-US>
+			<de-DE>Vorrat</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="18">
+		<Comment>struct_WorkStation</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Work Station</en-US>
+			<de-DE>Arbeitsstation</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

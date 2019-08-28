@@ -60,7 +60,7 @@ public class StructureSpriteController : MonoBehaviour
         strct_go.transform.SetParent(this.transform, true);
 
         // FIXME: This hardcoding is not ideal!
-        if (strct.ObjectType == "Door")
+        if (strct.ObjectType == "struct_Door")
         {
             // By default, the door graphic is meant for walls to the east & west
             // Check to see if we actually have a wall north/south, and if so
@@ -70,7 +70,7 @@ public class StructureSpriteController : MonoBehaviour
             Tile southTile = World.GetTileAt(strct.Tile.X, strct.Tile.Y - 1);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
-                northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")
+                northTile.Structure.ObjectType == "struct_StoneWall" && southTile.Structure.ObjectType == "struct_StoneWall")
             {
                 strct_go.transform.rotation = Quaternion.Euler(0, 0, 90);
                 //strct_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!
@@ -125,27 +125,27 @@ public class StructureSpriteController : MonoBehaviour
         {
             // If this is a DOOR, let's check OPENNESS and update the sprite.
             // FIXME: All this hardcoding needs to be generalized later
-            if (strct.ObjectType == "Door")
+            if (strct.ObjectType == "struct_WoodDoor")
             {
                 if (strct.GetParameter("openness") < 0.1f)
                 {
                     // Door is closed
-                    spriteName = "Door";
+                    spriteName = "struct_WoodDoor";
                 }
                 else if (strct.GetParameter("openness") < 0.5f)
                 {
                     // Door is a bit open
-                    spriteName = "Door_openness_1";
+                    spriteName = "struct_WoodDoor_openness_1";
                 }
                 else if (strct.GetParameter("openness") < 0.9f)
                 {
                     // Door is a lot open
-                    spriteName = "Door_openness_2";
+                    spriteName = "struct_WoodDoor_openness_2";
                 }
                 else
                 {
                     // Door is fully open
-                    spriteName = "Door_openness_3";
+                    spriteName = "struct_WoodDoor_openness_3";
                 }
             }
 

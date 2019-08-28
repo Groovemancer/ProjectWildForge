@@ -40,7 +40,7 @@ public class MouseOverStructureTypeText : MonoBehaviour
         string s = StringUtils.GetLocalizedTextFiltered("comment#null").ToUpper();
         if (t != null && t.Structure != null)
         {
-            s = t.Structure.ObjectType;
+            s = StringUtils.GetLocalizedTextFiltered("comment#" + t.Structure.Name);
         }
 
         myText.text = StringUtils.GetLocalizedText("12") + s; // Structure: 

@@ -1,14 +1,24 @@
 fileFormatVersion: 2
 guid: 24af560e1cdb2344c904bb2f7036141f
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: Door
-    21300002: Door_1
-    21300004: Door_openness_1
-    21300006: Door_openness_2
-    21300008: Door_openness_3
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: struct_WoodDoor
+  - first:
+      213: 21300002
+    second: struct_WoodDoor_1
+  - first:
+      213: 21300004
+    second: struct_WoodDoor_openness_1
+  - first:
+      213: 21300006
+    second: struct_WoodDoor_openness_2
+  - first:
+      213: 21300008
+    second: struct_WoodDoor_openness_3
   externalObjects: {}
-  serializedVersion: 7
+  serializedVersion: 10
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -63,7 +73,7 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -74,7 +84,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -85,7 +96,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -96,7 +108,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -107,11 +120,12 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Door
+      name: struct_WoodDoor
       rect:
         serializedVersion: 2
         x: 0
@@ -126,12 +140,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 4868563266e3a8c49a63a468f1f3fc56
+      internalID: 21300000
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Door_1
+      name: struct_WoodDoor_1
       rect:
         serializedVersion: 2
         x: 64
@@ -146,12 +161,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a200e62327d9aec4b83d91f37c6efb3b
+      internalID: 21300002
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Door_openness_1
+      name: struct_WoodDoor_openness_1
       rect:
         serializedVersion: 2
         x: 0
@@ -166,12 +182,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9dbf28593d0c63847bef3c711be72a49
+      internalID: 21300004
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Door_openness_2
+      name: struct_WoodDoor_openness_2
       rect:
         serializedVersion: 2
         x: 0
@@ -186,12 +203,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: e23cac7ce0dc10047981dd037ebbf556
+      internalID: 21300006
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Door_openness_3
+      name: struct_WoodDoor_openness_3
       rect:
         serializedVersion: 2
         x: 0
@@ -206,6 +224,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a955d1da90f206d4b8fabc4cbb692a48
+      internalID: 21300008
       vertices: []
       indices: 
       edges: []
@@ -214,10 +233,12 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 7bb3ef90127d22a4c904c8dd50c9377d
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
+    secondaryTextures: []
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

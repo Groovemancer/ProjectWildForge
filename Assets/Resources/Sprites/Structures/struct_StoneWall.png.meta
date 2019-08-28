@@ -1,99 +1,279 @@
 fileFormatVersion: 2
 guid: 6317e9483ae52ec4eb107535760ae724
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: Wall
-    21300002: Walls_1
-    21300004: Walls_2
-    21300006: Walls_3
-    21300008: Walls_4
-    21300010: Walls_5
-    21300012: Walls_6
-    21300014: Wall_E
-    21300016: Wall_EW
-    21300018: Wall_W
-    21300020: Walls_10
-    21300022: Walls_11
-    21300024: Walls_12
-    21300026: Walls_13
-    21300028: Walls_14
-    21300030: Walls_15
-    21300032: Walls_16
-    21300034: Walls_17
-    21300036: Walls_18
-    21300038: Walls_19
-    21300040: Walls_20
-    21300042: Walls_21
-    21300044: Walls_22
-    21300046: Walls_23
-    21300048: Walls_24
-    21300050: Walls_25
-    21300052: Walls_26
-    21300054: Walls_27
-    21300056: Walls_28
-    21300058: Walls_29
-    21300060: Walls_30
-    21300062: Walls_31
-    21300064: Walls_32
-    21300066: Walls_33
-    21300068: Walls_34
-    21300070: Walls_35
-    21300072: Walls_36
-    21300074: Walls_37
-    21300076: Walls_38
-    21300078: Walls_39
-    21300080: Walls_40
-    21300082: Walls_41
-    21300084: Walls_42
-    21300086: Walls_43
-    21300088: Wall_
-    21300090: Wall_S
-    21300092: Wall_2
-    21300094: Wall_NS
-    21300096: Wall_4
-    21300098: Wall_NES
-    21300100: Wall_6
-    21300102: Wall_N
-    21300104: Wall_W
-    21300106: Wall_ES
-    21300108: Wall_EW
-    21300110: Wall_SW
-    21300112: Wall_15
-    21300114: Wall_16
-    21300116: Wall_N
-    21300118: Wall_18
-    21300120: Wall_NS
-    21300122: Wall_20
-    21300124: Wall_NE
-    21300126: Wall_22
-    21300128: Wall_NW
-    21300130: Wall_24
-    21300132: Wall_NEW
-    21300134: Wall_26
-    21300136: Wall_27
-    21300138: Wall_28
-    21300140: Wall_29
-    21300142: Wall_30
-    21300144: Wall_31
-    21300146: Wall_32
-    21300148: Wall_33
-    21300150: Wall_ESW
-    21300152: Wall_35
-    21300154: Wall_36
-    21300156: Wall_37
-    21300158: Wall_38
-    21300160: Wall_39
-    21300162: Wall_40
-    21300164: Wall_41
-    21300166: Wall_42
-    21300168: Wall_43
-    21300170: Wall_1
-    21300172: Wall_S
-    21300174: Wall_7
-    21300176: Wall_NSW
-    21300178: Wall_NESW
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: struct_StoneWall
+  - first:
+      213: 21300002
+    second: struct_StoneWall_1
+  - first:
+      213: 21300004
+    second: struct_StoneWall_2
+  - first:
+      213: 21300006
+    second: struct_StoneWall_3
+  - first:
+      213: 21300008
+    second: struct_StoneWall_4
+  - first:
+      213: 21300010
+    second: struct_StoneWall_5
+  - first:
+      213: 21300012
+    second: struct_StoneWall_6
+  - first:
+      213: 21300014
+    second: struct_StoneWall_E
+  - first:
+      213: 21300016
+    second: struct_StoneWall_EW
+  - first:
+      213: 21300018
+    second: struct_StoneWall_W
+  - first:
+      213: 21300020
+    second: struct_StoneWall_10
+  - first:
+      213: 21300022
+    second: struct_StoneWall_11
+  - first:
+      213: 21300024
+    second: struct_StoneWall_12
+  - first:
+      213: 21300026
+    second: struct_StoneWall_13
+  - first:
+      213: 21300028
+    second: struct_StoneWall_14
+  - first:
+      213: 21300030
+    second: struct_StoneWall_15
+  - first:
+      213: 21300032
+    second: struct_StoneWall_16
+  - first:
+      213: 21300034
+    second: struct_StoneWall_17
+  - first:
+      213: 21300036
+    second: struct_StoneWall_18
+  - first:
+      213: 21300038
+    second: struct_StoneWall_19
+  - first:
+      213: 21300040
+    second: struct_StoneWall_20
+  - first:
+      213: 21300042
+    second: struct_StoneWall_21
+  - first:
+      213: 21300044
+    second: struct_StoneWall_22
+  - first:
+      213: 21300046
+    second: struct_StoneWall_23
+  - first:
+      213: 21300048
+    second: struct_StoneWall_24
+  - first:
+      213: 21300050
+    second: struct_StoneWall_25
+  - first:
+      213: 21300052
+    second: struct_StoneWall_26
+  - first:
+      213: 21300054
+    second: struct_StoneWall_27
+  - first:
+      213: 21300056
+    second: struct_StoneWall_28
+  - first:
+      213: 21300058
+    second: struct_StoneWall_29
+  - first:
+      213: 21300060
+    second: struct_StoneWall_30
+  - first:
+      213: 21300062
+    second: struct_StoneWall_31
+  - first:
+      213: 21300064
+    second: struct_StoneWall_32
+  - first:
+      213: 21300066
+    second: struct_StoneWall_33
+  - first:
+      213: 21300068
+    second: struct_StoneWall_34
+  - first:
+      213: 21300070
+    second: struct_StoneWall_35
+  - first:
+      213: 21300072
+    second: struct_StoneWall_36
+  - first:
+      213: 21300074
+    second: struct_StoneWall_37
+  - first:
+      213: 21300076
+    second: struct_StoneWall_38
+  - first:
+      213: 21300078
+    second: struct_StoneWall_39
+  - first:
+      213: 21300080
+    second: struct_StoneWall_40
+  - first:
+      213: 21300082
+    second: struct_StoneWall_41
+  - first:
+      213: 21300084
+    second: struct_StoneWall_42
+  - first:
+      213: 21300086
+    second: struct_StoneWall_43
+  - first:
+      213: 21300088
+    second: struct_StoneWall_
+  - first:
+      213: 21300090
+    second: struct_StoneWall_S
+  - first:
+      213: 21300092
+    second: struct_StoneWall_2
+  - first:
+      213: 21300094
+    second: struct_StoneWall_NS
+  - first:
+      213: 21300096
+    second: struct_StoneWall_4
+  - first:
+      213: 21300098
+    second: struct_StoneWall_NES
+  - first:
+      213: 21300100
+    second: struct_StoneWall_6
+  - first:
+      213: 21300102
+    second: struct_StoneWall_N
+  - first:
+      213: 21300104
+    second: struct_StoneWall_W
+  - first:
+      213: 21300106
+    second: struct_StoneWall_ES
+  - first:
+      213: 21300108
+    second: struct_StoneWall_EW
+  - first:
+      213: 21300110
+    second: struct_StoneWall_SW
+  - first:
+      213: 21300112
+    second: struct_StoneWall_15
+  - first:
+      213: 21300114
+    second: struct_StoneWall_16
+  - first:
+      213: 21300116
+    second: struct_StoneWall_N
+  - first:
+      213: 21300118
+    second: struct_StoneWall_18
+  - first:
+      213: 21300120
+    second: struct_StoneWall_NS
+  - first:
+      213: 21300122
+    second: struct_StoneWall_20
+  - first:
+      213: 21300124
+    second: struct_StoneWall_NE
+  - first:
+      213: 21300126
+    second: struct_StoneWall_22
+  - first:
+      213: 21300128
+    second: struct_StoneWall_NW
+  - first:
+      213: 21300130
+    second: struct_StoneWall_24
+  - first:
+      213: 21300132
+    second: struct_StoneWall_NEW
+  - first:
+      213: 21300134
+    second: struct_StoneWall_26
+  - first:
+      213: 21300136
+    second: struct_StoneWall_27
+  - first:
+      213: 21300138
+    second: struct_StoneWall_28
+  - first:
+      213: 21300140
+    second: struct_StoneWall_29
+  - first:
+      213: 21300142
+    second: struct_StoneWall_30
+  - first:
+      213: 21300144
+    second: struct_StoneWall_31
+  - first:
+      213: 21300146
+    second: struct_StoneWall_32
+  - first:
+      213: 21300148
+    second: struct_StoneWall_33
+  - first:
+      213: 21300150
+    second: struct_StoneWall_ESW
+  - first:
+      213: 21300152
+    second: struct_StoneWall_35
+  - first:
+      213: 21300154
+    second: struct_StoneWall_36
+  - first:
+      213: 21300156
+    second: struct_StoneWall_37
+  - first:
+      213: 21300158
+    second: struct_StoneWall_38
+  - first:
+      213: 21300160
+    second: struct_StoneWall_39
+  - first:
+      213: 21300162
+    second: struct_StoneWall_40
+  - first:
+      213: 21300164
+    second: struct_StoneWall_41
+  - first:
+      213: 21300166
+    second: struct_StoneWall_42
+  - first:
+      213: 21300168
+    second: struct_StoneWall_43
+  - first:
+      213: 21300170
+    second: struct_StoneWall_1
+  - first:
+      213: 21300172
+    second: struct_StoneWall_S
+  - first:
+      213: 21300174
+    second: struct_StoneWall_7
+  - first:
+      213: 21300176
+    second: struct_StoneWall_NSW
+  - first:
+      213: 21300178
+    second: struct_StoneWall_NESW
   externalObjects: {}
-  serializedVersion: 7
+  serializedVersion: 10
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -148,7 +328,7 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -159,7 +339,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -170,7 +351,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -181,7 +363,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -192,11 +375,12 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall_
+      name: struct_StoneWall_
       rect:
         serializedVersion: 2
         x: 0
@@ -211,12 +395,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: d406d6235ab5d834a8857607c607d955
+      internalID: 21300088
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_1
+      name: struct_StoneWall_1
       rect:
         serializedVersion: 2
         x: 128
@@ -231,12 +416,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 28666a4cd172f814faaf23d3c8eec83a
+      internalID: 21300002
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_2
+      name: struct_StoneWall_2
       rect:
         serializedVersion: 2
         x: 256
@@ -251,12 +437,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: b93cc02dc045d7642ac44b0f21ac0ea1
+      internalID: 21300004
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_S
+      name: struct_StoneWall_S
       rect:
         serializedVersion: 2
         x: 352
@@ -271,12 +458,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 8a3b0e7df90cfa34aa8750cc1914855a
+      internalID: 21300090
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NES
+      name: struct_StoneWall_NES
       rect:
         serializedVersion: 2
         x: 128
@@ -291,12 +479,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 808abcf2ca0c785449ef8fe7a86bc519
+      internalID: 21300098
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_6
+      name: struct_StoneWall_6
       rect:
         serializedVersion: 2
         x: 160
@@ -311,12 +500,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 2f07a4f656d9fc342b2d878e689e5b85
+      internalID: 21300012
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_7
+      name: struct_StoneWall_7
       rect:
         serializedVersion: 2
         x: 224
@@ -331,12 +521,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 5330c9a4d56e8d048a8d2bd2be72b28b
+      internalID: 21300174
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NSW
+      name: struct_StoneWall_NSW
       rect:
         serializedVersion: 2
         x: 256
@@ -351,12 +542,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a0ecf5e9e466f4e4e855f8b132eda21d
+      internalID: 21300176
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_E
+      name: struct_StoneWall_E
       rect:
         serializedVersion: 2
         x: 320
@@ -371,12 +563,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: f917c8fe5c2d0774d88ae6478902ebd4
+      internalID: 21300014
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NESW
+      name: struct_StoneWall_NESW
       rect:
         serializedVersion: 2
         x: 352
@@ -391,12 +584,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: d6b62ff5368de59409ac7e0028dd967b
+      internalID: 21300178
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_W
+      name: struct_StoneWall_W
       rect:
         serializedVersion: 2
         x: 384
@@ -411,12 +605,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 52dc3f6a200f7874da65612ad932757b
+      internalID: 21300018
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_ES
+      name: struct_StoneWall_ES
       rect:
         serializedVersion: 2
         x: 0
@@ -431,12 +626,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 5def120cba0497748996e78b7d5b815c
+      internalID: 21300106
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_EW
+      name: struct_StoneWall_EW
       rect:
         serializedVersion: 2
         x: 32
@@ -451,12 +647,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 5c295eacd7421da47b00c7588807f2ad
+      internalID: 21300016
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_SW
+      name: struct_StoneWall_SW
       rect:
         serializedVersion: 2
         x: 64
@@ -471,12 +668,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 48b75b87bb86c1142be115504c933ba8
+      internalID: 21300110
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_15
+      name: struct_StoneWall_15
       rect:
         serializedVersion: 2
         x: 128
@@ -491,12 +689,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9c6ee836587b84642aca31702c8ecab3
+      internalID: 21300030
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_16
+      name: struct_StoneWall_16
       rect:
         serializedVersion: 2
         x: 256
@@ -511,12 +710,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: d8993e9c51928ba49be4687484657253
+      internalID: 21300032
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_N
+      name: struct_StoneWall_N
       rect:
         serializedVersion: 2
         x: 352
@@ -531,12 +731,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 2c87ef7ba4e5ac243a9a595191c44018
+      internalID: 21300102
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_18
+      name: struct_StoneWall_18
       rect:
         serializedVersion: 2
         x: 0
@@ -551,12 +752,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: f5748167e3e5cc4429aea4f8c6d5fcfb
+      internalID: 21300036
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NS
+      name: struct_StoneWall_NS
       rect:
         serializedVersion: 2
         x: 64
@@ -571,12 +773,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: db8f4598fcd82f444afa9f40ac339d82
+      internalID: 21300094
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_20
+      name: struct_StoneWall_20
       rect:
         serializedVersion: 2
         x: 192
@@ -591,12 +794,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 7f73dea5c12eb2947b03c187b64234bd
+      internalID: 21300040
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NE
+      name: struct_StoneWall_NE
       rect:
         serializedVersion: 2
         x: 0
@@ -611,12 +815,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9b5bd909396575844b76e421ac41f9b1
+      internalID: 21300124
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_22
+      name: struct_StoneWall_22
       rect:
         serializedVersion: 2
         x: 32
@@ -631,12 +836,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 7c44f159dac85994e93d07a5d0869e83
+      internalID: 21300044
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NW
+      name: struct_StoneWall_NW
       rect:
         serializedVersion: 2
         x: 64
@@ -651,12 +857,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 93efb488ff8131140b87aac1651ea339
+      internalID: 21300128
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_24
+      name: struct_StoneWall_24
       rect:
         serializedVersion: 2
         x: 160
@@ -671,12 +878,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: bc6ab5cd07fdf0947ba09003d92b8f01
+      internalID: 21300048
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_NEW
+      name: struct_StoneWall_NEW
       rect:
         serializedVersion: 2
         x: 192
@@ -691,12 +899,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 691bc1ab5e05e9d49b2d029abb5329c7
+      internalID: 21300132
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_26
+      name: struct_StoneWall_26
       rect:
         serializedVersion: 2
         x: 224
@@ -711,12 +920,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 4ebdfad9f12e7d94297c2e3a4318a4cc
+      internalID: 21300052
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_27
+      name: struct_StoneWall_27
       rect:
         serializedVersion: 2
         x: 320
@@ -731,12 +941,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: eda58871a3b50944ba8574f7fec30ef3
+      internalID: 21300054
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_28
+      name: struct_StoneWall_28
       rect:
         serializedVersion: 2
         x: 352
@@ -751,12 +962,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 31bb7efd79801bd4ca400565c70e8ba2
+      internalID: 21300056
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_29
+      name: struct_StoneWall_29
       rect:
         serializedVersion: 2
         x: 384
@@ -771,12 +983,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: fd3ba92303c19514d8b4c7ad283a8a76
+      internalID: 21300058
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_30
+      name: struct_StoneWall_30
       rect:
         serializedVersion: 2
         x: 320
@@ -791,12 +1004,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: d5bfb65afb254ee48ac2c872a7a77674
+      internalID: 21300060
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_31
+      name: struct_StoneWall_31
       rect:
         serializedVersion: 2
         x: 352
@@ -811,12 +1025,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: baaa3d7257452404fa7b7fb37808adf4
+      internalID: 21300062
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_32
+      name: struct_StoneWall_32
       rect:
         serializedVersion: 2
         x: 384
@@ -831,12 +1046,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 38b62cacd18a8044faeaccafc64864a2
+      internalID: 21300064
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_33
+      name: struct_StoneWall_33
       rect:
         serializedVersion: 2
         x: 160
@@ -851,12 +1067,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 87ed6c4f2b7f08f4a99ae0cf7b9e1f90
+      internalID: 21300066
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_ESW
+      name: struct_StoneWall_ESW
       rect:
         serializedVersion: 2
         x: 192
@@ -871,12 +1088,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: c7e878f9f901fba4babb870d5d13e751
+      internalID: 21300150
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_35
+      name: struct_StoneWall_35
       rect:
         serializedVersion: 2
         x: 224
@@ -891,12 +1109,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 48fe0e4cc9e91e1429f56cac9b3ac7c5
+      internalID: 21300070
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_36
+      name: struct_StoneWall_36
       rect:
         serializedVersion: 2
         x: 320
@@ -911,12 +1130,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 73cfc87d5d62a0645937a4db36a0d167
+      internalID: 21300072
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_37
+      name: struct_StoneWall_37
       rect:
         serializedVersion: 2
         x: 352
@@ -931,12 +1151,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9bcedb4fee8682648afa96545dd384d9
+      internalID: 21300074
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_38
+      name: struct_StoneWall_38
       rect:
         serializedVersion: 2
         x: 384
@@ -951,12 +1172,13 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 24b7a81dc9ddc4248b952683a63ffa61
+      internalID: 21300076
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wall_39
+      name: struct_StoneWall_39
       rect:
         serializedVersion: 2
         x: 192
@@ -971,6 +1193,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 76b48996f87674d42bd459d991fe15eb
+      internalID: 21300078
       vertices: []
       indices: 
       edges: []
@@ -979,10 +1202,12 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: e622d6dd30dddf2459cade662201cfa2
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
+    secondaryTextures: []
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

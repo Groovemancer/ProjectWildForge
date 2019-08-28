@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -15,9 +17,9 @@ public class World : IXmlSerializable
         return Tiles;
     }
 
-    public List<Actor>      actors;
-    public List<Structure>  structures;
-    public List<Room>       rooms;
+    public List<Actor> actors;
+    public List<Structure> structures;
+    public List<Room> rooms;
     public InventoryManager inventoryManager;
 
     // The pathfinding graph used to navigate our world map.
@@ -34,10 +36,10 @@ public class World : IXmlSerializable
     Action<Actor> cbActorCreated;
     Action<Inventory> cbInventoryCreated;
 
-    const float PAUSE_GAME_SPEED        = 0.0f;
-    const float NORMAL_GAME_SPEED       = 1.0f;
-    const float FAST_GAME_SPEED         = 2.0f;
-    const float VERY_FAST_GAME_SPEED    = 3.0f;
+    const float PAUSE_GAME_SPEED = 0.0f;
+    const float NORMAL_GAME_SPEED = 1.0f;
+    const float FAST_GAME_SPEED = 2.0f;
+    const float VERY_FAST_GAME_SPEED = 3.0f;
 
     float gameSpeed = 1.0f;
     float autsPerSec = 100f;
@@ -136,9 +138,9 @@ public class World : IXmlSerializable
 
         CreateStructurePrototypes();
 
-        actors              = new List<Actor>();
-        structures          = new List<Structure>();
-        inventoryManager    = new InventoryManager();
+        actors = new List<Actor>();
+        structures = new List<Structure>();
+        inventoryManager = new InventoryManager();
     }
 
     public void Update(float deltaTime)
@@ -189,15 +191,130 @@ public class World : IXmlSerializable
 
     private void CreateStructurePrototypes()
     {
+        structurePrototypes = new Dictionary<string, Structure>();
+        structureJobPrototypes = new Dictionary<string, Job>();
+
+        // READ STRUCTURE PROTOTYPE XML FILE HERE
+
+        try
+        {
+            XmlDocument doc = new XmlDocument();
+
+            doc.Load(Path.Combine(Application.streamingAssetsPath, "Data/Structures.xml"));
+
+            XmlNodeList structNodes = doc.SelectNodes("Structures/Structure");
+
+            foreach (XmlNode structNode in structNodes)
+            {
+                string objectType = structNode.Attributes["objectType"].InnerText;
+                string name = structNode.SelectSingleNode("Name").InnerText;
+                float moveCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
+                int width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
+                int height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
+                bool linksToNeighbors = bool.Parse(structNode.SelectSingleNode("LinksToNeighbors").InnerText);
+                bool enclosesRooms = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
+                string tileTags = structNode.SelectSingleNode("AllowedTiles").InnerText;
+
+                string[] tileTypeTags = tileTags.Split('|');
+
+                uint allowedTileTypes = 0;
+                foreach (string tileTypeTag in tileTypeTags)
+                {
+                    allowedTileTypes |= TileTypeData.Flag(tileTypeTag);
+                }
+
+                XmlNode jobOffsetNode = structNode.SelectSingleNode("JobOffset");
+                Vector2 jobSpotOffset = Vector2.zero;
+                if (jobOffsetNode != null)
+                {
+                    string strJobOffset = jobOffsetNode.InnerText;
+                    float[] arrJobOffset = strJobOffset.Split(' ').Select(f => float.Parse(f)).ToArray();
+                    jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
+                }
+
+                XmlNode tintNode = structNode.SelectSingleNode("Tint");
+                Color tint = Color.white;
+                if (tintNode != null)
+                {
+                    string strTint = tintNode.InnerText;
+                    byte[] arrTint = strTint.Split(' ').Select(b => byte.Parse(b)).ToArray();
+
+                    Debug.Log(string.Format("Bytes: {0} {1} {2} {3}", arrTint[0], arrTint[1], arrTint[2], arrTint[3]));
+                    tint = new Color32(arrTint[0], arrTint[1], arrTint[2], arrTint[3]);
+                }
+
+                XmlNode tagsNode = structNode.SelectSingleNode("Tags");
+                List<string> tags = new List<string>();
+                if (tagsNode != null)
+                {
+                    XmlNodeList tagNodes = tagsNode.SelectNodes("Tag");
+                    foreach (XmlNode tagNode in tagNodes)
+                    {
+                        tags.Add(tagNode.InnerText);
+                    }
+                }
+
+                // Add Prototype
+                structurePrototypes.Add(objectType,
+                    new Structure(
+                        objectType, name, moveCost, width, height, linksToNeighbors,
+                        allowedTileTypes, enclosesRooms
+                    )
+                );
+
+                structurePrototypes[objectType].jobSpotOffset = jobSpotOffset;
+                structurePrototypes[objectType].tint = tint;
+                structurePrototypes[objectType].Tags.AddRange(tags);
+
+                // Building Job
+                XmlNode buildJobNode = structNode.SelectSingleNode("BuildingJob");
+                if (buildJobNode != null)
+                {
+                    float jobCost = float.Parse(buildJobNode.Attributes["jobCost"].InnerText);
+                    XmlNodeList invNodes = buildJobNode.SelectNodes("Inventory");
+                    List<Inventory> invReqs = new List<Inventory>();
+                    foreach (XmlNode invNode in invNodes)
+                    {
+                        string invType = invNode.Attributes["objectType"].InnerText;
+                        int invAmount = int.Parse(invNode.Attributes["amount"].InnerText);
+                        invReqs.Add(new Inventory(invType, invAmount, 0));
+                    }
+
+                    structureJobPrototypes.Add(objectType,
+                        new Job(null, objectType, StructureActions.JobComplete_StructureBuilding,
+                            jobCost, invReqs.ToArray()));
+                }
+                // Deconstruct Job
+                // TODO
+
+            }
+            //DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
+        }
+        catch (Exception e)
+        {
+            DebugUtils.DisplayError(e.ToString(), false);
+            DebugUtils.LogException(e);
+        }
+
+
+        //structurePrototypes["struct_WoodDoor"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
+        //structurePrototypes["struct_WoodDoor"].IsEnterable = StructureActions.Door_IsEnterable;
+        structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
+        structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+    }
+
+    /*
+    private void CreateStructurePrototypes()
+    {
         // This will be replacd by a function that reads all of our structure data
         // from a text file in the future
 
         structurePrototypes = new Dictionary<string, Structure>();
         structureJobPrototypes = new Dictionary<string, Job>();
 
-        structurePrototypes.Add("Wall",
+        structurePrototypes.Add("struct_StoneWall",
             new Structure(
-                "Wall",
+                "struct_StoneWall",
                 0,      // Impassable
                 1,      // Width
                 1,      // Height
@@ -207,19 +324,20 @@ public class World : IXmlSerializable
                 true    // Enclose rooms
             )
         );
+        structurePrototypes["struct_StoneWall"].Name = "Stone Wall";
 
-        structureJobPrototypes.Add("Wall",
-            new Job(null, "Wall", StructureActions.JobComplete_StructureBuilding,
+        structureJobPrototypes.Add("struct_StoneWall",
+            new Job(null, "struct_StoneWall", StructureActions.JobComplete_StructureBuilding,
             300,
             new Inventory[] {
-                new Inventory("RawStone", 5, 0)
+                new Inventory("inv_RawStone", 5, 0)
                 }
             )
         );
 
-        structurePrototypes.Add("Door",
+        structurePrototypes.Add("struct_Door",
             new Structure(
-                "Door",
+                "struct_Door",
                 1,      // Door Pathfinding Cost
                 1,      // Width
                 1,      // Height
@@ -230,15 +348,15 @@ public class World : IXmlSerializable
             )
         );
 
-        structurePrototypes["Door"].SetParameter("openness", 0f); // 0 = closed door, 1 = fully open door, in between is partially opened
-        structurePrototypes["Door"].SetParameter("isOpening", 0);
-        structurePrototypes["Door"].SetParameter("doorOpenTime", 25f); // Amount of AUTs to open door
-        structurePrototypes["Door"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
-        structurePrototypes["Door"].IsEnterable = StructureActions.Door_IsEnterable;
+        structurePrototypes["struct_Door"].SetParameter("openness", 0f); // 0 = closed door, 1 = fully open door, in between is partially opened
+        structurePrototypes["struct_Door"].SetParameter("isOpening", 0);
+        structurePrototypes["struct_Door"].SetParameter("doorOpenTime", 25f); // Amount of AUTs to open door
+        structurePrototypes["struct_Door"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
+        structurePrototypes["struct_Door"].IsEnterable = StructureActions.Door_IsEnterable;
 
-        structurePrototypes.Add("Stockpile",
+        structurePrototypes.Add("struct_Stockpile",
             new Structure(
-                "Stockpile",
+                "struct_Stockpile",
                 1,      // Not Impassable
                 1,      // Width
                 1,      // Height
@@ -249,22 +367,21 @@ public class World : IXmlSerializable
             )
         );
 
-        structurePrototypes["Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
-        structurePrototypes["Stockpile"].tint = new Color32(255, 0, 255, 255);
-        structureJobPrototypes.Add("Stockpile",
+        structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+        structurePrototypes["struct_Stockpile"].tint = new Color32(255, 0, 255, 255);
+        structureJobPrototypes.Add("struct_Stockpile",
             new Job(
                 null,
-                "Stockpile",
+                "struct_Stockpile",
                 StructureActions.JobComplete_StructureBuilding,
                 -1,
                 null
             )
         );
 
-
-        structurePrototypes.Add("WorkStation",
+        structurePrototypes.Add("struct_WorkStation",
             new Structure(
-                "WorkStation",
+                "struct_WorkStation",
                 1,      // Pathfinding Cost
                 3,      // Width
                 3,      // Height
@@ -274,12 +391,12 @@ public class World : IXmlSerializable
                 false    // Enclose rooms
             )
         );
-        structurePrototypes["WorkStation"].jobSpotOffset = new Vector2(1, 0);
-        structurePrototypes["WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
+        structurePrototypes["struct_WorkStation"].jobSpotOffset = new Vector2(1, 0);
+        structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
 
-        structurePrototypes.Add("OxygenGenerator",
+        structurePrototypes.Add("struct_O2Generator",
             new Structure(
-                "OxygenGenerator",
+                "struct_O2Generator",
                 10,      // Pathfinding Cost
                 2,      // Width
                 2,      // Height
@@ -289,8 +406,9 @@ public class World : IXmlSerializable
                 false    // Enclose rooms
             )
         );
-        structurePrototypes["OxygenGenerator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
+        structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
     }
+    */
 
     public void SetupPathfindingExample()
     {
@@ -309,7 +427,7 @@ public class World : IXmlSerializable
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        PlaceStructure("Wall", Tiles[x, y], false);
+                        PlaceStructure("struct_StoneWall", Tiles[x, y], false);
                     }
                 }
             }
@@ -384,7 +502,7 @@ public class World : IXmlSerializable
         return structure;
     }
 
-    
+
 
     // This should be called whenever a change to the world
     // means that our old pathfinding info is invalid
@@ -567,7 +685,7 @@ public class World : IXmlSerializable
 
         // DEBUGGING ONLY! REMOVE ME LATER!
         // Create an Inventory Item
-        Inventory inv = new Inventory("RawStone", 50, 50);
+        Inventory inv = new Inventory("inv_RawStone", 50, 50);
         Tile t = GetTileAt(Width / 2, Height / 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
@@ -575,7 +693,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory("RawStone", 50, 4);
+        inv = new Inventory("inv_RawStone", 50, 4);
         t = GetTileAt(Width / 2 + 2, Height / 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
@@ -583,7 +701,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory("RawStone", 50, 3);
+        inv = new Inventory("inv_RawStone", 50, 3);
         t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
         inventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)

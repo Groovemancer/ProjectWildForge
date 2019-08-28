@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Inventory
 {
-    public string objectType = "RawStone";
+    public string objectType = "inv_RawStone";
     public int maxStackSize = 64;
 
     protected int _stackSize = 1;

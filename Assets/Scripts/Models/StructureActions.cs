@@ -52,7 +52,7 @@ public static class StructureActions
         // Since jobs copy arrays automatically, we could already have
         // an Inventory[] prepared and just return that (as a sort of example filter)
 
-        return new Inventory[1] { new Inventory("RawStone", 50, 0) };
+        return new Inventory[1] { new Inventory("inv_RawStone", 50, 0) };
     }
 
     public static void Stockpile_UpdateAction(Structure structure, float deltaAuts)
@@ -212,6 +212,6 @@ public static class StructureActions
     {
         Debug.Log("WorkStation_JobComplete");
 
-        World.current.inventoryManager.PlaceInventory(j.structure.GetSpawnSpotTile(), new Inventory("RawStone", 50, 10));
+        World.current.inventoryManager.PlaceInventory(j.structure.GetSpawnSpotTile(), new Inventory("inv_RawStone", 50, 10));
     }
 }

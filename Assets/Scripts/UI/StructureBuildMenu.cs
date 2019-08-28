@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StructureMenu : MonoBehaviour
+public class StructureBuildMenu : MonoBehaviour
 {
     public GameObject buildStructureButtonPrefab;
 
@@ -19,11 +19,13 @@ public class StructureMenu : MonoBehaviour
             GameObject go = Instantiate(buildStructureButtonPrefab);
             go.transform.SetParent(this.transform);
 
-            go.name = "Button - Build " + s;
-            go.transform.GetComponentInChildren<Text>().text = "Build " + s; // TODO: Locale
+            string objectName = StringUtils.GetLocalizedTextFiltered("comment#" + World.current.structurePrototypes[s].Name);
+            string objectId = s;
+
+            go.name = "Button - Build " + objectId;
+            go.transform.GetComponentInChildren<Text>().text = "Build " + objectName; // TODO: Locale
 
             Button b = go.GetComponent<Button>();
-            string objectId = s;
             b.onClick.AddListener(delegate { bmc.SetMode_Structure(); bmc.SetBuildStructure(objectId); });
         }
     }
