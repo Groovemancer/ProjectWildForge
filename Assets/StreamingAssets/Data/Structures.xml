@@ -82,6 +82,8 @@
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		
+		<OnUpdate FunctionName="OnUpdate_GasGenerator" />
+		
 		<Params>
 			<!--<Param name="gas_name" value="O2" />-->
 			<Param name="gas_limit" value="0.2" />

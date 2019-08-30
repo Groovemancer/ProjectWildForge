@@ -6,6 +6,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Linq;
 using UnityEngine;
+using MoonSharp.Interpreter;
 
 //[Flags]
 //public enum TileType {
@@ -15,7 +16,7 @@ using UnityEngine;
 
 public enum Enterability { Yes, Never, Soon };
 
-[Serializable]
+[MoonSharpUserData]
 public class Tile : IXmlSerializable
 {
     TileType _type = TileTypeData.GetByFlagName("Dirt");
@@ -266,12 +267,9 @@ public class Tile : IXmlSerializable
     }
 }
 
-[Serializable]
 public struct TileSprite
 {
-    [SerializeField]
     public string FlagName;
 
-    [SerializeField]
     public Sprite Sprite;
 }

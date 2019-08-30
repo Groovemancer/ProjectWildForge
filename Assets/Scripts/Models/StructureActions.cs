@@ -1,8 +1,49 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
 
-public static class StructureActions
+
+public class StructureActions
 {
+    static StructureActions _Instance;
+
+    protected Script luaScript;
+
+    public StructureActions(string rawLuaCode)
+    {
+        // Tell the Lua interpreter to load all the classes
+        // that we have marked as [MoonSharpUserData]
+        UserData.RegisterAssembly();
+
+        _Instance = this;
+
+        luaScript = new Script();
+        luaScript.DoString(rawLuaCode);
+    }
+
+    public static void JobComplete_StructureBuilding(Job theJob)
+    {
+        WorldController.Instance.World.PlaceStructure(theJob.jobObjectType, theJob.Tile);
+        theJob.Tile.PendingStructureJob = null;
+    }
+
+    public static void CallFuncitonsWithStructure(string[] functionNames, Structure structure, float deltaAuts)
+    {
+        foreach (string fn in functionNames)
+        {
+            object func = _Instance.luaScript.Globals[fn];
+
+            if (func == null)
+            {
+                DebugUtils.LogError("'" + fn + "' is not a Lua function.");
+            }
+            DynValue result = _Instance.luaScript.Call(func, new object[] { structure, deltaAuts });
+            Debug.Log(result.String);
+        }
+    }
+
+    /*
     public static void Door_UpdateAction(Structure structure, float deltaAuts)
     {
         if (structure.GetParameter("isOpening") >= 1)
@@ -214,4 +255,5 @@ public static class StructureActions
 
         World.current.inventoryManager.PlaceInventory(j.structure.GetSpawnSpotTile(), new Inventory("inv_RawStone", 50, 10));
     }
+    */
 }

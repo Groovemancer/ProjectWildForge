@@ -200,7 +200,9 @@ public class LocaleData
             {
                 XmlDocument doc = new XmlDocument();
 
-                doc.Load(Path.Combine(Application.streamingAssetsPath, "Data/LocaleData.xml"));
+                string filePath = Path.Combine(Application.streamingAssetsPath, "Data");
+                filePath = Path.Combine(filePath, "LocaleData.xml");
+                doc.Load(filePath);
 
                 DefaultLocale = doc.SelectSingleNode("LocaleData/Locales/Default").InnerText;
 

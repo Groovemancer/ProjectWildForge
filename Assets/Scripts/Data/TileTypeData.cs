@@ -146,7 +146,10 @@ class TileTypeData
             {
                 XmlDocument doc = new XmlDocument();
 
-                doc.Load(Path.Combine(Application.streamingAssetsPath, "Data/TileTypes.xml"));
+                string filePath = Path.Combine(Application.streamingAssetsPath, "Data");
+                filePath = Path.Combine(filePath, "TileTypes.xml");
+
+                doc.Load(filePath);
 
                 XmlNode tileTypes = doc.SelectSingleNode("TileTypes");
 

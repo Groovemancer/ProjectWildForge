@@ -5,9 +5,11 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using UnityEngine;
+using MoonSharp.Interpreter;
 
 // Structures are things like walls, doors, and furniture (e.g. table)
 
+[MoonSharpUserData]
 public class Structure : IXmlSerializable
 {
     /// <summary>
@@ -22,7 +24,8 @@ public class Structure : IXmlSerializable
     /// These actions are called every update. They get passed the structure
     /// they belong to, plus a deltaTime.
     /// </summary>
-    protected Action<Structure, float> updateActions;
+    //protected Action<Structure, float> updateActions;
+    protected List<string> updateActions;
 
     public Func<Structure, Enterability> IsEnterable;
 
@@ -43,7 +46,10 @@ public class Structure : IXmlSerializable
     public void Update(float deltaAuts)
     {
         if (updateActions != null)
-            updateActions(this, deltaAuts);
+        {
+            //updateActions(this, deltaAuts);
+            StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
+        }
     }
 
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
@@ -102,6 +108,7 @@ public class Structure : IXmlSerializable
     {
         structureParameters = new Dictionary<string, float>();
         jobs = new List<Job>();
+        updateActions = new List<string>();
     }
 
     // Copy Constructor -- don't call this directly, unless we never
@@ -126,7 +133,7 @@ public class Structure : IXmlSerializable
         jobs = new List<Job>();
 
         if (other.updateActions != null)
-            this.updateActions = (Action<Structure, float>)other.updateActions.Clone();
+            this.updateActions = new List<string>(other.updateActions);
 
         if (other.funcPositionValidation != null)
             this.funcPositionValidation = (Func<Tile, bool>)other.funcPositionValidation.Clone();
@@ -160,6 +167,7 @@ public class Structure : IXmlSerializable
 
         structureParameters = new Dictionary<string, float>();
         Tags = new List<string>();
+        updateActions = new List<string>();
     }
 
     public static Structure PlaceInstance(Structure proto, Tile tile)
@@ -318,14 +326,14 @@ public class Structure : IXmlSerializable
     /// <summary>
     /// Registers a function that will be called every Update.
     /// </summary>
-    public void RegisterUpdateAction(Action<Structure, float> a)
+    public void RegisterUpdateAction(string luaFunctionName)
     {
-        updateActions += a;
+        updateActions.Add(luaFunctionName);
     }
 
-    public void UnregisterUpdateAction(Action<Structure, float> a)
+    public void UnregisterUpdateAction(string luaFunctionName)
     {
-        updateActions -= a;
+        updateActions.Remove(luaFunctionName);
     }
 
     public int JobCount()

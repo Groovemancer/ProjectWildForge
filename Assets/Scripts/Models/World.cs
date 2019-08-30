@@ -187,8 +187,21 @@ public class World : IXmlSerializable
         return a;
     }
 
+    void LoadStructureLua()
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
+        filePath = Path.Combine(filePath, "StructureActions.lua");
+
+        string luaCode = File.ReadAllText(filePath);
+
+        // Instantiate the singleton
+        new StructureActions(luaCode);
+    }
+
     private void CreateStructurePrototypes()
     {
+        LoadStructureLua();
+
         structurePrototypes = new Dictionary<string, Structure>();
         structureJobPrototypes = new Dictionary<string, Job>();
 
@@ -198,7 +211,9 @@ public class World : IXmlSerializable
         {
             XmlDocument doc = new XmlDocument();
 
-            doc.Load(Path.Combine(Application.streamingAssetsPath, "Data/Structures.xml"));
+            string filePath = Path.Combine(Application.streamingAssetsPath, "Data");
+            filePath = Path.Combine(filePath, "Structures.xml");
+            doc.Load(filePath);
 
             XmlNodeList structNodes = doc.SelectNodes("Structures/Structure");
 
@@ -260,6 +275,13 @@ public class World : IXmlSerializable
                     )
                 );
 
+                XmlNode updateFnNode = structNode.SelectSingleNode("OnUpdate");
+                if (updateFnNode != null)
+                {
+                    string updateFuncName = updateFnNode.Attributes["FunctionName"].InnerText;
+                    structurePrototypes[objectType].RegisterUpdateAction(updateFuncName);
+                }
+
                 structurePrototypes[objectType].jobSpotOffset = jobSpotOffset;
                 structurePrototypes[objectType].tint = tint;
                 structurePrototypes[objectType].Tags.AddRange(tags);
@@ -311,9 +333,9 @@ public class World : IXmlSerializable
 
         //structurePrototypes["struct_WoodDoor"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
         //structurePrototypes["struct_WoodDoor"].IsEnterable = StructureActions.Door_IsEnterable;
-        structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
-        structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
-        structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
+        //structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
+        //structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+        //structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
     }
 
     /*

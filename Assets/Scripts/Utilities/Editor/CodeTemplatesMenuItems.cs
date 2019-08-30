@@ -48,4 +48,15 @@ public class CodeTemplatesMenuItems
             "NewXml.xml",
             @"Assets/Editor/Templates/XmlTemplate.txt", "TextAsset Icon");
     }
+
+    /// <summary>
+    /// Creates a new XML document.
+    /// </summary>
+    [MenuItem(MENU_ITEM_PATH + "Lua Script", false, MENU_ITEM_PRIORITY)]
+    private static void CreateLuaScript()
+    {
+        CodeTemplates.CreateFromTemplate(
+            "NewScript.lua",
+            @"Assets/Editor/Templates/LuaTemplate.txt", "TextAsset Icon");
+    }
 }
