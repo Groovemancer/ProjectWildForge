@@ -28,7 +28,8 @@
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		
 		<BuildingJob jobCost="300">
-			<Inventory objectType="inv_Wood" amount="2"/>
+			<!--<Inventory objectType="inv_Wood" amount="2"/>-->
+			<Inventory objectType="inv_RawStone" amount="2"/>
 		</BuildingJob>
 		
 		<DeconstructJob jobCost="100">
@@ -71,5 +72,28 @@
 		<DeconstructJob jobCost="300">
 			<Inventory objectType="inv_RawStone" amount="15"/>
 		</DeconstructJob>
+	</Structure>
+	<Structure objectType="struct_O2Generator">
+		<Name>struct_O2Generator</Name>
+		<MoveCost>10</MoveCost>
+		<Width>2</Width>
+		<Height>2</Height>
+		<LinksToNeighbors>false</LinksToNeighbors>
+		<EnclosesRooms>false</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		
+		<Params>
+			<!--<Param name="gas_name" value="O2" />-->
+			<Param name="gas_limit" value="0.2" />
+			<Param name="gas_per_aut" value="0.01" />
+		</Params>
+		
+		<!--<BuildingJob jobCost="600">
+			<Inventory objectType="inv_Wood" amount="25"/>
+		</BuildingJob>
+		
+		<DeconstructJob jobCost="300">
+			<Inventory objectType="inv_RawStone" amount="15"/>
+		</DeconstructJob>-->
 	</Structure>
 </Structures>

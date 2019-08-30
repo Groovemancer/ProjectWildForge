@@ -159,7 +159,7 @@ public static class StructureActions
         if (structure.Tile.Room.GetGasAmount("O2") < 0.20f)
         {
             //TODO: Change the gas contribution based on the volume of the room
-            structure.Tile.Room.ChangeGas("O2", 0.01f / deltaAuts); // TODO: Replace hardcoded value!
+            structure.Tile.Room.ChangeGas("O2", 0.003f * deltaAuts); // TODO: Replace hardcoded value!
         }
     }
 

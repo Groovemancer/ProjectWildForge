@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 8/27/2019 11:36:48 PM-->
+<!--Last Updated: 8/29/2019 9:43:13 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -177,6 +177,15 @@
 		<Text>
 			<en-US>Work Station</en-US>
 			<de-DE>Arbeitsstation</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="21">
+		<Comment>struct_O2Generator</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>O2 Generator</en-US>
+			<de-DE>O2 Generator</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

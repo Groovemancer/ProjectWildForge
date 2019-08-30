@@ -67,7 +67,7 @@ public class Room : IXmlSerializable
         foreach (Tile tile in tiles)
         {
             // Assign to outside
-            tile.Room = World.current.GetOutsideRoom();
+            tile.Room = World.current.OutsideRoom;
         }
 
         tiles.Clear();
@@ -75,7 +75,7 @@ public class Room : IXmlSerializable
 
     public bool IsOutsideRoom()
     {
-        return this == World.current.GetOutsideRoom();
+        return this == World.current.OutsideRoom;
     }
 
     public void ChangeGas(string name, float amount)

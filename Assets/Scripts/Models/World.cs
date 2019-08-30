@@ -52,6 +52,8 @@ public class World : IXmlSerializable
 
     public static World current { get; protected set; }
 
+    public Room OutsideRoom { get; private set; }
+
     public World(int width, int height)
     {
         // Creates an empty world.
@@ -67,11 +69,6 @@ public class World : IXmlSerializable
     public World()
     {
 
-    }
-
-    public Room GetOutsideRoom()
-    {
-        return rooms[0];
     }
 
     public int GetRoomId(Room r)
@@ -94,7 +91,7 @@ public class World : IXmlSerializable
 
     public void DeleteRoom(Room r)
     {
-        if (r == GetOutsideRoom())
+        if (r.IsOutsideRoom())
         {
             Debug.LogError("Tried to delete the outside room.");
             return;
@@ -105,7 +102,7 @@ public class World : IXmlSerializable
 
         // All tiles that belonged to this room should be re-assigned to
         // the outside.
-        r.ReturnTilesToOutsideRoom();
+        //r.ReturnTilesToOutsideRoom();
     }
 
     void SetupWorld(int width, int height)
@@ -122,7 +119,8 @@ public class World : IXmlSerializable
         Tiles = new Tile[Width, Height];
 
         rooms = new List<Room>();
-        rooms.Add(new Room()); // Create the outside?
+        OutsideRoom = new Room();
+        rooms.Add(OutsideRoom); // Create the outside
 
         for (int x = 0; x < Width; x++)
         {
@@ -287,6 +285,20 @@ public class World : IXmlSerializable
                 // Deconstruct Job
                 // TODO
 
+                // Params
+                XmlNode paramsNode = structNode.SelectSingleNode("Params");
+                if (paramsNode != null)
+                {
+                    XmlNodeList paramNodes = paramsNode.SelectNodes("Param");
+                    foreach (XmlNode paramNode in paramNodes)
+                    {
+                        string paramName = paramNode.Attributes["name"].InnerText;
+                        float paramValue = float.Parse(paramNode.Attributes["value"].InnerText);
+
+                        structurePrototypes[objectType].SetParameter(paramName, paramValue);
+                    }
+                }
+
             }
             //DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
         }
@@ -301,6 +313,7 @@ public class World : IXmlSerializable
         //structurePrototypes["struct_WoodDoor"].IsEnterable = StructureActions.Door_IsEnterable;
         structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
         structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
+        structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
     }
 
     /*
@@ -611,7 +624,7 @@ public class World : IXmlSerializable
         writer.WriteStartElement("Rooms");
         foreach (Room room in rooms)
         {
-            if (GetOutsideRoom() == room)
+            if (room.IsOutsideRoom())
                 continue;   // Skip the outside room
 
             writer.WriteStartElement("Room");
