@@ -61,8 +61,8 @@ public class JobSpriteController : MonoBehaviour
             // Check to see if we actually have a wall north/south, and if so
             // then rotate this GO by 90 degress
 
-            Tile northTile = World.current.GetTileAt(job.Tile.X, job.Tile.Y + 1);
-            Tile southTile = World.current.GetTileAt(job.Tile.X, job.Tile.Y - 1);
+            Tile northTile = World.Current.GetTileAt(job.Tile.X, job.Tile.Y + 1, job.Tile.Z);
+            Tile southTile = World.Current.GetTileAt(job.Tile.X, job.Tile.Y - 1, job.Tile.Z);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
                 northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")

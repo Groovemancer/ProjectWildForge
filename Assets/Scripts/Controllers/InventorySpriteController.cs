@@ -27,9 +27,9 @@ public class InventorySpriteController : MonoBehaviour
         World.RegisterInventoryCreated(OnInventoryCreated);
 
         // Check for pre-existing inventorys, which won't do the callback.
-        foreach (string objectType in World.inventoryManager.inventories.Keys)
+        foreach (string objectType in World.InventoryManager.Inventories.Keys)
         {
-            foreach (Inventory inv in World.inventoryManager.inventories[objectType])
+            foreach (Inventory inv in World.InventoryManager.Inventories[objectType])
             {
                 OnInventoryCreated(inv);
             }
@@ -62,7 +62,7 @@ public class InventorySpriteController : MonoBehaviour
         inventoryGameObjectMap.Add(inv, inv_go);
 
         inv_go.name = inv.objectType;
-        inv_go.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
+        inv_go.transform.position = new Vector3(inv.Tile.X, inv.Tile.Y, 0);
         inv_go.transform.SetParent(this.transform, true);
 
         // FIXME: We assume that the object must be a wall, so use
@@ -71,7 +71,7 @@ public class InventorySpriteController : MonoBehaviour
         spr.sprite = inventorySprites[inv.objectType];
         spr.sortingLayerName = "Inventory";
 
-        if (inv.maxStackSize > 1)
+        if (inv.MaxStackSize > 1)
         {
             // This is a stackable object, so let's add a InventoryUI component
             // (which is text that shows the current stackSize.)
@@ -79,7 +79,7 @@ public class InventorySpriteController : MonoBehaviour
             GameObject ui_go = Instantiate(inventoryUIPrefab);
             ui_go.transform.SetParent(inv_go.transform);
             ui_go.transform.localPosition = new Vector3(0.5f, 0.5f, 0);     // If we change the sprite anchor, this may need to be modified.
-            ui_go.GetComponentInChildren<Text>().text = inv.stackSize.ToString();
+            ui_go.GetComponentInChildren<Text>().text = inv.StackSize.ToString();
         }
 
         // Register our callback so that our GameObject gets updated whenever
@@ -98,14 +98,14 @@ public class InventorySpriteController : MonoBehaviour
         }
         GameObject inv_go = inventoryGameObjectMap[inv];
 
-        if (inv.stackSize > 0)
+        if (inv.StackSize > 0)
         {
             Text text = inv_go.GetComponentInChildren<Text>();
 
             // FIXME: If maxStackSize changed to/from 1, then we either need to create or destroy the text
             if (text != null)
             {
-                text.text = inv.stackSize.ToString();
+                text.text = inv.StackSize.ToString();
             }
         }
         else

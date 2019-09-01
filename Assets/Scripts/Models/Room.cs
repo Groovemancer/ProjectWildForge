@@ -1,21 +1,25 @@
 ﻿using UnityEngine;
+using System;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using MoonSharp.Interpreter;
 
-using System;
-
+[MoonSharpUserData]
 public class Room : IXmlSerializable
 {
     Dictionary<string, float> atmosphericGasses;
 
-    HashSet<Tile> tiles;
+    private HashSet<Tile> tiles;
+
+    private HashSet<Tile> boundaryTiles;
 
     public Room()
     {
         tiles = new HashSet<Tile>();
+        boundaryTiles = new HashSet<Tile>();
         atmosphericGasses = new Dictionary<string, float>();
     }
 
@@ -23,7 +27,7 @@ public class Room : IXmlSerializable
     {
         get
         {
-            return World.current.GetRoomId(this);
+            return World.Current.RoomManager.GetRoomID(this);
         }
     }
 
@@ -52,6 +56,11 @@ public class Room : IXmlSerializable
 
     public void UnassignTile(Tile tile)
     {
+        if (boundaryTiles.Contains(tile))
+        {
+            boundaryTiles.Remove(tile);
+        }
+
         if (tiles.Contains(tile) == false)
         {
             // This tile is not in this room.
@@ -67,7 +76,7 @@ public class Room : IXmlSerializable
         foreach (Tile tile in tiles)
         {
             // Assign to outside
-            tile.Room = World.current.OutsideRoom;
+            tile.Room = World.Current.RoomManager.OutsideRoom;
         }
 
         tiles.Clear();
@@ -75,7 +84,7 @@ public class Room : IXmlSerializable
 
     public bool IsOutsideRoom()
     {
-        return this == World.current.OutsideRoom;
+        return this == World.Current.RoomManager.OutsideRoom;
     }
 
     public void ChangeGas(string name, float amount)
@@ -127,376 +136,101 @@ public class Room : IXmlSerializable
         return atmosphericGasses.Keys.ToArray();
     }
 
-    public static void DoRoomFloodFill(Tile sourceTile, bool splitting, bool floodFillingOnTileChange = false)
+    public HashSet<Tile> GetInnerTiles()
     {
-        // TODO REMOVE when we figure out some optimizations
-        //return;
-
-        // sourceStruct is the structure that may be splitting
-        // two existing rooms, or may be the final enclosing piece
-        // to form a new room.
-        // Check the NESW neighbors of the structure's tile
-        // and do flood fill from them
-
-        Room oldRoom = sourceTile.Room;
-
-        if (floodFillingOnTileChange)
-        {
-            if (splitting)
-            {
-                // The source tile had a room, so this must be a new piece of furniture
-                // that is potentially dividing this old room into as many as four new rooms.
-
-                // Save the size of old room before we start removing tiles.
-                // Needed for gas calculations.
-                int sizeOfOldRoom = oldRoom.TileCount;
-
-                HashSet<Room> oldRooms = new HashSet<Room>();
-
-                // You need to delete the surrounding rooms so a new room can be created
-                oldRooms.Add(oldRoom);
-                World.current.rooms.Remove(oldRoom);
-
-                if (sourceTile != null && sourceTile.Room != null)
-                {
-                    Room newRoom = FloodFill(sourceTile, oldRoom);
-
-                    //if (newRoom != null && Split != null)
-                    //{
-                    //    Split(oldRoom, newRoom);
-                    //}
-                }
-
-                // If this piece of furniture was added to an existing room
-                // (which should always be true assuming with consider "outside" to be a big room)
-                // delete that room and assign all tiles within to be "outside" for now.
-                if (oldRoom.IsOutsideRoom() == false)
-                {
-                    // At this point, oldRoom shouldn't have any more tiles left in it,
-                    // so in practice this "DeleteRoom" should mostly only need
-                    // to remove the room from the world's list.
-                    if (oldRoom.TileCount > 0)
-                    {
-                        Debug.LogError("'oldRoom' still has tiles assigned to it. This is clearly wrong.");
-                    }
-
-                    World.current.rooms.Remove(oldRoom);
-                }
-
-                oldRoom.UnassignTile(sourceTile);
-            }
-            else
-            {
-                // The source tile had a room, so this must be a new structure
-                // that is potentially dividing this old room into as many as four new rooms.
-
-                // Save the size of old room before we start removing tiles.
-                // Needed for gas calculations.
-                int sizeOfOldRoom = oldRoom.TileCount;
-
-                // oldRoom is null, which means the source tile was probably a wall,
-                // though this MAY not be the case any longer (i.e. the wall was 
-                // probably deconstructed. So the only thing we have to try is
-                // to spawn ONE new room starting from the tile in question.
-
-                // Save a list of all the rooms to be removed for later calls
-                // TODO: find a way of not doing this, because at the time of the
-                // later calls, this is stale data.
-                HashSet<Room> oldRooms = new HashSet<Room>();
-
-                if (sourceTile != null && sourceTile.Room != null && !sourceTile.Room.IsOutsideRoom())
-                {
-                    oldRooms.Add(sourceTile.Room);
-
-                    World.current.rooms.Remove(sourceTile.Room);
-                }
-            }
-        }
-        else if (oldRoom != null && splitting)
-        {
-            // The source tile had a room, so this must be a new structure
-            // that is potentially dividing this old room into as many as four new rooms.
-
-            // Save the size of old room before we start removing tiles.
-            // Needed for gas calculations.
-            int sizeOfOldRoom = oldRoom.TileCount;
-
-            // Try building new rooms for each of our NESW directions.
-            foreach (Tile t in sourceTile.GetNeighbors())
-            {
-                if (t != null && t.Room != null)
-                {
-                    Room newRoom = FloodFill(t, oldRoom);
-
-                    //if (newRoom != null && Split != null)
-                    //{
-                    //    Split(oldRoom, newRoom);
-                    //}
-                }
-            }
-
-            sourceTile.Room = null;
-
-            oldRoom.UnassignTile(sourceTile);
-
-            // If this piece of furniture was added to an existing room
-            // (which should always be true assuming with consider "outside" to be a big room)
-            // delete that room and assign all tiles within to be "outside" for now.
-            if (oldRoom.IsOutsideRoom() == false)
-            {
-                // At this point, oldRoom shouldn't have any more tiles left in it,
-                // so in practice this "DeleteRoom" should mostly only need
-                // to remove the room from the world's list.
-                if (oldRoom.TileCount > 0)
-                {
-                    Debug.LogError("'oldRoom' still has tiles assigned to it. This is clearly wrong.");
-                }
-
-                World.current.rooms.Remove(oldRoom);
-            }
-        }
-        else if (oldRoom == null && splitting == false)
-        {
-            // oldRoom is null, which means the source tile was probably a wall,
-            // though this MAY not be the case any longer (i.e. the wall was 
-            // probably deconstructed. So the only thing we have to try is
-            // to spawn ONE new room starting from the tile in question.
-
-            // Save a list of all the rooms to be removed for later calls
-            // TODO: find a way of not doing this, because at the time of the
-            // later calls, this is stale data.
-            HashSet<Room> oldRooms = new HashSet<Room>();
-
-            // You need to delete the surrounding rooms so a new room can be created
-            foreach (Tile t in sourceTile.GetNeighbors())
-            {
-                if (t != null && t.Room != null && !t.Room.IsOutsideRoom())
-                {
-                    oldRooms.Add(t.Room);
-
-                    World.current.rooms.Remove(t.Room);
-                }
-            }
-
-            // FIXME: find a better way to do this since right now it 
-            // requires using stale data.
-            Room newRoom = FloodFill(sourceTile, null);
-
-            //if (newRoom != null && oldRooms.Count > 0 && Joined != null)
-            //{
-            //    foreach (Room r in oldRooms)
-            //    {
-            //        Joined(r, newRoom);
-            //    }
-            //}
-        }
-
+        return tiles;
     }
 
-    protected static Room FloodFill(Tile tile, Room oldRoom)
+    public HashSet<Tile> GetBoundaryTiles()
     {
-        if (tile == null)
+        if (boundaryTiles.Count == 0)
         {
-            // We are trying to flood fill off the map, so just return
-            // without doing anything.
-            return null;
-        }
-
-        if (tile.Room != oldRoom)
-        {
-            // This tile was already assigned to another "new" room, which means
-            // that the direction picked isn't isolated. So we can just return
-            // without creating a new room.
-            return null;
-        }
-        if (tile.Structure != null && tile.Structure.RoomEnclosure)
-        {
-            // This tile has a wall/door/whatever in it, so clearly
-            // we can't do a room here.
-            return null;
-        }
-
-        if (tile.Type == TileTypeData.Instance.EmptyType)
-        {
-            // This tile is empty space and must remain part of the outside.
-            return null;
-        }
-
-        // If we get to this point, then we know that we need to create a new room.
-        HashSet<Room> listOfOldRooms = new HashSet<Room>();
-
-        // If we get to this point, then we know that we need to create a new room.
-        Room newRoom = new Room();
-        Queue<Tile> tilesToCheck = new Queue<Tile>();
-        tilesToCheck.Enqueue(tile);
-
-        bool isConnectedToSpace = false;
-        int processedTiles = 0;
-
-        DateTime startTime = DateTime.Now;
-
-        while (tilesToCheck.Count > 0)
-        {
-            Tile currentTile = tilesToCheck.Dequeue();
-            processedTiles++;
-
-            if (currentTile.Room != newRoom)
+            foreach (Tile tile in tiles)
             {
-                if (currentTile.Room != null && listOfOldRooms.Contains(currentTile.Room) == false)
+                Tile[] neighbors = tile.GetNeighbors();
+                foreach (Tile tile2 in neighbors)
                 {
-                    listOfOldRooms.Add(currentTile.Room);
-                }
-
-                newRoom.AssignTile(currentTile);
-
-                Tile[] neighbors = currentTile.GetNeighbors();
-                foreach (Tile neighborTile in neighbors)
-                {
-                    if (neighborTile == null || neighborTile.Type.Flag == TileTypeData.Instance.EmptyFlag)
+                    if (tile2 != null && tile.Structure != null)
                     {
-                        // we have hit open space (either by being the edge of the map or being an empty tile)
-                        // so this "room" we're building is actually part of the Outside.
-                        // Therefore, we can immediately end the flood fill (which otherwise would take ages)
-                        // and more importantly, we need to delete this "newRoom" and re-assign
-                        // all the tiles to Outside.
-
-                        isConnectedToSpace = true;
-                    }
-                    else
-                    {
-                        if (neighborTile.Room != newRoom && (neighborTile.Structure == null || neighborTile.Structure.RoomEnclosure == false))
+                        if (tile2.Structure.RoomEnclosure)
                         {
-                            tilesToCheck.Enqueue(neighborTile);
+                            // We have found an enclosing structure, which means it is on our border
+                            boundaryTiles.Add(tile2);
                         }
                     }
-
                 }
             }
-
-            //if (processedTiles > 10000)
-            //    break;
         }
 
-        TimeSpan ts = DateTime.Now.Subtract(startTime);
-
-        Debug.Log("FloodFill -- Processed Tiles: " + processedTiles + ", time: " + ts.TotalSeconds.ToString());
-
-        if (isConnectedToSpace)
-        {
-            // All tiles that were found by this flood fill should
-            // actually be "assigned" to outside.
-            newRoom.ReturnTilesToOutsideRoom();
-            return null;
-        }
-
-        // TODO: Copy data from old room to new room
-        // newRoom.data = oldRoom.data;
-        if (oldRoom != null)
-        {
-            // In this case we are splitting one room into two or more,
-            // so we can just copy the old gas ratios.
-            newRoom.CopyGas(oldRoom);
-        }
-        else
-        {
-            // In THIS case, we are merging one or more rooms together,
-            // so we need to actually figure out the total volume of gas
-            // in the old room vs the new room and correctly adjust
-            // atmospheric quantities.
-
-            // TODO
-        }
-
-        // Tell the world that a new room has been formed.
-        World.current.AddRoom(newRoom);
-
-        return newRoom;
+        return boundaryTiles;
     }
 
-    #region DEPRECATED -- DO NOT USE
-    /// <summary>
-    /// DEPRECATED -- USE FloodFill
-    /// </summary>
-    /// <param name="tile"></param>
-    /// <param name="oldRoom"></param>
-    private static void NewFloodFill(Tile tile, Room oldRoom)
+    public List<Tile> FindExits()
     {
-        if (tile == null)
+        List<Tile> exits = new List<Tile>();
+        foreach (Tile tile in tiles)
         {
-            // We are trying to flood fill off the map, so just return
-            // without doing anything.
-            return;
-        }
-
-        if (tile.Room != oldRoom)
-        {
-            // This tile was already assigned to another "new" room, which means
-            // that the direction picked isn't isolated. So we can just return
-            // without creating a new room.
-            return;
-        }
-        if (tile.Structure != null && tile.Structure.RoomEnclosure)
-        {
-            // This tile has a wall/door/whatever in it, so clearly
-            // we can't do a room here.
-            return;
-        }
-        Room newRoom = new Room();
-        int x = tile.X;
-        int y = tile.Y;
-
-        int maxX = World.current.Tiles.GetLength(0) - 1;
-        int maxY = World.current.Tiles.GetLength(1) - 1;
-        Debug.Log("MaxX: " + maxX + ", MaxY: " + maxY);
-        int[,] stack = new int[(maxX + 1) * (maxY + 1), 2];
-        int index = 0;
-        stack[0, 0] = x;
-        stack[0, 1] = y;
-        World.current.Tiles[x, y].Room = newRoom;
-
-        while (index >= 0)
-        {
-            x = stack[index, 0];
-            y = stack[index, 1];
-            index--;
-
-            if ((x > 0) && (World.current.Tiles[x - 1, y].Room == oldRoom))
+            Tile[] neighbours = tile.GetNeighbors();
+            foreach (Tile tile2 in neighbours)
             {
-                World.current.Tiles[x - 1, y].Room = newRoom;
-                index++;
-                stack[index, 0] = x - 1;
-                stack[index, 1] = y;
-            }
-
-            if ((x < maxX) && (World.current.Tiles[x + 1, y].Room == oldRoom))
-            {
-                World.current.Tiles[x + 1, y].Room = newRoom;
-                index++;
-                stack[index, 0] = x + 1;
-                stack[index, 1] = y;
-            }
-
-            if ((y > 0) && (World.current.Tiles[x, y - 1].Room == oldRoom))
-            {
-                World.current.Tiles[x, y - 1].Room = newRoom;
-                index++;
-                stack[index, 0] = x;
-                stack[index, 1] = y - 1;
-            }
-
-            if ((y < maxY) && (World.current.Tiles[x, y + 1].Room == oldRoom))
-            {
-                World.current.Tiles[x, y + 1].Room = newRoom;
-                index++;
-                stack[index, 0] = x;
-                stack[index, 1] = y + 1;
+                if (tile2 != null && tile2.Structure != null)
+                {
+                    if (tile2.Structure.IsExit())
+                    {
+                        // We have found an exit
+                        exits.Add(tile2);
+                    }
+                }
             }
         }
 
-        newRoom.CopyGas(oldRoom);
-        World.current.AddRoom(newRoom);
+        return exits;
     }
-    #endregion
+
+    public Tile FindExitBetween(Room room2)
+    {
+        List<Tile> exits = this.FindExits();
+
+        foreach (Tile exit in exits)
+        {
+            if (exit.GetNeighbors().Any(tile => tile.Room == room2))
+            {
+                return exit;
+            }
+        }
+
+        // In theory this should never be reached, if we are passed two rooms from a roomPath, there should always be an exit between
+        // But we should probably add some kind of error checking anyways.
+        return null;
+    }
+
+    public Dictionary<Tile, Room> GetNeighbors()
+    {
+        Dictionary<Tile, Room> neighboursRooms = new Dictionary<Tile, Room>();
+
+        List<Tile> exits = this.FindExits();
+
+        foreach (Tile tile in exits)
+        {
+            // Loop over the exits to find a different room
+            Tile[] neighbours = tile.GetNeighbors(true, false, false);
+            foreach (Tile neighbor in neighbours)
+            {
+                if (neighbor == null || neighbor.Room == null)
+                {
+                    continue;
+                }
+
+                // We have found a room
+                if (neighbor.Room != this)
+                {
+                    neighboursRooms[neighbor] = neighbor.Room;
+                }
+            }
+        }
+
+        return neighboursRooms;
+    }
 
     private void CopyGas(Room other)
     {

@@ -1,9 +1,11 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using ProjectWildForge.Pathfinding;
 
 public class Actor : IXmlSerializable
 {
@@ -19,13 +21,12 @@ public class Actor : IXmlSerializable
             if (_destTile != value)
             {
                 _destTile = value;
-                pathAStar = null;
             }
         }
     }
     Tile nextTile;
 
-    PathAStar pathAStar;
+    public List<Tile> Path { get; set; }
 
     float movementCost = 25f; // Amount of action points required to move 1 tile.
 
@@ -53,7 +54,7 @@ public class Actor : IXmlSerializable
 
     void GetNewJob()
     {
-        myJob = World.current.jobQueue.Dequeue();
+        myJob = World.Current.jobQueue.Dequeue();
         if (myJob == null)
             return;
 
@@ -65,8 +66,10 @@ public class Actor : IXmlSerializable
         // requiring materials), but we still need to verify that
         // the final location can be reached.
 
-        pathAStar = new PathAStar(World.current, CurrTile, destTile); // This will calculate a path from curr to dest.
-        if (pathAStar.Length() == 0)
+        //pathAStar = new Path_AStar(World.Current, CurrTile, destTile); // This will calculate a path from curr to dest.
+        Path = Pathfinder.FindPathToTile(CurrTile, destTile);
+        //if (pathAStar.Length() == 0)
+        if (Path.Count == 0)
         {
             Debug.LogError("PathAStar returned no path to target job tile!");
             AbandonJob();
@@ -107,13 +110,13 @@ public class Actor : IXmlSerializable
                     if (CurrTile == myJob.Tile)
                     {
                         // We are at the job's site, so drop the inventory
-                        World.current.inventoryManager.PlaceInventory(myJob, inventory);
+                        World.Current.InventoryManager.PlaceInventory(myJob, inventory);
                         myJob.DoWork(0); // This will call all cbJobWorked callbacks, because even though
                                         // we aren't progressing, it might want to do something with the fact
                                         // that the requirements are being met.
 
                         // Are we still carrying things?
-                        if (inventory.stackSize == 0)
+                        if (inventory.StackSize == 0)
                         {
                             inventory = null;
                         }
@@ -135,7 +138,7 @@ public class Actor : IXmlSerializable
                     // We are carrying something, but the job doesn't want it!
                     // Dump the inventory at our feet
                     // TODO: Actually, walk to the nearest empty tile and dump it there.
-                    if (World.current.inventoryManager.PlaceInventory(CurrTile, inventory) == false)
+                    if (World.Current.InventoryManager.PlaceInventory(CurrTile, inventory) == false)
                     {
                         Debug.LogError("Character tried to dump inventory into an invalid tile (maybe there's already something here.");
                         // FIXME: For the sake of continuing on, we are still going to dump any
@@ -156,7 +159,7 @@ public class Actor : IXmlSerializable
                     myJob.DesiresInventoryType(CurrTile.Inventory) > 0)
                 {
                     // Pick up the stuff!
-                    World.current.inventoryManager.PlaceInventory(
+                    World.Current.InventoryManager.PlaceInventory(
                         this,
                         CurrTile.Inventory,
                         myJob.DesiresInventoryType(CurrTile.Inventory)
@@ -169,10 +172,10 @@ public class Actor : IXmlSerializable
                     // Find the first thing in the job that isn't satisfied.
                     Inventory desired = myJob.GetFirstDesiredInventory();
 
-                    Inventory supplier = World.current.inventoryManager.GetClosestInventoryOfType(
+                    Inventory supplier = World.Current.InventoryManager.GetClosestInventoryOfType(
                         desired.objectType,
                         CurrTile,
-                        desired.maxStackSize - desired.stackSize,
+                        desired.MaxStackSize - desired.StackSize,
                         myJob.canTakeFromStockpile
                     );
 
@@ -183,7 +186,7 @@ public class Actor : IXmlSerializable
                         return false;
                     }
 
-                    destTile = supplier.tile;
+                    destTile = supplier.Tile;
                     return false;
                 }
             }
@@ -243,7 +246,7 @@ public class Actor : IXmlSerializable
         nextTile = destTile = CurrTile;
         myJob.UnregisterJobStoppedCallback(OnJobStopped);
         myJob.UnregisterJobCompletedCallback(OnJobStopped);
-        World.current.jobQueue.Enqueue(myJob);
+        World.Current.jobQueue.Enqueue(myJob);
         myJob = null;
     }
 
@@ -251,29 +254,35 @@ public class Actor : IXmlSerializable
     {
         if (CurrTile == destTile)
         {
-            pathAStar = null;
+            //pathAStar = null;
+            Path = null;
             return false;
         }
 
         if (nextTile == null || nextTile == CurrTile)
         {
             // Get the next tile from the pathfinder
-            if (pathAStar == null || pathAStar.Length() == 0)
+            //if (pathAStar == null || pathAStar.Length() == 0)
+            if (Path == null || Path.Count == 0)
             {
                 // Generate a path to our destination
-                pathAStar = new PathAStar(World.current, CurrTile, destTile); // This will calculate a path from curr to dest.
-                if (pathAStar.Length() == 0)
+                //pathAStar = new Path_AStar(World.Current, CurrTile, destTile); // This will calculate a path from curr to dest.
+                Path = Pathfinder.FindPathToTile(CurrTile, destTile);
+
+                if (Path.Count == 0)
                 {
                     Debug.LogError("PathAStar returned no path to destination!");
                     AbandonJob();
                     return false;
                 }
                 // Let's ignore the first tile, because that's the tile we're currently in.
-                nextTile = pathAStar.Dequeue();
+                //nextTile = pathAStar.Dequeue();
+                AdvanceNextTile();
             }
 
             // Grab the next waypoint from the pathing system!
-            nextTile = pathAStar.Dequeue();
+            //nextTile = pathAStar.Dequeue();
+            AdvanceNextTile();
 
             if (nextTile == CurrTile)
             {
@@ -289,7 +298,8 @@ public class Actor : IXmlSerializable
             //      Or maybe we should register a callback to the OnTileChanged event?
             Debug.LogError("FIXME: A character was trying to enter an unwalkable tile.");
             nextTile = null;    // our next tile is a no-go
-            pathAStar = null;   // clearly our pathfinding is out of date.
+            //pathAStar = null;   // clearly our pathfinding is out of date.
+            Path = null;
             return false;
         }
         else if (nextTile.IsEnterable() == Enterability.Soon)
@@ -337,11 +347,11 @@ public class Actor : IXmlSerializable
 
                 if (dirX != 0)
                 {
-                    CurrTile = World.current.GetTileAt(CurrTile.X + dirX, CurrTile.Y);
+                    CurrTile = World.Current.GetTileAt(CurrTile.X + dirX, CurrTile.Y, CurrTile.Z);
                 }
                 else if (dirY != 0)
                 {
-                    CurrTile = World.current.GetTileAt(CurrTile.X, CurrTile.Y + dirY);
+                    CurrTile = World.Current.GetTileAt(CurrTile.X, CurrTile.Y + dirY, CurrTile.Z);
                 }
 
                 if (CurrTile == nextTile)
@@ -359,6 +369,12 @@ public class Actor : IXmlSerializable
         }
 
         return false;
+    }
+
+    private void AdvanceNextTile()
+    {
+        nextTile = Path[0];
+        Path.RemoveAt(0);
     }
 
     public float CalculatedMoveCost()
@@ -419,6 +435,7 @@ public class Actor : IXmlSerializable
     {
         writer.WriteAttributeString("X", CurrTile.X.ToString());
         writer.WriteAttributeString("Y", CurrTile.Y.ToString());
+        writer.WriteAttributeString("Z", CurrTile.Z.ToString());
 
     }
 

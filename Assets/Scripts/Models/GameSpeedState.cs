@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum GameSpeed
 {
-    Pause, Normal, Fast, VeryFast
+    Pause, Normal, Fast, VeryFast, SuperFast
 }
 
 public class GameSpeedState : MonoBehaviour

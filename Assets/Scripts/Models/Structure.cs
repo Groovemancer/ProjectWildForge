@@ -6,6 +6,8 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using UnityEngine;
 using MoonSharp.Interpreter;
+using System.IO;
+using System.Linq;
 
 // Structures are things like walls, doors, and furniture (e.g. table)
 
@@ -27,7 +29,7 @@ public class Structure : IXmlSerializable
     //protected Action<Structure, float> updateActions;
     protected List<string> updateActions;
 
-    public Func<Structure, Enterability> IsEnterable;
+    protected string isEnterableAction;
 
     List<Job> jobs;
 
@@ -50,6 +52,18 @@ public class Structure : IXmlSerializable
             //updateActions(this, deltaAuts);
             StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
         }
+    }
+
+    public Enterability IsEnterable()
+    {
+        if (string.IsNullOrEmpty(isEnterableAction))
+        {
+            return Enterability.Yes;
+        }
+
+        DynValue ret = StructureActions.CallFunction(isEnterableAction, this);
+
+        return (Enterability)ret.Number;
     }
 
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
@@ -91,7 +105,7 @@ public class Structure : IXmlSerializable
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
-    public Color tint = Color.white;
+    public Color Tint = Color.white;
 
     public bool LinksToNeighbor { get; protected set; }
 
@@ -121,7 +135,7 @@ public class Structure : IXmlSerializable
         this.RoomEnclosure = other.RoomEnclosure;
         this.Width = other.Width;
         this.Height = other.Height;
-        this.tint = other.tint;
+        this.Tint = other.Tint;
         this.LinksToNeighbor = other.LinksToNeighbor;
         this.AllowedTileTypes = other.AllowedTileTypes;
 
@@ -135,10 +149,12 @@ public class Structure : IXmlSerializable
         if (other.updateActions != null)
             this.updateActions = new List<string>(other.updateActions);
 
+        this.isEnterableAction = other.isEnterableAction;
+
         if (other.funcPositionValidation != null)
             this.funcPositionValidation = (Func<Tile, bool>)other.funcPositionValidation.Clone();
 
-        this.IsEnterable = other.IsEnterable;
+        //this.IsEnterable = other.IsEnterable;
     }
 
     // Make a copy of the current structure. Sub-classes should
@@ -168,6 +184,7 @@ public class Structure : IXmlSerializable
         structureParameters = new Dictionary<string, float>();
         Tags = new List<string>();
         updateActions = new List<string>();
+        isEnterableAction = "";
     }
 
     public static Structure PlaceInstance(Structure proto, Tile tile)
@@ -198,36 +215,33 @@ public class Structure : IXmlSerializable
             // This type of furniture links itself to its neighbors,
             // so we should inform our neighbors that they have a new
             // buddy. Just trigger their OnChangedCallback.
-            Tile t;
             int x = tile.X;
             int y = tile.Y;
 
-            t = World.current.GetTileAt(x, y + 1);
-            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
+            for (int xpos = x - 1; xpos < x + proto.Width + 1; xpos++)
             {
-                t.Structure.cbOnChanged(t.Structure);
-            }
-
-            t = World.current.GetTileAt(x + 1, y);
-            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
-            {
-                t.Structure.cbOnChanged(t.Structure);
-            }
-
-            t = World.current.GetTileAt(x, y - 1);
-            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
-            {
-                t.Structure.cbOnChanged(t.Structure);
-            }
-
-            t = World.current.GetTileAt(x - 1, y);
-            if (t != null && t.Structure != null && t.Structure.cbOnChanged != null && t.Structure.ObjectType == obj.ObjectType)
-            {
-                t.Structure.cbOnChanged(t.Structure);
+                for (int ypos = y - 1; ypos < y + proto.Height + 1; ypos++)
+                {
+                    Tile tileAt = World.Current.GetTileAt(xpos, ypos, tile.Z);
+                    if (tileAt != null && tileAt.Structure != null && tileAt.Structure.cbOnChanged != null)
+                    {
+                        tileAt.Structure.cbOnChanged(tileAt.Structure);
+                    }
+                }
             }
         }
 
         return obj;
+    }
+
+    public bool IsExit()
+    {
+        if (RoomEnclosure && MovementCost > 0f)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public bool IsValidPosition(Tile t)
@@ -241,25 +255,33 @@ public class Structure : IXmlSerializable
     // Lua files that will be customizable for each structure.
     // For example, a door might specify that it needs two walls
     // to connect to.
-    protected bool DefaulIsValidPosition(Tile t)
+    protected bool DefaulIsValidPosition(Tile tile)
     {
-        for (int x_off = t.X; x_off < (t.X + Width); x_off++)
+        if (Tags.Contains("OutdoorOnly"))
         {
-            for (int y_off = t.Y; y_off < (t.Y + Height); y_off++)
+            if (tile.Room == null || !tile.Room.IsOutsideRoom())
             {
-                Tile t2 = World.current.GetTileAt(x_off, y_off);
+                return false;
+            }
+        }
+
+        for (int x_off = tile.X; x_off < (tile.X + Width); x_off++)
+        {
+            for (int y_off = tile.Y; y_off < (tile.Y + Height); y_off++)
+            {
+                Tile tile2 = World.Current.GetTileAt(x_off, y_off, tile.Z);
 
                 //Debug.Log("AllowedTypes: " + AllowedTileTypes);
                 // Make sure tile is of allowed types
                 // Make sure tile doesn't already have structure
-                if ((AllowedTileTypes & t2.Type.Flag) != t2.Type.Flag && t2.Type != TileTypeData.Instance.AllType)
+                if ((AllowedTileTypes & tile2.Type.Flag) != tile2.Type.Flag && tile2.Type != TileTypeData.Instance.AllType)
                 {
                     //Debug.Log("Old IsValidPosition: false");
                     return false;
                 }
 
                 // Make sure tile doesn't already have a structure
-                if (t2.Structure != null)
+                if (tile2.Structure != null)
                 {
                     return false;
                 }
@@ -297,19 +319,25 @@ public class Structure : IXmlSerializable
         cbOnRemoved -= callbackFunc;
     }
 
+
     /// <summary>
     /// Gets the custom structure parameter from a string key.
     /// </summary>
     /// <param name="key"></param>
     /// <param name="defaultValue"></param>
     /// <returns></returns>
-    public float GetParameter(string key, float defaultValue = 0)
+    public float GetParameter(string key, float defaultValue)
     {
         if (structureParameters.ContainsKey(key) == false)
         {
             return defaultValue;
         }
         return structureParameters[key];
+    }
+
+    public float GetParameter(string key)
+    {
+        return GetParameter(key, 0);
     }
 
     public void SetParameter(string key, float value)
@@ -343,10 +371,10 @@ public class Structure : IXmlSerializable
 
     public void AddJob(Job j)
     {
-        j.structure = this;
+        j.Structure = this;
         jobs.Add(j);
         j.RegisterJobStoppedCallback(OnJobStopped);
-        World.current.jobQueue.Enqueue(j);
+        World.Current.jobQueue.Enqueue(j);
     }
 
     public void OnJobStopped(Job j)
@@ -358,7 +386,7 @@ public class Structure : IXmlSerializable
     {
         j.UnregisterJobStoppedCallback(OnJobStopped);
         jobs.Remove(j);
-        j.structure = null;
+        j.Structure = null;
     }
 
     protected void ClearJobs()
@@ -388,6 +416,20 @@ public class Structure : IXmlSerializable
     {
         Debug.Log("Deconstruct");
 
+        int x = Tile.X;
+        int y = Tile.Y;
+        int fwidth = 1;
+        int fheight = 1;
+        bool linksToNeighbor = false;
+        if (Tile.Structure != null)
+        {
+            Structure structure = Tile.Structure;
+            fwidth = structure.Width;
+            fheight = structure.Height;
+            linksToNeighbor = structure.LinksToNeighbor;
+            structure.CancelJobs();
+        }
+
         Tile.UnplaceStructure();
 
         if (cbOnRemoved != null)
@@ -396,11 +438,28 @@ public class Structure : IXmlSerializable
         // Do we need to recalculate our rooms?
         if (RoomEnclosure)
         {
-            // TODO: Not sure if I'll be using rooms just yet.
-            Room.DoRoomFloodFill(this.Tile, false);
+            World.Current.RoomManager.DoRoomFloodFill(Tile, false);
         }
 
-        World.current.InvalidateTileGraph();
+        World.Current.RegenerateGraphAtTile(Tile);
+
+        // We should inform our neighbours that they have just lost a
+        // neighbor regardless of type.  
+        // Just trigger their OnChangedCallback. 
+        if (LinksToNeighbor)
+        {
+            for (int xpos = x - 1; xpos < x + fwidth + 1; xpos++)
+            {
+                for (int ypos = y - 1; ypos < y + fheight + 1; ypos++)
+                {
+                    Tile t = World.Current.GetTileAt(xpos, ypos, Tile.Z);
+                    if (t != null && t.Structure != null && t.Structure.cbOnChanged != null)
+                    {
+                        t.Structure.cbOnChanged(t.Structure);
+                    }
+                }
+            }
+        }
 
         // At this point, no DATA structures should be pointing to us, so we
         // should get garbage-collected.
@@ -408,12 +467,12 @@ public class Structure : IXmlSerializable
 
     public Tile GetJobSpotTile()
     {
-        return World.current.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y);
+        return World.Current.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y, Tile.Z);
     }
 
     public Tile GetSpawnSpotTile()
     {
-        return World.current.GetTileAt(Tile.X + (int)jobSpawnSpotOffset.x, Tile.Y + (int)jobSpawnSpotOffset.y);
+        return World.Current.GetTileAt(Tile.X + (int)jobSpawnSpotOffset.x, Tile.Y + (int)jobSpawnSpotOffset.y, Tile.Z);
     }
 
     #region Saving & Loading
@@ -433,6 +492,7 @@ public class Structure : IXmlSerializable
     {
         writer.WriteAttributeString("X", Tile.X.ToString());
         writer.WriteAttributeString("Y", Tile.Y.ToString());
+        writer.WriteAttributeString("Z", Tile.Z.ToString());
         writer.WriteAttributeString("objectType", ObjectType);
 
         foreach (string k in structureParameters.Keys)
@@ -467,5 +527,103 @@ public class Structure : IXmlSerializable
         }
     }
 
+    #endregion
+
+    #region Prototype Creation
+
+    void LoadStructureLua()
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
+        filePath = Path.Combine(filePath, "StructureActions.lua");
+
+        string luaCode = File.ReadAllText(filePath);
+
+        // Instantiate the singleton
+        new StructureActions(luaCode);
+    }
+
+    public void CreateStructurePrototype(XmlNode structNode)
+    {
+        ObjectType = structNode.Attributes["objectType"].InnerText;
+        Name = structNode.SelectSingleNode("Name").InnerText;
+        MovementCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
+        Width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
+        Height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
+        LinksToNeighbor = bool.Parse(structNode.SelectSingleNode("LinksToNeighbors").InnerText);
+        RoomEnclosure = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
+
+        funcPositionValidation = DefaulIsValidPosition;
+
+        string tileTags = structNode.SelectSingleNode("AllowedTiles").InnerText;
+
+        string[] tileTypeTags = tileTags.Split('|');
+
+        AllowedTileTypes = 0;
+        foreach (string tileTypeTag in tileTypeTags)
+        {
+            AllowedTileTypes |= TileTypeData.Flag(tileTypeTag);
+        }
+
+        XmlNode jobOffsetNode = structNode.SelectSingleNode("JobOffset");
+        jobSpotOffset = Vector2.zero;
+        if (jobOffsetNode != null)
+        {
+            string strJobOffset = jobOffsetNode.InnerText;
+            float[] arrJobOffset = strJobOffset.Split(' ').Select(f => float.Parse(f)).ToArray();
+            jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
+        }
+
+        XmlNode tintNode = structNode.SelectSingleNode("Tint");
+        Tint = Color.white;
+        if (tintNode != null)
+        {
+            string strTint = tintNode.InnerText;
+            byte[] arrTint = strTint.Split(' ').Select(b => byte.Parse(b)).ToArray();
+
+            Tint = new Color32(arrTint[0], arrTint[1], arrTint[2], arrTint[3]);
+        }
+
+        XmlNode tagsNode = structNode.SelectSingleNode("Tags");
+        Tags = new List<string>();
+        if (tagsNode != null)
+        {
+            XmlNodeList tagNodes = tagsNode.SelectNodes("Tag");
+            foreach (XmlNode tagNode in tagNodes)
+            {
+                Tags.Add(tagNode.InnerText);
+            }
+        }
+
+        XmlNode updateFnNode = structNode.SelectSingleNode("OnUpdate");
+        if (updateFnNode != null)
+        {
+            string updateFuncName = updateFnNode.Attributes["FunctionName"].InnerText;
+            RegisterUpdateAction(updateFuncName);
+        }
+
+        XmlNode isEnterableFnNode = structNode.SelectSingleNode("IsEnterable");
+        if (isEnterableFnNode != null)
+        {
+            string isEnterableFuncName = isEnterableFnNode.Attributes["FunctionName"].InnerText;
+            isEnterableAction = isEnterableFuncName;
+        }
+
+        // Params
+        structureParameters = new Dictionary<string, float>();
+        XmlNode paramsNode = structNode.SelectSingleNode("Params");
+        if (paramsNode != null)
+        {
+            XmlNodeList paramNodes = paramsNode.SelectNodes("Param");
+            foreach (XmlNode paramNode in paramNodes)
+            {
+                string paramName = paramNode.Attributes["name"].InnerText;
+                float paramValue = float.Parse(paramNode.Attributes["value"].InnerText);
+
+                SetParameter(paramName, paramValue);
+            }
+        }
+
+        jobs = new List<Job>();
+    }
     #endregion
 }

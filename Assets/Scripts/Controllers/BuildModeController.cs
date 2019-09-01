@@ -142,7 +142,7 @@ public class BuildModeController : MonoBehaviour
         else if (buildMode == BuildMode.Tile)
         {
             // We are in tile-changing mode.
-            t.Type = buildModeTile;
+            t.SetTileType(buildModeTile);
         }
         else if (buildMode == BuildMode.Deconstruct)
         {

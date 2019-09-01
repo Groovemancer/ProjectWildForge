@@ -10,6 +10,8 @@ using System.IO;
 public class WorldController : MonoBehaviour
 {
     public static WorldController Instance { get; protected set; }
+
+    public static TileSpriteController TileSpriteController { get; protected set; }
     
     public World World { get; protected set; }
 
@@ -18,11 +20,17 @@ public class WorldController : MonoBehaviour
     // Use this for initialization
     void OnEnable()
     {
-        if (Instance != null)
+        if (Instance == null || Instance == this)
+        {
+            Instance = this;
+        }
+        else
         {
             Debug.LogError("There should never be two world controllers.");
         }
-        Instance = this;
+
+        SpriteManager.Initialize();
+        LoadDirectoryAssets("Sprites", SpriteManager.LoadSpriteFiles);
 
         if (loadWorld)
         {
@@ -33,6 +41,44 @@ public class WorldController : MonoBehaviour
         {
             CreateEmptyWorld();
         }
+    }
+
+    public void Awake()
+    {
+        
+    }
+
+    public void Start()
+    {
+        TileSpriteController = new TileSpriteController(World);
+        DebugUtils.LogChannel("WorldController", "TileSpriteController isNotNull?: " + (TileSpriteController != null));
+    }
+
+    /// <summary>
+    /// Loads the all the assets from the given directory.
+    /// </summary>
+    /// <param name="directoryName">Directory name.</param>
+    /// <param name="readDirectory">Called to handle the loading of each file in the given directory.</param>
+    private void LoadDirectoryAssets(string directoryName, Action<string> readDirectory)
+    {
+        string directoryPath = Path.Combine(Application.streamingAssetsPath, directoryName);
+        if (Directory.Exists(directoryPath))
+        {
+            readDirectory(directoryPath);
+        }
+        else
+        {
+            DebugUtils.LogWarning("Directory at " + directoryPath + " not found");
+        }
+
+        //foreach (DirectoryInfo mod in mods)
+        //{
+        //    directoryPath = Path.Combine(mod.FullName, directoryName);
+        //    if (Directory.Exists(directoryPath))
+        //    {
+        //        readDirectory(directoryPath);
+        //    }
+        //}
     }
 
     void Update()
@@ -50,7 +96,7 @@ public class WorldController : MonoBehaviour
         int x = Mathf.FloorToInt(coord.x + 0.5f);
         int y = Mathf.FloorToInt(coord.y + 0.5f);
 
-        return World.GetTileAt(x, y);
+        return World.GetTileAt(x, y, (int)coord.z);
     }
 
     public void NewWorld()
@@ -87,7 +133,7 @@ public class WorldController : MonoBehaviour
     private void CreateEmptyWorld()
     {
         // Create a world with Empty tiles
-        World = new World(100, 100);
+        World = new World(100, 100, 5);
 
         // Center the camera
         Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);

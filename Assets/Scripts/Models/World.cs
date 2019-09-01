@@ -6,40 +6,58 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
+using ProjectWildForge.Rooms;
 using UnityEngine;
 
+[MoonSharpUserData]
 public class World : IXmlSerializable
 {
-    public Tile[,] Tiles { get; protected set; }
+    private Tile[,,] tiles;
 
-    public Tile[,] GetTiles()
+    public Tile[,,] GetTiles()
     {
-        return Tiles;
+        return tiles;
     }
 
     public List<Actor> actors;
     public List<Structure> structures;
-    public List<Room> rooms;
-    public InventoryManager inventoryManager;
+
+    public RoomManager RoomManager { get; private set; }
+    public InventoryManager InventoryManager { get; private set; }
 
     // The pathfinding graph used to navigate our world map.
-    public PathTileGraph tileGraph;
+    public Path_TileGraph tileGraph;
+    private Path_RoomGraph roomGraph;
 
     public Dictionary<string, Structure> structurePrototypes;
     public Dictionary<string, Job> structureJobPrototypes;
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
+    public int Depth { get; protected set; }
+
+    public int Volume
+    {
+        get
+        {
+            return Width * Height * Depth;
+        }
+    }
 
     Action<Structure> cbStructureCreated;
     Action<Tile> cbTileObjectChanged;
     Action<Actor> cbActorCreated;
     Action<Inventory> cbInventoryCreated;
 
+    public event Action<Tile> OnTileChanged;
+    public event Action<Tile> OnTileTypeChanged;
+
     const float PAUSE_GAME_SPEED = 0.0f;
     const float NORMAL_GAME_SPEED = 1.0f;
     const float FAST_GAME_SPEED = 2.0f;
     const float VERY_FAST_GAME_SPEED = 3.0f;
+    const float SUPER_FAST_GAME_SPEED = 4.0f;
 
     float gameSpeed = 1.0f;
     float autsPerSec = 100f;
@@ -50,17 +68,56 @@ public class World : IXmlSerializable
     // For now, this is just a PUBLIC member of world
     public JobQueue jobQueue;
 
-    public static World current { get; protected set; }
+    public static World Current { get; protected set; }
 
-    public Room OutsideRoom { get; private set; }
+    public Path_TileGraph TileGraph
+    {
+        get
+        {
+            if (tileGraph == null)
+            {
+                tileGraph = new Path_TileGraph(this);
+            }
 
-    public World(int width, int height)
+            return tileGraph;
+        }
+    }
+
+    public Path_RoomGraph RoomGraph
+    {
+        get
+        {
+            if (roomGraph == null)
+            {
+                roomGraph = new Path_RoomGraph(this);
+            }
+
+            return roomGraph;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the world seed.
+    /// </summary>
+    /// <value>The world seed.</value>
+    public int Seed { get; protected set; }
+
+    public World(int width, int height, int depth)
     {
         // Creates an empty world.
-        SetupWorld(width, height);
+        Seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+
+        RandomUtils.Initialize(DataManager.Instance.RandomSeed);
+
+        // Creates an empty world.
+        SetupWorld(width, height, depth);
 
         // Make one actor
-        CreateActor(GetTileAt(Width / 2, Height / 2));
+        Actor initialActor = CreateActor(GetTileAt(Width / 2, Height / 2, 0));
+        Actor initialActor2 = CreateActor(GetTileAt(Width / 2 + 2, Height / 2, 0));
+        Actor initialActor3 = CreateActor(GetTileAt(Width / 2 + 4, Height / 2, 0));
+
+        DetermineVisibility(initialActor.CurrTile);
     }
 
     /// <summary>
@@ -71,66 +128,27 @@ public class World : IXmlSerializable
 
     }
 
-    public int GetRoomId(Room r)
-    {
-        return rooms.IndexOf(r);
-    }
-
-    public Room GetRoomFromId(int i)
-    {
-        if (i < 0 || i > rooms.Count - 1)
-            return null;
-
-        return rooms[i];
-    }
-
-    public void AddRoom(Room r)
-    {
-        rooms.Add(r);
-    }
-
-    public void DeleteRoom(Room r)
-    {
-        if (r.IsOutsideRoom())
-        {
-            Debug.LogError("Tried to delete the outside room.");
-            return;
-        }
-
-        // Remove this room from our rooms list.
-        rooms.Remove(r);
-
-        // All tiles that belonged to this room should be re-assigned to
-        // the outside.
-        //r.ReturnTilesToOutsideRoom();
-    }
-
-    void SetupWorld(int width, int height)
+    private void SetupWorld(int width, int height, int depth)
     {
         jobQueue = new JobQueue();
 
         // Set the current world to be this world.
         // TODO: Do we need to do any cleanup of the old world?
-        current = this;
+        Current = this;
 
         Width = width;
         Height = height;
+        Depth = depth;
 
-        Tiles = new Tile[Width, Height];
+        tiles = new Tile[Width, Height, Depth];
 
-        rooms = new List<Room>();
-        OutsideRoom = new Room();
-        rooms.Add(OutsideRoom); // Create the outside
+        RoomManager = new RoomManager();
+        RoomManager.Adding += (room) => roomGraph = null;
+        RoomManager.Removing += (room) => roomGraph = null;
 
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                Tiles[x, y] = new Tile(x, y);
-                Tiles[x, y].RegisterTileChangedCallback(OnTileChanged);
-                Tiles[x, y].Room = rooms[0]; // Rooms 0 is always going to be outside, and that is our default room
-            }
-        }
+        FillTilesArray();
+
+        RegisterStructureCreated(OnStructureCreated);
 
         //Debug.Log("World created with " + (Width * Height) + " tiles.");
 
@@ -138,21 +156,41 @@ public class World : IXmlSerializable
 
         actors = new List<Actor>();
         structures = new List<Structure>();
-        inventoryManager = new InventoryManager();
+        InventoryManager = new InventoryManager();
+    }
+
+    private void FillTilesArray()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int z = 0; z < Depth; z++)
+                {
+                    tiles[x, y, z] = new Tile(x, y, z);
+                    tiles[x, y, z].TileChanged += OnTileChangedCallback;
+                    tiles[x, y, z].TileTypeChanged += OnTileTypeChangedCallback;
+                    tiles[x, y, z].Room = RoomManager.OutsideRoom;
+                }
+            }
+        }
     }
 
     public void Update(float deltaTime)
     {
         float deltaAuts = autsPerSec * gameSpeed * deltaTime;
 
-        foreach (Actor a in actors)
+        if (deltaAuts > 0)
         {
-            a.Update(deltaAuts);
-        }
+            foreach (Actor a in actors)
+            {
+                a.Update(deltaAuts);
+            }
 
-        foreach (Structure s in structures)
-        {
-            s.Update(deltaAuts);
+            foreach (Structure s in structures)
+            {
+                s.Update(deltaAuts);
+            }
         }
     }
 
@@ -171,6 +209,9 @@ public class World : IXmlSerializable
                 break;
             case GameSpeed.VeryFast:
                 gameSpeed = VERY_FAST_GAME_SPEED;
+                break;
+            case GameSpeed.SuperFast:
+                gameSpeed = SUPER_FAST_GAME_SPEED;
                 break;
         }
     }
@@ -192,10 +233,8 @@ public class World : IXmlSerializable
         string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
         filePath = Path.Combine(filePath, "StructureActions.lua");
 
-        string luaCode = File.ReadAllText(filePath);
-
         // Instantiate the singleton
-        new StructureActions(luaCode);
+        new StructureActions(filePath);
     }
 
     private void CreateStructurePrototypes()
@@ -219,72 +258,11 @@ public class World : IXmlSerializable
 
             foreach (XmlNode structNode in structNodes)
             {
-                string objectType = structNode.Attributes["objectType"].InnerText;
-                string name = structNode.SelectSingleNode("Name").InnerText;
-                float moveCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
-                int width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
-                int height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
-                bool linksToNeighbors = bool.Parse(structNode.SelectSingleNode("LinksToNeighbors").InnerText);
-                bool enclosesRooms = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
-                string tileTags = structNode.SelectSingleNode("AllowedTiles").InnerText;
+                Structure structurePrototype = new Structure();
 
-                string[] tileTypeTags = tileTags.Split('|');
+                structurePrototype.CreateStructurePrototype(structNode);
 
-                uint allowedTileTypes = 0;
-                foreach (string tileTypeTag in tileTypeTags)
-                {
-                    allowedTileTypes |= TileTypeData.Flag(tileTypeTag);
-                }
-
-                XmlNode jobOffsetNode = structNode.SelectSingleNode("JobOffset");
-                Vector2 jobSpotOffset = Vector2.zero;
-                if (jobOffsetNode != null)
-                {
-                    string strJobOffset = jobOffsetNode.InnerText;
-                    float[] arrJobOffset = strJobOffset.Split(' ').Select(f => float.Parse(f)).ToArray();
-                    jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
-                }
-
-                XmlNode tintNode = structNode.SelectSingleNode("Tint");
-                Color tint = Color.white;
-                if (tintNode != null)
-                {
-                    string strTint = tintNode.InnerText;
-                    byte[] arrTint = strTint.Split(' ').Select(b => byte.Parse(b)).ToArray();
-
-                    Debug.Log(string.Format("Bytes: {0} {1} {2} {3}", arrTint[0], arrTint[1], arrTint[2], arrTint[3]));
-                    tint = new Color32(arrTint[0], arrTint[1], arrTint[2], arrTint[3]);
-                }
-
-                XmlNode tagsNode = structNode.SelectSingleNode("Tags");
-                List<string> tags = new List<string>();
-                if (tagsNode != null)
-                {
-                    XmlNodeList tagNodes = tagsNode.SelectNodes("Tag");
-                    foreach (XmlNode tagNode in tagNodes)
-                    {
-                        tags.Add(tagNode.InnerText);
-                    }
-                }
-
-                // Add Prototype
-                structurePrototypes.Add(objectType,
-                    new Structure(
-                        objectType, name, moveCost, width, height, linksToNeighbors,
-                        allowedTileTypes, enclosesRooms
-                    )
-                );
-
-                XmlNode updateFnNode = structNode.SelectSingleNode("OnUpdate");
-                if (updateFnNode != null)
-                {
-                    string updateFuncName = updateFnNode.Attributes["FunctionName"].InnerText;
-                    structurePrototypes[objectType].RegisterUpdateAction(updateFuncName);
-                }
-
-                structurePrototypes[objectType].jobSpotOffset = jobSpotOffset;
-                structurePrototypes[objectType].tint = tint;
-                structurePrototypes[objectType].Tags.AddRange(tags);
+                structurePrototypes.Add(structurePrototype.ObjectType, structurePrototype);
 
                 // Building Job
                 XmlNode buildJobNode = structNode.SelectSingleNode("BuildingJob");
@@ -300,26 +278,12 @@ public class World : IXmlSerializable
                         invReqs.Add(new Inventory(invType, invAmount, 0));
                     }
 
-                    structureJobPrototypes.Add(objectType,
-                        new Job(null, objectType, StructureActions.JobComplete_StructureBuilding,
+                    World.Current.structureJobPrototypes.Add(structurePrototype.ObjectType,
+                        new Job(null, structurePrototype.ObjectType, StructureActions.JobComplete_StructureBuilding,
                             jobCost, invReqs.ToArray()));
                 }
                 // Deconstruct Job
                 // TODO
-
-                // Params
-                XmlNode paramsNode = structNode.SelectSingleNode("Params");
-                if (paramsNode != null)
-                {
-                    XmlNodeList paramNodes = paramsNode.SelectNodes("Param");
-                    foreach (XmlNode paramNode in paramNodes)
-                    {
-                        string paramName = paramNode.Attributes["name"].InnerText;
-                        float paramValue = float.Parse(paramNode.Attributes["value"].InnerText);
-
-                        structurePrototypes[objectType].SetParameter(paramName, paramValue);
-                    }
-                }
 
             }
             //DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
@@ -456,17 +420,49 @@ public class World : IXmlSerializable
         {
             for (int y = b - 5; y < b + 15; y++)
             {
-                Tiles[x, y].Type = TileTypeData.GetByFlagName("Floor");
+                tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Floor"), false);
 
                 if (x == l || x == (l + 9) || y == b || y == (b + 9))
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        PlaceStructure("struct_StoneWall", Tiles[x, y], false);
+                        PlaceStructure("struct_StoneWall", tiles[x, y, 0], false);
                     }
                 }
             }
         }
+    }
+
+    private void DetermineVisibility(Tile start)
+    {
+        Queue<Tile> roomsToVisit = new Queue<Tile>();
+
+        roomsToVisit.Enqueue(start);
+        Tile current;
+        do
+        {
+            current = roomsToVisit.Dequeue();
+
+            bool canEnterCurrent = current.IsEnterable() != Enterability.Never;
+
+            foreach (Tile neighbor in current.GetNeighbors(false, true, true))
+            {
+                if (neighbor == null || neighbor.CanSee)
+                {
+                    continue;
+                }
+
+                if (canEnterCurrent)
+                {
+                    neighbor.CanSee = true;
+                    if (roomsToVisit.Contains(neighbor) == false)
+                    {
+                        roomsToVisit.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+        while (roomsToVisit.Count > 0);
     }
 
     public void RandomizeTiles()
@@ -476,27 +472,27 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                if (UnityEngine.Random.Range(0, 2) == 0)
+                if (RandomUtils.Range(0, 3) == 0)
                 {
-                    Tiles[x, y].Type = TileTypeData.GetByFlagName("Dirt");
+                    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Dirt"), false);
                 }
                 else
                 {
-                    Tiles[x, y].Type = TileTypeData.GetByFlagName("Grass");
+                    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
                 }
             }
         }
     }
 
-    public Tile GetTileAt(int x, int y)
+    public Tile GetTileAt(int x, int y, int z)
     {
-        if (x >= Width || x < 0 || y >= Height || y < 0)
+        if (x >= Width || x < 0 || y >= Height || y < 0 || z >= Depth || z < 0)
         {
             //Debug.LogError("World::GetTileAt Tile (" + x + ", " + y + ") is out of range.");
             return null;
         }
 
-        return Tiles[x, y];
+        return tiles[x, y, z];
     }
 
     public Structure PlaceStructure(string structureType, Tile t, bool doRoomFloodFill = true)
@@ -523,8 +519,7 @@ public class World : IXmlSerializable
         // Do we need to recalculate our rooms?
         if (doRoomFloodFill && structure.RoomEnclosure)
         {
-            // TODO: Not sure if I'll be using rooms just yet.
-            Room.DoRoomFloodFill(structure.Tile, true);
+            RoomManager.DoRoomFloodFill(structure.Tile, true);
         }
 
         if (cbStructureCreated != null)
@@ -532,7 +527,7 @@ public class World : IXmlSerializable
             cbStructureCreated(structure);
         }
 
-        InvalidateTileGraph(); // Reset the pathfinding system
+        //InvalidateTileGraph(); // Reset the pathfinding system
 
         return structure;
     }
@@ -544,6 +539,31 @@ public class World : IXmlSerializable
     public void InvalidateTileGraph()
     {
         tileGraph = null;
+    }
+
+    public void RegenerateGraphAtTile(Tile tile)
+    {
+        if (tileGraph != null)
+        {
+            tileGraph.RegenerateGraphAtTile(tile);
+        }
+    }
+
+    private void OnStructureCreated(Structure structure)
+    {
+        if (structure.MovementCost != 1)
+        {
+            // Since tiles return movement cost as their base cost multiplied
+            // by the structure's movement cost, a structure movement cost
+            // of exactly 1 doesn't impact our pathfinding system, so we can
+            // occasionally avoid invalidating pathfinding graphs.
+            // InvalidateTileGraph();    
+            // Reset the pathfinding system
+            if (tileGraph != null)
+            {
+                tileGraph.RegenerateGraphAtTile(structure.Tile);
+            }
+        }
     }
 
     public void RegisterStructureCreated(Action<Structure> callbackfunc)
@@ -587,14 +607,28 @@ public class World : IXmlSerializable
     }
 
     // Gets called whenever ANY tile changes
-    public void OnTileChanged(Tile t)
+    private void OnTileChangedCallback(Tile t)
     {
-        if (cbTileObjectChanged == null)
+        if (OnTileChanged == null)
             return;
 
-        cbTileObjectChanged(t);
+        OnTileChanged(t);
+    }
 
-        InvalidateTileGraph();
+    private void OnTileTypeChangedCallback(Tile t)
+    {
+        if (OnTileTypeChanged == null)
+        {
+            return;
+        }
+
+        OnTileTypeChanged(t);
+
+        if (tileGraph != null)
+        {
+            tileGraph.RegenerateGraphAtTile(t);
+            tileGraph.RegenerateGraphAtTile(t.Down());
+        }
     }
 
     public bool IsStructurePlacementValid(string structureType, Tile t)
@@ -640,11 +674,13 @@ public class World : IXmlSerializable
     public void WriteXml(XmlWriter writer)
     {
         // Save info here
+        writer.WriteAttributeString("Seed", Seed.ToString());
         writer.WriteAttributeString("Width", Width.ToString());
         writer.WriteAttributeString("Height", Height.ToString());
+        writer.WriteAttributeString("Depth", Depth.ToString());
 
         writer.WriteStartElement("Rooms");
-        foreach (Room room in rooms)
+        foreach (Room room in RoomManager)
         {
             if (room.IsOutsideRoom())
                 continue;   // Skip the outside room
@@ -660,11 +696,15 @@ public class World : IXmlSerializable
         {
             for (int y = 0; y < Height; y++)
             {
-                if (Tiles[x, y].Type != TileTypeData.Instance.EmptyType)
+                for (int z = 0; z < Depth; z++)
                 {
-                    writer.WriteStartElement("Tile");
-                    Tiles[x, y].WriteXml(writer);
-                    writer.WriteEndElement();
+                    if (tiles[x, y, z].Type != TileTypeData.Instance.EmptyType)
+                    {
+                        writer.WriteStartElement("Tile");
+                        tiles[x, y, z].WriteXml(writer);
+                        writer.WriteEndElement();
+                    }
+
                 }
             }
         }
@@ -694,10 +734,12 @@ public class World : IXmlSerializable
         Debug.Log("ReadXML");
         // Load info here
 
+        Seed = int.Parse(reader.GetAttribute("Seed"));
         Width = int.Parse(reader.GetAttribute("Width"));
         Height = int.Parse(reader.GetAttribute("Height"));
+        Depth = int.Parse(reader.GetAttribute("Depth"));
 
-        SetupWorld(Width, Height);
+        SetupWorld(Width, Height, Depth);
 
         while (reader.Read())
         {
@@ -721,28 +763,30 @@ public class World : IXmlSerializable
         // DEBUGGING ONLY! REMOVE ME LATER!
         // Create an Inventory Item
         Inventory inv = new Inventory("inv_RawStone", 50, 50);
-        Tile t = GetTileAt(Width / 2, Height / 2);
-        inventoryManager.PlaceInventory(t, inv);
+        Tile t = GetTileAt(Width / 2, Height / 2, 0);
+        InventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
         {
             cbInventoryCreated(t.Inventory);
         }
 
         inv = new Inventory("inv_RawStone", 50, 4);
-        t = GetTileAt(Width / 2 + 2, Height / 2);
-        inventoryManager.PlaceInventory(t, inv);
+        t = GetTileAt(Width / 2 + 2, Height / 2, 0);
+        InventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
         {
             cbInventoryCreated(t.Inventory);
         }
 
         inv = new Inventory("inv_RawStone", 50, 3);
-        t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
-        inventoryManager.PlaceInventory(t, inv);
+        t = GetTileAt(Width / 2 + 1, Height / 2 + 2, 0);
+        InventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
         {
             cbInventoryCreated(t.Inventory);
         }
+
+        tileGraph = new Path_TileGraph(this);
     }
 
     void ReadXmlTiles(XmlReader reader)
@@ -757,7 +801,8 @@ public class World : IXmlSerializable
             {
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
-                Tiles[x, y].ReadXml(reader);
+                int z = int.Parse(reader.GetAttribute("Z"));
+                tiles[x, y, z].ReadXml(reader);
             } while (reader.ReadToNextSibling("Tile"));
         }
     }
@@ -770,8 +815,9 @@ public class World : IXmlSerializable
             {
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
+                int z = int.Parse(reader.GetAttribute("Z"));
 
-                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y], false);
+                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y, z], false);
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
 
@@ -792,15 +838,8 @@ public class World : IXmlSerializable
         {
             do
             {
-                /*
-                int x = int.Parse(reader.GetAttribute("X"));
-                int y = int.Parse(reader.GetAttribute("Y"));
-
-                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), Tiles[x, y], false);
-                structure.ReadXml(reader);
-                */
                 Room r = new Room();
-                rooms.Add(r);
+                RoomManager.Add(r);
                 r.ReadXml(reader);
             } while (reader.ReadToNextSibling("Room"));
         }
@@ -814,8 +853,9 @@ public class World : IXmlSerializable
             {
                 int x = int.Parse(reader.GetAttribute("X"));
                 int y = int.Parse(reader.GetAttribute("Y"));
+                int z = int.Parse(reader.GetAttribute("Z"));
 
-                Actor actor = CreateActor(Tiles[x, y]);
+                Actor actor = CreateActor(tiles[x, y, z]);
                 actor.ReadXml(reader);
             } while (reader.ReadToNextSibling("Actor"));
         }

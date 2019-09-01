@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-
+using MoonSharp.Interpreter.Debugging;
+using MoonSharp.VsCodeDebugger;
+using System.IO;
 
 public class StructureActions
 {
@@ -10,7 +12,7 @@ public class StructureActions
 
     protected Script luaScript;
 
-    public StructureActions(string rawLuaCode)
+    public StructureActions(string filePath)
     {
         // Tell the Lua interpreter to load all the classes
         // that we have marked as [MoonSharpUserData]
@@ -19,8 +21,35 @@ public class StructureActions
         _Instance = this;
 
         luaScript = new Script();
-        luaScript.DoString(rawLuaCode);
+
+        // If we want to be able to instantiate a new object of a class
+        //  i.e. by doing   SomeClass.__new()
+        // We need to make the base type visible.
+        luaScript.Globals["Inventory"] = typeof(Inventory);
+        luaScript.Globals["Job"] = typeof(Job);
+
+        // Also to access statics/globals
+        luaScript.Globals["World"] = typeof(World);
+
+        if (server == null)
+        {
+            server = new MoonSharpVsCodeDebugServer();
+            server.Start();
+        }
+
+        server.AttachToScript(luaScript, "StructureActions", s => filePath);
+
+        luaScript.DoString(File.ReadAllText(filePath), null, filePath);
     }
+
+    ~StructureActions()
+    {
+        server.Dispose();
+    }
+
+    static MoonSharpVsCodeDebugServer server;
+
+    //static RemoteDebugService remoteDebugger;
 
     public static void JobComplete_StructureBuilding(Job theJob)
     {
@@ -39,8 +68,13 @@ public class StructureActions
                 DebugUtils.LogError("'" + fn + "' is not a Lua function.");
             }
             DynValue result = _Instance.luaScript.Call(func, new object[] { structure, deltaAuts });
-            Debug.Log(result.String);
         }
+    }
+
+    public static DynValue CallFunction(string functionName, params object[] args)
+    {
+        object func = _Instance.luaScript.Globals[functionName];
+        return _Instance.luaScript.Call(func, args);
     }
 
     /*

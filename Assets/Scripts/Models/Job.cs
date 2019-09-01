@@ -2,7 +2,10 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using MoonSharp.Interpreter;
 
+[MoonSharpUserData]
 public class Job
 {
     // This class holds info for a queued up job, which can include
@@ -29,7 +32,7 @@ public class Job
 
     public Structure structurePrototype;
 
-    public Structure structure; // The structure that owns this job. Frequently will be null.
+    public Structure Structure; // The structure that owns this job. Frequently will be null.
 
     bool acceptsAnyInventoryItem = false;
 
@@ -38,6 +41,9 @@ public class Job
     Action<Job> cbJobCompleted; // We have finished the work cycle and so things should probably get built or whatever.
     Action<Job> cbJobStopped;   // The job has been stopped, either because it's non-repeateing or was cancelled.
     Action<Job> cbJobWorked;    // Gets called each time some work is performed -- maybe update the UI?
+
+    List<string> cbJobWorkedLua;
+    List<string> cbJobCompletedLua;
 
     public Dictionary<string, Inventory> inventoryRequirements;
 
@@ -48,6 +54,9 @@ public class Job
         this.cbJobCompleted += cbJobComplete;
         this.jobCostRequired = this.jobCost = jobCost;
         this.jobRepeats = jobRepeats;
+
+        this.cbJobWorkedLua = new List<string>();
+        this.cbJobCompletedLua = new List<string>();
 
         inventoryRequirements = new Dictionary<string, Inventory>();
 
@@ -67,6 +76,9 @@ public class Job
         this.cbJobCompleted += other.cbJobCompleted;
         this.jobCost = other.jobCost;
 
+        this.cbJobWorkedLua = new List<string>(other.cbJobWorkedLua);
+        this.cbJobCompletedLua = new List<string>(other.cbJobCompletedLua);
+
         this.inventoryRequirements = new Dictionary<string, Inventory>();
 
         if (other.inventoryRequirements != null)
@@ -78,6 +90,11 @@ public class Job
         }
     }
 
+    public Inventory[] GetInventoryRequirementValues()
+    {
+        return inventoryRequirements.Values.ToArray();
+    }
+
     public virtual Job Clone()
     {
         return new Job(this);
@@ -85,31 +102,40 @@ public class Job
 
     public void DoWork(float workCost)
     {
+        // We don't know if the Job can actually be worked, but still call the callbacks
+        // so that animations and whatnot can be updated.
+        if (cbJobWorked != null)
+        {
+            cbJobWorked(this);
+        }
+
+        foreach (string luaFunction in cbJobWorkedLua.ToList())
+        {
+            StructureActions.CallFunction(luaFunction, this);
+        }
+
         // Check to make sure we actually have everything we need.
         // If not, don't register the work cost.
         if (HasAllMaterial() == false)
         {
             //Debug.LogError("Tried to do work on a job that doesn't have all the materials.");
-
-            // Job can't actually be worked, but still call the callbacks
-            // so that animations and whatnot can be updated.
-            if (cbJobWorked != null)
-                cbJobWorked(this);
-
             return;
         }
 
         jobCost -= workCost;
-        Debug.Log("Remaining Job Cost: " + jobCost);
-
-        if (cbJobWorked != null)
-            cbJobWorked(this);
 
         if (jobCost <= 0)
         {
             // Do whatever is supposed to happen when a job cycle completes.
             if (cbJobCompleted != null)
+            {
                 cbJobCompleted(this);
+            }
+
+            foreach (string luaFunction in cbJobCompletedLua.ToList())
+            {
+                StructureActions.CallFunction(luaFunction, this);
+            }
 
             if (jobRepeats == false)
             {
@@ -130,7 +156,7 @@ public class Job
         if (cbJobStopped != null)
             cbJobStopped(this);
 
-        World.current.jobQueue.Remove(this);
+        World.Current.jobQueue.Remove(this);
     }
 
     public void RegisterJobCompletedCallback(Action<Job> cb)
@@ -163,11 +189,31 @@ public class Job
         cbJobWorked -= cb;
     }
 
+    public void RegisterJobWorkedCallback(string cb)
+    {
+        cbJobWorkedLua.Add(cb);
+    }
+
+    public void UnregisterJobWorkedCallback(string cb)
+    {
+        cbJobWorkedLua.Remove(cb);
+    }
+
+    public void RegisterJobCompletedCallback(string cb)
+    {
+        cbJobCompletedLua.Add(cb);
+    }
+
+    public void UnregisterJobCompletedCallback(string cb)
+    {
+        cbJobCompletedLua.Remove(cb);
+    }
+
     public bool HasAllMaterial()
     {
         foreach(Inventory inv in inventoryRequirements.Values)
         {
-            if (inv.maxStackSize > inv.stackSize)
+            if (inv.MaxStackSize > inv.StackSize)
                 return false;
         }
 
@@ -178,7 +224,7 @@ public class Job
     {
         if (acceptsAnyInventoryItem)
         {
-            return inv.maxStackSize;
+            return inv.MaxStackSize;
         }
 
         if (inventoryRequirements.ContainsKey(inv.objectType) == false)
@@ -186,21 +232,21 @@ public class Job
             return 0;
         }
 
-        if (inventoryRequirements[inv.objectType].stackSize >= inventoryRequirements[inv.objectType].maxStackSize)
+        if (inventoryRequirements[inv.objectType].StackSize >= inventoryRequirements[inv.objectType].MaxStackSize)
         {
             // We already have all that we need!
             return 0;
         }
 
         // The inventory is of a type we want, and still need more
-        return inventoryRequirements[inv.objectType].maxStackSize - inventoryRequirements[inv.objectType].stackSize;
+        return inventoryRequirements[inv.objectType].MaxStackSize - inventoryRequirements[inv.objectType].StackSize;
     }
 
     public Inventory GetFirstDesiredInventory()
     {
         foreach (Inventory inv in inventoryRequirements.Values)
         {
-            if (inv.maxStackSize > inv.stackSize)
+            if (inv.MaxStackSize > inv.StackSize)
             {
                 return inv;
             }

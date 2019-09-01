@@ -1,30 +1,32 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using MoonSharp.Interpreter;
 
+[MoonSharpUserData]
 public class InventoryManager
 {
     // This is a list of all "live" inventories.
     // Later on this will likely be organized by rooms instead
     // of a single master list. (Or in addition to.)
-    public Dictionary<string, List<Inventory>> inventories;
+    public Dictionary<string, List<Inventory>> Inventories { get; private set; }
 
     public InventoryManager()
     {
-        inventories = new Dictionary<string, List<Inventory>>();
+        Inventories = new Dictionary<string, List<Inventory>>();
     }
 
     void CleanupInventory(Inventory inv)
     {
-        if (inv.stackSize == 0)
+        if (inv.StackSize == 0)
         {
-            if (inventories.ContainsKey(inv.objectType))
+            if (Inventories.ContainsKey(inv.objectType))
             {
-                inventories[inv.objectType].Remove(inv);
+                Inventories[inv.objectType].Remove(inv);
             }
-            if (inv.tile != null)
+            if (inv.Tile != null)
             {
-                inv.tile.Inventory = null;
-                inv.tile = null;
+                inv.Tile.Inventory = null;
+                inv.Tile = null;
             }
             if (inv.actor != null)
             {
@@ -49,13 +51,13 @@ public class InventoryManager
         // We may have also created a new stack on the tile, if the tile was previously empty.
         if (tileWasEmpty)
         {
-            if (inventories.ContainsKey(tile.Inventory.objectType) == false)
+            if (Inventories.ContainsKey(tile.Inventory.objectType) == false)
             {
-                inventories[tile.Inventory.objectType] = new List<Inventory>();
+                Inventories[tile.Inventory.objectType] = new List<Inventory>();
             }
-            inventories[tile.Inventory.objectType].Add(tile.Inventory);
+            Inventories[tile.Inventory.objectType].Add(tile.Inventory);
 
-            World.current.OnInventoryCreated(tile.Inventory);
+            World.Current.OnInventoryCreated(tile.Inventory);
         }
 
         return true;
@@ -68,16 +70,16 @@ public class InventoryManager
             Debug.LogError("Trying to add inventory to a job that it doesn't want.");
             return false;
         }
-        job.inventoryRequirements[inv.objectType].stackSize += inv.stackSize;
+        job.inventoryRequirements[inv.objectType].StackSize += inv.StackSize;
 
-        if (job.inventoryRequirements[inv.objectType].maxStackSize < job.inventoryRequirements[inv.objectType].stackSize)
+        if (job.inventoryRequirements[inv.objectType].MaxStackSize < job.inventoryRequirements[inv.objectType].StackSize)
         {
-            inv.stackSize = job.inventoryRequirements[inv.objectType].stackSize - job.inventoryRequirements[inv.objectType].maxStackSize;
-            job.inventoryRequirements[inv.objectType].stackSize = job.inventoryRequirements[inv.objectType].maxStackSize;
+            inv.StackSize = job.inventoryRequirements[inv.objectType].StackSize - job.inventoryRequirements[inv.objectType].MaxStackSize;
+            job.inventoryRequirements[inv.objectType].StackSize = job.inventoryRequirements[inv.objectType].MaxStackSize;
         }
         else
         {
-            inv.stackSize = 0;
+            inv.StackSize = 0;
         }
 
         CleanupInventory(inv);
@@ -89,18 +91,18 @@ public class InventoryManager
     {
         if (amount < 0)
         {
-            amount = sourceInventory.stackSize;
+            amount = sourceInventory.StackSize;
         }
         else
         {
-            amount = Mathf.Min(amount, sourceInventory.stackSize);
+            amount = Mathf.Min(amount, sourceInventory.StackSize);
         }
 
         if (actor.inventory == null)
         {
             actor.inventory = sourceInventory.Clone();
-            actor.inventory.stackSize = 0;
-            inventories[actor.inventory.objectType].Add(actor.inventory);
+            actor.inventory.StackSize = 0;
+            Inventories[actor.inventory.objectType].Add(actor.inventory);
         }
         else if (actor.inventory.objectType != sourceInventory.objectType)
         {
@@ -108,16 +110,16 @@ public class InventoryManager
             return false;
         }
 
-        actor.inventory.stackSize += amount;
+        actor.inventory.StackSize += amount;
 
-        if (actor.inventory.maxStackSize < actor.inventory.stackSize)
+        if (actor.inventory.MaxStackSize < actor.inventory.StackSize)
         {
-            sourceInventory.stackSize = actor.inventory.stackSize - actor.inventory.maxStackSize;
-            actor.inventory.stackSize = actor.inventory.maxStackSize;
+            sourceInventory.StackSize = actor.inventory.StackSize - actor.inventory.MaxStackSize;
+            actor.inventory.StackSize = actor.inventory.MaxStackSize;
         }
         else
         {
-            sourceInventory.stackSize -= amount;
+            sourceInventory.StackSize -= amount;
         }
 
         CleanupInventory(sourceInventory);
@@ -140,16 +142,16 @@ public class InventoryManager
         //         (i.e. separate tile inventory from character inventory and maybe
         //          has room content optimization.)
 
-        if (inventories.ContainsKey(objectType) == false)
+        if (Inventories.ContainsKey(objectType) == false)
         {
             Debug.LogError("GetClosestInventoryOfType -- no items of desired type.");
             return null;
         }
 
-        foreach (Inventory inv in inventories[objectType])
+        foreach (Inventory inv in Inventories[objectType])
         {
-            if (inv.tile != null &&
-                (canTakeFromStockpile || inv.tile.Structure == null || inv.tile.Structure.IsStockpile() == false))
+            if (inv.Tile != null &&
+                (canTakeFromStockpile || inv.Tile.Structure == null || inv.Tile.Structure.IsStockpile() == false))
             {
                 return inv;
             }

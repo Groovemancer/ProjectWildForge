@@ -14,12 +14,12 @@ public class StructureBuildMenu : MonoBehaviour
         // For each furniture prototype in our world, create one instance
         // of the button to be clicked!
 
-        foreach (string s in World.current.structurePrototypes.Keys)
+        foreach (string s in World.Current.structurePrototypes.Keys)
         {
             GameObject go = Instantiate(buildStructureButtonPrefab);
             go.transform.SetParent(this.transform);
 
-            string objectName = StringUtils.GetLocalizedTextFiltered("comment#" + World.current.structurePrototypes[s].Name);
+            string objectName = StringUtils.GetLocalizedTextFiltered("comment#" + World.Current.structurePrototypes[s].Name);
             string objectId = s;
 
             go.name = "Button - Build " + objectId;

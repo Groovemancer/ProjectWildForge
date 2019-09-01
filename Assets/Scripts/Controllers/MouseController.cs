@@ -138,7 +138,7 @@ public class MouseController : MonoBehaviour
             {
                 for (int y = start_y; y <= end_y; y++)
                 {
-                    Tile t = WorldController.Instance.World.GetTileAt(x, y);
+                    Tile t = WorldController.Instance.World.GetTileAt(x, y, 0);
                     if (t != null)
                     {
                         if (bmc.buildMode == BuildMode.Structure)
@@ -165,7 +165,7 @@ public class MouseController : MonoBehaviour
             {
                 for (int y = start_y; y <= end_y; y++)
                 {
-                    Tile t = WorldController.Instance.World.GetTileAt(x, y);
+                    Tile t = WorldController.Instance.World.GetTileAt(x, y, 0);
 
                     if (t != null)
                     {
@@ -217,7 +217,7 @@ public class MouseController : MonoBehaviour
             spr.color = new Color(1f, 0.5f, 0.5f, 0.5f);
         }
 
-        Structure proto = World.current.GetStructurePrototype(structureType);
+        Structure proto = World.Current.GetStructurePrototype(structureType);
 
         go.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
     }

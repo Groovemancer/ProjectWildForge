@@ -66,8 +66,8 @@ public class StructureSpriteController : MonoBehaviour
             // Check to see if we actually have a wall north/south, and if so
             // then rotate this GO by 90 degress
 
-            Tile northTile = World.GetTileAt(strct.Tile.X, strct.Tile.Y + 1);
-            Tile southTile = World.GetTileAt(strct.Tile.X, strct.Tile.Y - 1);
+            Tile northTile = World.GetTileAt(strct.Tile.X, strct.Tile.Y + 1, strct.Tile.Z);
+            Tile southTile = World.GetTileAt(strct.Tile.X, strct.Tile.Y - 1, strct.Tile.Z);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
                 northTile.Structure.ObjectType == "struct_StoneWall" && southTile.Structure.ObjectType == "struct_StoneWall")
@@ -82,7 +82,7 @@ public class StructureSpriteController : MonoBehaviour
         SpriteRenderer spr = strct_go.AddComponent<SpriteRenderer>();
         spr.sprite = GetSpriteForStructure(strct);
         spr.sortingLayerName = "Structures";
-        spr.color = strct.tint;
+        spr.color = strct.Tint;
 
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
@@ -114,7 +114,7 @@ public class StructureSpriteController : MonoBehaviour
         }
         GameObject obj_go = structureGameObjectMap[strct];
         obj_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(strct);
-        obj_go.GetComponent<SpriteRenderer>().color = strct.tint;
+        obj_go.GetComponent<SpriteRenderer>().color = strct.Tint;
     }
 
     public Sprite GetSpriteForStructure(Structure strct)
@@ -162,25 +162,25 @@ public class StructureSpriteController : MonoBehaviour
 
         Tile t;
 
-        t = World.GetTileAt(x, y + 1);
+        t = World.GetTileAt(x, y + 1, strct.Tile.Z);
         if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
         {
             spriteName += "N";
         }
 
-        t = World.GetTileAt(x + 1, y);
+        t = World.GetTileAt(x + 1, y, strct.Tile.Z);
         if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
         {
             spriteName += "E";
         }
 
-        t = World.GetTileAt(x, y - 1);
+        t = World.GetTileAt(x, y - 1, strct.Tile.Z);
         if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
         {
             spriteName += "S";
         }
 
-        t = World.GetTileAt(x - 1, y);
+        t = World.GetTileAt(x - 1, y, strct.Tile.Z);
         if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
         {
             spriteName += "W";

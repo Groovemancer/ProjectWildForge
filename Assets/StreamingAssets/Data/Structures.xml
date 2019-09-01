@@ -36,6 +36,10 @@
 			<Inventory objectType="inv_Wood" amount="1"/>
 		</DeconstructJob>
 		
+		<OnUpdate FunctionName="OnUpdate_Door" />
+		
+		<IsEnterable FunctionName="IsEnterable_Door" />
+		
 		<Params>
 			<Param name="openness" value="0"/>
 			<Param name="isOpening" value="0"/>
@@ -54,6 +58,8 @@
 		<Tags>
 			<Tag>Stockpile</Tag>
 		</Tags>
+		
+		<OnUpdate FunctionName="OnUpdate_Stockpile" />
 	</Structure>
 	<Structure objectType="struct_WorkStation">
 		<Name>struct_WorkStation</Name>
@@ -64,6 +70,8 @@
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		<JobOffset>1 0</JobOffset>
+		
+		<OnUpdate FunctionName="OnUpdate_WorkStation" />
 		
 		<!--<BuildingJob jobCost="600">
 			<Inventory objectType="inv_Wood" amount="25"/>
