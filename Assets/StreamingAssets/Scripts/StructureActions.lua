@@ -162,7 +162,7 @@ end
 -- Stockpile_JobWorked
 -- @Params - j:Job
 function Stockpile_JobWorked(j)
-	j.CancelJob();
+	j.CancelJob()
 
 	-- TODO: Change this when we figure out what we're doing for the all/any pickup job.
 	for k, inv in pairs(j.inventoryRequirements) do
@@ -178,21 +178,6 @@ end
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
 function OnUpdate_WorkStation(structure, deltaAuts)
-	--[[
-	
-	Job j = new Job(
-		jobSpot,
-		null,
-		WorkStation_JobComplete,
-		600,
-		null,
-		true    // This job repeats until the destination tile is full.
-	);
-
-	structure.AddJob(j);
-	
-	--]]
-	
 	spawnSpot = structure.GetSpawnSpotTile()
 	
 	if (structure.JobCount() > 0) then
@@ -241,4 +226,62 @@ function WorkStation_JobComplete(j)
 
 	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
 		Inventory.__new("inv_RawStone", 50, 10))
+end
+
+-- OnUpdate_StoneCuttingTable
+-- @Params - structure:Structure
+-- @Params - deltaAuts:float
+function OnUpdate_StoneCuttingTable(structure, deltaAuts)
+	spawnSpot = structure.GetSpawnSpotTile()
+	
+	if (structure.JobCount() > 0) then
+		-- Check to see if the Raw Stone destination tile is full.
+		if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
+			-- We should stop this job, because it's impossible to make any more items.
+			structure.CancelJobs()
+		end
+
+		return
+	end
+	
+	-- If we get here, then we have no current job. Check to see if our destination is full.
+	if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
+		-- We are full! Don't make a job.
+		return
+	end
+	
+	-- If we get here, we need to CREATE a new job.
+
+	jobSpot = structure.GetJobSpotTile()
+
+	if (jobSpot.Inventory ~= nil and (jobSpot.Inventory.StackSize >= jobSpot.Inventory.MaxStackSize)) then
+		-- Our drop spot is already full, so don't create a job.
+		return
+	end
+	
+	itemsDesired = { Inventory.__new("inv_RawStone", 10, 0) }
+	
+	j = Job.__new(
+		jobSpot,
+		nil,
+		nil,
+		1200,
+		itemsDesired,
+		true    -- This job repeats until the destination tile is full.
+	)
+	
+	j.RegisterJobCompletedCallback("StoneCuttingTable_JobComplete")
+
+	structure.AddJob(j)
+end
+
+-- StoneCuttingTable_JobComplete
+-- @Params - j:Job
+function StoneCuttingTable_JobComplete(j)
+	--Debug.Log("StoneCuttingTable_JobComplete");
+
+	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
+		Inventory.__new("inv_StoneBlock", 50, 5))
+		
+	j.CancelJob()
 end

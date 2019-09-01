@@ -68,13 +68,22 @@ public class StructureActions
                 DebugUtils.LogError("'" + fn + "' is not a Lua function.");
             }
             DynValue result = _Instance.luaScript.Call(func, new object[] { structure, deltaAuts });
+            if (result.Type == DataType.String)
+            {
+                DebugUtils.LogChannel("Structure Actions", "CallFuncitonsWithStructure: " + fn + " Result: " + result.ToString());
+            }
         }
     }
 
     public static DynValue CallFunction(string functionName, params object[] args)
     {
         object func = _Instance.luaScript.Globals[functionName];
-        return _Instance.luaScript.Call(func, args);
+        DynValue result = _Instance.luaScript.Call(func, args);
+        if (result.Type == DataType.String)
+        {
+            DebugUtils.LogChannel("Structure Actions", "Call Function: " + functionName + " Result: " + result.ToString());
+        }
+        return result;
     }
 
     /*

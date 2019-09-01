@@ -107,7 +107,7 @@ public class Structure : IXmlSerializable
 
     public Color Tint = Color.white;
 
-    public bool LinksToNeighbor { get; protected set; }
+    public string LinksToNeighbors { get; protected set; }
 
     public Action<Structure> cbOnChanged;
     public Action<Structure> cbOnRemoved;
@@ -123,6 +123,13 @@ public class Structure : IXmlSerializable
         structureParameters = new Dictionary<string, float>();
         jobs = new List<Job>();
         updateActions = new List<string>();
+
+        Tint = Color.white;
+
+        Width = 1;
+        Height = 1;
+        Tags = new List<string>();
+        LinksToNeighbors = string.Empty;
     }
 
     // Copy Constructor -- don't call this directly, unless we never
@@ -136,10 +143,11 @@ public class Structure : IXmlSerializable
         this.Width = other.Width;
         this.Height = other.Height;
         this.Tint = other.Tint;
-        this.LinksToNeighbor = other.LinksToNeighbor;
+        this.LinksToNeighbors = other.LinksToNeighbors;
         this.AllowedTileTypes = other.AllowedTileTypes;
 
         this.jobSpotOffset = other.jobSpotOffset;
+        this.jobSpawnSpotOffset = other.jobSpawnSpotOffset;
         this.Tags = new List<string>();
         this.Tags.AddRange(other.Tags);
 
@@ -167,7 +175,7 @@ public class Structure : IXmlSerializable
 
     // Create structure from parameters -- this will probably ONLY ever be used for prototype
     public Structure(string objectType, string name, float movementCost = 1f,
-        int width = 1, int height = 1, bool linksToNeighbor = false, uint allowedTileTypes = 1,
+        int width = 1, int height = 1, string linksToNeighbors = "", uint allowedTileTypes = 1,
         bool roomEnclosure = false)
     {
         this.ObjectType = objectType;
@@ -176,7 +184,7 @@ public class Structure : IXmlSerializable
         this.RoomEnclosure = roomEnclosure;
         this.Width = width;
         this.Height = height;
-        this.LinksToNeighbor = linksToNeighbor;
+        this.LinksToNeighbors = linksToNeighbors;
         this.AllowedTileTypes = allowedTileTypes;
 
         this.funcPositionValidation = this.DefaulIsValidPosition;
@@ -210,7 +218,7 @@ public class Structure : IXmlSerializable
             return null;
         }
 
-        if (obj.LinksToNeighbor)
+        if (obj.LinksToNeighbors != string.Empty)
         {
             // This type of furniture links itself to its neighbors,
             // so we should inform our neighbors that they have a new
@@ -420,13 +428,13 @@ public class Structure : IXmlSerializable
         int y = Tile.Y;
         int fwidth = 1;
         int fheight = 1;
-        bool linksToNeighbor = false;
+        string linksToNeighbors = string.Empty;
         if (Tile.Structure != null)
         {
             Structure structure = Tile.Structure;
             fwidth = structure.Width;
             fheight = structure.Height;
-            linksToNeighbor = structure.LinksToNeighbor;
+            linksToNeighbors = structure.LinksToNeighbors;
             structure.CancelJobs();
         }
 
@@ -446,7 +454,7 @@ public class Structure : IXmlSerializable
         // We should inform our neighbours that they have just lost a
         // neighbor regardless of type.  
         // Just trigger their OnChangedCallback. 
-        if (LinksToNeighbor)
+        if (LinksToNeighbors != string.Empty)
         {
             for (int xpos = x - 1; xpos < x + fwidth + 1; xpos++)
             {
@@ -549,7 +557,7 @@ public class Structure : IXmlSerializable
         MovementCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
         Width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
         Height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
-        LinksToNeighbor = bool.Parse(structNode.SelectSingleNode("LinksToNeighbors").InnerText);
+        LinksToNeighbors = structNode.SelectSingleNode("LinksToNeighbors").InnerText;
         RoomEnclosure = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
 
         funcPositionValidation = DefaulIsValidPosition;
@@ -568,9 +576,16 @@ public class Structure : IXmlSerializable
         jobSpotOffset = Vector2.zero;
         if (jobOffsetNode != null)
         {
-            string strJobOffset = jobOffsetNode.InnerText;
-            float[] arrJobOffset = strJobOffset.Split(' ').Select(f => float.Parse(f)).ToArray();
+            float[] arrJobOffset = jobOffsetNode.InnerText.Split(' ').Select(f => float.Parse(f)).ToArray();
             jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
+        }
+
+        XmlNode spawnOffsetNode = structNode.SelectSingleNode("JobSpawnOffset");
+        jobSpawnSpotOffset = Vector2.zero;
+        if (spawnOffsetNode != null)
+        {
+            float[] arrSpawnJobOffset = spawnOffsetNode.InnerText.Split(' ').Select(f => float.Parse(f)).ToArray();
+            jobSpawnSpotOffset = new Vector2(arrSpawnJobOffset[0], arrSpawnJobOffset[1]);
         }
 
         XmlNode tintNode = structNode.SelectSingleNode("Tint");

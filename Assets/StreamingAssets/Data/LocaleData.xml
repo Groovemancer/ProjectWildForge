@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 8/29/2019 11:30:16 PM-->
+<!--Last Updated: 9/1/2019 12:02:24 AM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -180,6 +180,15 @@
 		</Text>
 	</Entry>
 	<Entry Id="21">
+		<Comment>struct_StoneCuttingTable</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Stone Cutting Table</en-US>
+			<de-DE>Steinschneidetisch</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="22">
 		<Comment>struct_O2Generator</Comment>
 		<Context />
 		<Options />

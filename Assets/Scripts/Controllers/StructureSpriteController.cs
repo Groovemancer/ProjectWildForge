@@ -117,27 +117,27 @@ public class StructureSpriteController : MonoBehaviour
         obj_go.GetComponent<SpriteRenderer>().color = strct.Tint;
     }
 
-    public Sprite GetSpriteForStructure(Structure strct)
+    public Sprite GetSpriteForStructure(Structure structure)
     {
-        string spriteName = strct.ObjectType;
+        string spriteName = structure.ObjectType;
 
-        if (strct.LinksToNeighbor == false)
+        if (string.IsNullOrEmpty(structure.LinksToNeighbors))
         {
             // If this is a DOOR, let's check OPENNESS and update the sprite.
             // FIXME: All this hardcoding needs to be generalized later
-            if (strct.ObjectType == "struct_WoodDoor")
+            if (structure.ObjectType == "struct_WoodDoor")
             {
-                if (strct.GetParameter("openness") < 0.1f)
+                if (structure.GetParameter("openness") < 0.1f)
                 {
                     // Door is closed
                     spriteName = "struct_WoodDoor";
                 }
-                else if (strct.GetParameter("openness") < 0.5f)
+                else if (structure.GetParameter("openness") < 0.5f)
                 {
                     // Door is a bit open
                     spriteName = "struct_WoodDoor_openness_1";
                 }
-                else if (strct.GetParameter("openness") < 0.9f)
+                else if (structure.GetParameter("openness") < 0.9f)
                 {
                     // Door is a lot open
                     spriteName = "struct_WoodDoor_openness_2";
@@ -154,52 +154,55 @@ public class StructureSpriteController : MonoBehaviour
 
         // Otherwise, the sprite name is more complicated.
 
-        spriteName = strct.ObjectType + "_";
+        spriteName = structure.ObjectType + "_";
 
         // Check for neighbors North, East, South, West
-        int x = strct.Tile.X;
-        int y = strct.Tile.Y;
+        int x = structure.Tile.X;
+        int y = structure.Tile.Y;
+        string suffix = string.Empty;
 
-        Tile t;
+        suffix += GetSuffixForNeighbor(structure, x, y + 1, structure.Tile.Z, "N");
+        suffix += GetSuffixForNeighbor(structure, x + 1, y, structure.Tile.Z, "E");
+        suffix += GetSuffixForNeighbor(structure, x, y - 1, structure.Tile.Z, "S");
+        suffix += GetSuffixForNeighbor(structure, x - 1, y, structure.Tile.Z, "W");
 
-        t = World.GetTileAt(x, y + 1, strct.Tile.Z);
-        if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
-        {
-            spriteName += "N";
-        }
+        suffix += GetSuffixForDiagonalNeighbor(suffix, "N", "E", structure, x + 1, y + 1, structure.Tile.Z);
+        suffix += GetSuffixForDiagonalNeighbor(suffix, "S", "E", structure, x + 1, y - 1, structure.Tile.Z);
+        suffix += GetSuffixForDiagonalNeighbor(suffix, "S", "W", structure, x - 1, y - 1, structure.Tile.Z);
+        suffix += GetSuffixForDiagonalNeighbor(suffix, "N", "W", structure, x - 1, y + 1, structure.Tile.Z);
 
-        t = World.GetTileAt(x + 1, y, strct.Tile.Z);
-        if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
-        {
-            spriteName += "E";
-        }
-
-        t = World.GetTileAt(x, y - 1, strct.Tile.Z);
-        if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
-        {
-            spriteName += "S";
-        }
-
-        t = World.GetTileAt(x - 1, y, strct.Tile.Z);
-        if (t != null && t.Structure != null && t.Structure.ObjectType == strct.ObjectType)
-        {
-            spriteName += "W";
-        }
-
-        // For example, if this object has all four neighbors of
+        // For example, if this object has all eight neighbours of
         // the same type, then the string will look like:
-        //      Wall_NESW
+        //       Wall_NESWneseswnw
+        return SpriteManager.GetSprite("Structure", spriteName + suffix);
+    }
 
-        if (structureSprites.ContainsKey(spriteName) == false)
+    private string GetSuffixForNeighbor(Structure structure, int x, int y, int z, string suffix)
+    {
+        Tile t = World.GetTileAt(x, y, z);
+        if (t != null && t.Structure != null && t.Structure.LinksToNeighbors == structure.LinksToNeighbors)
         {
-            Debug.LogError("GetSpriteForStructure -- No sprites with name: " + spriteName);
-            return null;
+            return suffix;
         }
-        return structureSprites[spriteName];
+
+        return string.Empty;
+    }
+
+    private string GetSuffixForDiagonalNeighbor(string suffix, string coord1, string coord2, Structure structure, int x, int y, int z)
+    {
+        if (suffix.Contains(coord1) && suffix.Contains(coord2))
+        {
+            // FIXME: Doing ToLower here sucks!
+            return GetSuffixForNeighbor(structure, x, y, z, coord1.ToLower() + coord2.ToLower());
+        }
+
+        return string.Empty;
     }
 
     public Sprite GetSpriteForStructure(string objectType)
     {
+        return SpriteManager.GetSprite("Structure", objectType);
+        /*
         if (structureSprites.ContainsKey(objectType))
         {
             return structureSprites[objectType];
@@ -212,5 +215,6 @@ public class StructureSpriteController : MonoBehaviour
 
         Debug.LogError("GetSpriteForStructure -- No sprites with name: " + objectType);
         return null;
+        */
     }
 }

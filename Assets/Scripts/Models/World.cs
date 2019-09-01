@@ -176,12 +176,25 @@ public class World : IXmlSerializable
         }
     }
 
+    private float avgDeltaAuts = 0;
+    private int count = 0;
+    private int maxCount = 600;
+
     public void Update(float deltaTime)
     {
         float deltaAuts = autsPerSec * gameSpeed * deltaTime;
 
         if (deltaAuts > 0)
         {
+            count++;
+            avgDeltaAuts += deltaAuts / count;
+            if (count > maxCount)
+            {
+                DebugUtils.LogChannel("World", "Update Avg Delta Auts: " + avgDeltaAuts);
+                count = 0;
+                avgDeltaAuts = 0;
+            }
+
             foreach (Actor a in actors)
             {
                 a.Update(deltaAuts);
@@ -286,128 +299,13 @@ public class World : IXmlSerializable
                 // TODO
 
             }
-            //DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
         }
         catch (Exception e)
         {
             DebugUtils.DisplayError(e.ToString(), false);
             DebugUtils.LogException(e);
         }
-
-
-        //structurePrototypes["struct_WoodDoor"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
-        //structurePrototypes["struct_WoodDoor"].IsEnterable = StructureActions.Door_IsEnterable;
-        //structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
-        //structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
-        //structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
     }
-
-    /*
-    private void CreateStructurePrototypes()
-    {
-        // This will be replacd by a function that reads all of our structure data
-        // from a text file in the future
-
-        structurePrototypes = new Dictionary<string, Structure>();
-        structureJobPrototypes = new Dictionary<string, Job>();
-
-        structurePrototypes.Add("struct_StoneWall",
-            new Structure(
-                "struct_StoneWall",
-                0,      // Impassable
-                1,      // Width
-                1,      // Height
-                true,   // Links to neighbors and "sort of" becomes part of a large object
-                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
-                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                true    // Enclose rooms
-            )
-        );
-        structurePrototypes["struct_StoneWall"].Name = "Stone Wall";
-
-        structureJobPrototypes.Add("struct_StoneWall",
-            new Job(null, "struct_StoneWall", StructureActions.JobComplete_StructureBuilding,
-            300,
-            new Inventory[] {
-                new Inventory("inv_RawStone", 5, 0)
-                }
-            )
-        );
-
-        structurePrototypes.Add("struct_Door",
-            new Structure(
-                "struct_Door",
-                1,      // Door Pathfinding Cost
-                1,      // Width
-                1,      // Height
-                false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
-                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                true    // Enclose rooms
-            )
-        );
-
-        structurePrototypes["struct_Door"].SetParameter("openness", 0f); // 0 = closed door, 1 = fully open door, in between is partially opened
-        structurePrototypes["struct_Door"].SetParameter("isOpening", 0);
-        structurePrototypes["struct_Door"].SetParameter("doorOpenTime", 25f); // Amount of AUTs to open door
-        structurePrototypes["struct_Door"].RegisterUpdateAction(StructureActions.Door_UpdateAction);
-        structurePrototypes["struct_Door"].IsEnterable = StructureActions.Door_IsEnterable;
-
-        structurePrototypes.Add("struct_Stockpile",
-            new Structure(
-                "struct_Stockpile",
-                1,      // Not Impassable
-                1,      // Width
-                1,      // Height
-                true,   // Links to neighbors and "sort of" becomes part of a large object
-                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
-                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                false    // Enclose rooms
-            )
-        );
-
-        structurePrototypes["struct_Stockpile"].RegisterUpdateAction(StructureActions.Stockpile_UpdateAction);
-        structurePrototypes["struct_Stockpile"].tint = new Color32(255, 0, 255, 255);
-        structureJobPrototypes.Add("struct_Stockpile",
-            new Job(
-                null,
-                "struct_Stockpile",
-                StructureActions.JobComplete_StructureBuilding,
-                -1,
-                null
-            )
-        );
-
-        structurePrototypes.Add("struct_WorkStation",
-            new Structure(
-                "struct_WorkStation",
-                1,      // Pathfinding Cost
-                3,      // Width
-                3,      // Height
-                false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
-                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                false    // Enclose rooms
-            )
-        );
-        structurePrototypes["struct_WorkStation"].jobSpotOffset = new Vector2(1, 0);
-        structurePrototypes["struct_WorkStation"].RegisterUpdateAction(StructureActions.WorkStation_UpdateAction);
-
-        structurePrototypes.Add("struct_O2Generator",
-            new Structure(
-                "struct_O2Generator",
-                10,      // Pathfinding Cost
-                2,      // Width
-                2,      // Height
-                false,   // Links to neighbors and "sort of" becomes part of a large object
-                TileTypeData.Flag("Dirt") | TileTypeData.Flag("Floor") | TileTypeData.Flag("Grass") |
-                    TileTypeData.Flag("RoughStone") | TileTypeData.Flag("Road"),
-                false    // Enclose rooms
-            )
-        );
-        structurePrototypes["struct_O2Generator"].RegisterUpdateAction(StructureActions.OxygenGenerator_UpdateAction);
-    }
-    */
 
     public void SetupPathfindingExample()
     {

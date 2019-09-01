@@ -106,4 +106,25 @@
 			<Inventory objectType="inv_RawStone" amount="15"/>
 		</DeconstructJob>-->
 	</Structure>
+	<Structure objectType="struct_StoneCuttingTable">
+		<Name>struct_StoneCuttingTable</Name>
+		<MoveCost>1</MoveCost>
+		<Width>3</Width>
+		<Height>2</Height>
+		<LinksToNeighbors>false</LinksToNeighbors>
+		<EnclosesRooms>false</EnclosesRooms>
+		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		<JobOffset>1 0</JobOffset>
+		<JobSpawnOffset>2 0</JobSpawnOffset>
+		
+		<OnUpdate FunctionName="OnUpdate_StoneCuttingTable" />
+		
+		<BuildingJob jobCost="1200">
+			<Inventory objectType="inv_RawStone" amount="25"/>
+		</BuildingJob>
+		
+		<DeconstructJob jobCost="300">
+			<Inventory objectType="inv_RawStone" amount="15"/>
+		</DeconstructJob>
+	</Structure>
 </Structures>
