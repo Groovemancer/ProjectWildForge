@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Stats>
+    <Stat type="Strength" name="stat_Strength" />
+    <Stat type="Dexterity" name="stat_Dexterity" />
+    <Stat type="Agility" name="stat_Agility" />
+    <Stat type="Constitution" name="stat_Constitution" />
+    <Stat type="Endurance" name="stat_Endurance" />
+    <Stat type="Intellect" name="stat_Intellect" />
+</Stats>

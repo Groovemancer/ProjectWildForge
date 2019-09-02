@@ -28,10 +28,27 @@ public class Actor : IXmlSerializable
 
     public List<Tile> Path { get; set; }
 
-    float movementCost = 25f; // Amount of action points required to move 1 tile.
+    // Amount of action points required to move 1 tile.
+    private float movementCost = 25f; 
+    private float baseMovementCost = 25f;
+
+    /// Tiles per second.
+    public float MovementCost
+    {
+        get
+        {
+            return movementCost;
+        }
+    }
 
     float workCost = 25f;   // Amount of action points required to do any amount of work
-    float workRate = 50f;   // Amount of work completed per DoWork attempt
+    private float workRate;   // Amount of work completed per DoWork attempt
+    private float baseWorkRate = 50f;   // Amount of work completed per DoWork attempt
+
+    public float WorkRate
+    {
+        get { return workRate; }
+    }
 
     float actionPoints = 0f;
 
@@ -42,14 +59,60 @@ public class Actor : IXmlSerializable
     // The item we are carrying (not gear/equipment)
     public Inventory inventory;
 
+    /// Stats, for character.
+    public Dictionary<string, Stat> Stats { get; protected set; }
+
     public Actor()
     {
         // Use only for serialization
+        InitializeActorValues();
     }
 
     public Actor(Tile tile)
     {
         CurrTile = destTile = tile;
+        InitializeActorValues();
+    }
+
+    private void InitializeActorValues()
+    {
+        LoadStats();
+        UseStats();
+    }
+
+    private void LoadStats()
+    {
+        Stats = new Dictionary<string, Stat>(PrototypeManager.Stat.Count);
+        for (int i = 0; i < PrototypeManager.Stat.Count; i++)
+        {
+            Stat prototypeStat = PrototypeManager.Stat.Values[i];
+            Stat newStat = prototypeStat.Clone();
+
+            // Gets a random value within the min and max range of the stat.
+            // TODO: Should there be any bias or any other algorithm applied here to make stats more interesting?
+            newStat.Value = UnityEngine.Random.Range(1, 20);
+            Stats.Add(newStat.Type, newStat);
+
+            DebugUtils.LogChannel("Actor", "Stat: " + newStat.ToString());
+        }
+
+        DebugUtils.LogChannel("Actor", "Initialized " + Stats.Count + " Stats.");
+    }
+
+    private void UseStats()
+    {
+        try
+        {
+            movementCost = baseMovementCost - (0.3f * baseMovementCost * ((float)Stats["Agility"].Value - 10) / 10); // +/- 30%
+            workRate = baseWorkRate + (0.5f * baseWorkRate * ((float)Stats["Dexterity"].Value - 10) / 10); // +/- 50%
+
+            DebugUtils.LogChannel("Actor", string.Format("Actor {0} movementCost: {1}", World.Current.actors.IndexOf(this), movementCost));
+            DebugUtils.LogChannel("Actor", string.Format("Actor {0} workRate: {1}", World.Current.actors.IndexOf(this), workRate));
+        }
+        catch (KeyNotFoundException)
+        {
+            DebugUtils.LogError("Stat keys not found. If not testing, this is really bad!");
+        }
     }
 
     void GetNewJob()
@@ -382,7 +445,7 @@ public class Actor : IXmlSerializable
         float tileCost = nextTile.CalculatedMoveCost();
         if (tileCost == 0)
             tileCost = 1f;
-        return movementCost * tileCost;
+        return MovementCost * tileCost;
     }
 
     public void SetDestination(Tile tile)

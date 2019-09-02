@@ -11,6 +11,9 @@ public class MouseController : MonoBehaviour
     Vector3 lastFramePosition;
     Vector3 currFramePosition;
 
+    const float MIN_ZOOM = 5;
+    const float MAX_ZOOM = 25;
+
     // The world-position start of our left-mouse drag operation
     Vector3 dragStartPosition;
 
@@ -199,7 +202,7 @@ public class MouseController : MonoBehaviour
 
         Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel");
 
-        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
+        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, MIN_ZOOM, MAX_ZOOM);
     }
 
 
