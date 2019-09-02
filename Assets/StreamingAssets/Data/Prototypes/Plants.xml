@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Plants>
+	<Plant type="plant_Dummy">
+		<Name>plant_Dummy</Name>
+		<GrowthTime>3600000</GrowthTime> <!-- Total amount of AUTs to fully grow -->
+		<Health>300</Health> <!-- How much damage before destroyed. Does not Yield anything when destroyed-->
+		<Harvest>
+			<MinGrowthPerc>0.6</MinGrowthPerc> <!-- Minimum percent growth to harvest -->
+			<Cost>1200</Cost> <!-- How much "work done" is needed to harvest -->
+			<Skill>Forestry</Skill> <!-- What skill is needed to harvest -->
+			<Yield> <!-- Items that are dropped when harvested -->
+				<Inv type="inv_RawWood" amount="25"/> <!-- Amount will be proportional to % grown when harvested -->
+			</Yield>
+		</Harvest>
+	</Plant>
+	<Plant type="plant_OakTree">
+		<Name>plant_OakTree</Name>
+		<GrowthTime>3600000</GrowthTime>
+		<Health>300</Health>
+		<Harvest>
+			<MinGrowthPerc>0.6</MinGrowthPerc>
+			<Cost>1200</Cost>
+			<Skill>Forestry</Skill>
+			<Yield>
+				<Inv type="inv_RawWood" amount="25"/>
+			</Yield>
+		</Harvest>
+	</Plant>
+</Plants>
