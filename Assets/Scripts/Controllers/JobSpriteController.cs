@@ -8,15 +8,12 @@ public class JobSpriteController : MonoBehaviour
     // on StructureSpriteController because we don't yet fully know
     // what our job system is going to look like in the end.
 
-    StructureSpriteController ssc;
-
     Dictionary<Job, GameObject> jobGameObjectMap;
 
     // Use this for initialization
     void Start()
     {
         jobGameObjectMap = new Dictionary<Job, GameObject>();
-        ssc = GameObject.FindObjectOfType<StructureSpriteController>();
 
         // FIXME: No such thing as a job queue yet.
         WorldController.Instance.World.jobQueue.RegisterJobCreationCallback(OnJobCreated);
@@ -50,8 +47,8 @@ public class JobSpriteController : MonoBehaviour
         // FIXME: We assume that the object must be a wall, so use
         // the hardcoded reference to the wall sprite
         SpriteRenderer spr = job_go.AddComponent<SpriteRenderer>();
-        spr.sprite = ssc.GetSpriteForStructure(job.jobObjectType);
-        spr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
+        spr.sprite = WorldController.StructureSpriteController.GetSpriteForStructure(job.jobObjectType);
+        spr.color = new Color32(128, 255, 128, 64);
         spr.sortingLayerName = "Jobs";
 
         // FIXME: This hardcoding is not ideal!

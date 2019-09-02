@@ -1,219 +1,381 @@
 
+
 [
-	{
-      "name": "struct_StoneWall_",
+   {
+      "name": "struct_StoneWall_ESWse",
       "x": 0,
-      "y": 224,
-      "w": 32,
-      "h": 32,
+      "y": 0,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
+      "name": "struct_StoneWall_NEWne",
+      "x": 0,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NE",
+      "x": 0,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NS",
+      "x": 0,
+      "y": 3,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
       "name": "struct_StoneWall_ES",
       "x": 0,
-      "y": 160,
-      "w": 32,
-      "h": 32,
+      "y": 4,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_EW",
-      "x": 32,
-      "y": 160,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_",
+      "x": 0,
+      "y": 5,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_SW",
-      "x": 64,
-      "y": 160,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_ESWsw",
+      "x": 1,
+      "y": 0,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NS",
-      "x": 64,
-      "y": 128,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NEWnw",
+      "x": 1,
+      "y": 1,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NW",
-      "x": 64,
-      "y": 96,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NESWnw",
+      "x": 1,
+      "y": 2,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_S",
-      "x": 352,
-      "y": 224,
-      "w": 32,
-      "h": 32,
-      "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_N",
-      "x": 352,
-      "y": 160,
-      "w": 32,
-      "h": 32,
-      "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_E",
-      "x": 320,
-      "y": 192,
-      "w": 32,
-      "h": 32,
-      "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_W",
-      "x": 384,
-      "y": 192,
-      "w": 32,
-      "h": 32,
-      "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
       "name": "struct_StoneWall_NESW",
-      "x": 352,
-      "y": 192,
-      "w": 32,
-      "h": 32,
+      "x": 1,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NSW",
-      "x": 256,
-      "y": 192,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_EW",
+      "x": 1,
+      "y": 4,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NES",
-      "x": 128,
-      "y": 192,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_S",
+      "x": 1,
+      "y": 5,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
+      "name": "struct_StoneWall_NSWnw",
+      "x": 2,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NSWsw",
+      "x": 2,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NW",
+      "x": 2,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWnesw",
+      "x": 2,
+      "y": 3,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_SW",
+      "x": 2,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_E",
+      "x": 2,
+      "y": 5,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESne",
+      "x": 3,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESse",
+      "x": 3,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWnenw",
+      "x": 3,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
       "name": "struct_StoneWall_NEW",
-      "x": 192,
-      "y": 96,
-      "w": 32,
-      "h": 32,
+      "x": 3,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
+      "name": "struct_StoneWall_NSW",
+      "x": 3,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_N",
+      "x": 3,
+      "y": 5,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWse",
+      "x": 4,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWnesesw",
+      "x": 4,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWnese",
+      "x": 4,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
       "name": "struct_StoneWall_ESW",
-      "x": 192,
-      "y": 32,
-      "w": 32,
-      "h": 32,
+      "x": 4,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_ESse",
-      "x": 320,
-      "y": 96,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NES",
+      "x": 4,
+      "y": 4,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_ESWsesw",
-      "x": 352,
-      "y": 96,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_W",
+      "x": 4,
+      "y": 5,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_SWsw",
-      "x": 384,
-      "y": 96,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NESWsw",
+      "x": 5,
+      "y": 0,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NESnese",
-      "x": 320,
-      "y": 64,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NESWseswnw",
+      "x": 5,
+      "y": 1,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NESWneseswnw",
-      "x": 352,
-      "y": 64,
-      "w": 32,
-      "h": 32,
+   },
+   {
+      "name": "struct_StoneWall_NESWsesw",
+      "x": 5,
+      "y": 2,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
-      "name": "struct_StoneWall_NSWswnw",
-      "x": 384,
-      "y": 64,
-      "w": 32,
-      "h": 32,
-      "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
       "name": "struct_StoneWall_NEne",
-      "x": 320,
-      "y": 32,
-      "w": 32,
-      "h": 32,
+      "x": 5,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
+      "name": "struct_StoneWall_NESnese",
+      "x": 5,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_ESse",
+      "x": 5,
+      "y": 5,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWne",
+      "x": 6,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWneswnw",
+      "x": 6,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWswnw",
+      "x": 6,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
       "name": "struct_StoneWall_NEWnenw",
-      "x": 352,
-      "y": 32,
-      "w": 32,
-      "h": 32,
+      "x": 6,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
-	
-	{
+   },
+   {
+      "name": "struct_StoneWall_NESWneseswnw",
+      "x": 6,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_ESWsesw",
+      "x": 6,
+      "y": 5,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWnesenw",
+      "x": 7,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_NESWsenw",
+      "x": 7,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
       "name": "struct_StoneWall_NWnw",
-      "x": 384,
-      "y": 32,
-      "w": 32,
-      "h": 32,
+      "x": 7,
+      "y": 3,
+      "w": 1,
+      "h": 1,
       "pixelPerUnit": 32
-	},
+   },
+   {
+      "name": "struct_StoneWall_NSWswnw",
+      "x": 7,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_StoneWall_SWsw",
+      "x": 7,
+      "y": 5,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   }
 ]
 

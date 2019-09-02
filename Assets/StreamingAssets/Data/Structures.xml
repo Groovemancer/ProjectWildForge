@@ -3,12 +3,18 @@
 <Structures>
 	<Structure objectType="struct_StoneWall">
 		<Name>struct_StoneWall</Name>
+		<DefaultSpriteName>struct_StoneWall_</DefaultSpriteName>
+		<SpriteName>struct_StoneWall_</SpriteName>
 		<MoveCost>0</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
-		<LinksToNeighbors>true</LinksToNeighbors>
+		<LinksToNeighbors>wall</LinksToNeighbors>
 		<EnclosesRooms>true</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		
+		<Tags>
+			<Tag>Wall</Tag>
+		</Tags>
 		
 		<BuildingJob jobCost="300">
 			<Inventory objectType="inv_RawStone" amount="5"/>
@@ -20,12 +26,17 @@
 	</Structure>
 	<Structure objectType="struct_WoodDoor">
 		<Name>struct_WoodDoor</Name>
+		<DefaultSpriteName>struct_WoodDoor_Horizontal_0</DefaultSpriteName>
+		<SpriteName>struct_WoodDoor_Horizontal_0</SpriteName>
 		<MoveCost>1</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
-		<LinksToNeighbors>false</LinksToNeighbors>
 		<EnclosesRooms>true</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
+		
+		<Tags>
+			<Tag>Door</Tag>
+		</Tags>
 		
 		<BuildingJob jobCost="300">
 			<!--<Inventory objectType="inv_Wood" amount="2"/>-->
@@ -45,13 +56,51 @@
 			<Param name="isOpening" value="0"/>
 			<Param name="doorOpenTime" value="25"/>
 		</Params>
+		
+		<Animations>
+			<Animation State="horizontal">
+				<Delay>1.0</Delay>
+				<Loops>false</Loops>
+				<FlipX>false</FlipX>
+				<ValueBased>true</ValueBased>
+				<Frames>
+					<Frame>struct_WoodDoor_Horizontal_0</Frame>
+					<Frame>struct_WoodDoor_Horizontal_1</Frame>
+					<Frame>struct_WoodDoor_Horizontal_2</Frame>
+					<Frame>struct_WoodDoor_Horizontal_3</Frame>
+					<Frame>struct_WoodDoor_Horizontal_4</Frame>
+					<Frame>struct_WoodDoor_Horizontal_5</Frame>
+					<Frame>struct_WoodDoor_Horizontal_5</Frame>
+					<Frame>struct_WoodDoor_Horizontal_5</Frame>
+				</Frames>
+			</Animation>
+			<Animation State="vertical">
+				<Delay>1.0</Delay>
+				<Loops>false</Loops>
+				<FlipX>false</FlipX>
+				<ValueBased>true</ValueBased>
+				<Frames>
+					<Frame>struct_WoodDoor_Vertical_0</Frame>
+					<Frame>struct_WoodDoor_Vertical_1</Frame>
+					<Frame>struct_WoodDoor_Vertical_2</Frame>
+					<Frame>struct_WoodDoor_Vertical_3</Frame>
+					<Frame>struct_WoodDoor_Vertical_4</Frame>
+					<Frame>struct_WoodDoor_Vertical_5</Frame>
+					<Frame>struct_WoodDoor_Vertical_5</Frame>
+					<Frame>struct_WoodDoor_Vertical_5</Frame>
+				</Frames>
+			</Animation>
+		</Animations>
+		
 	</Structure>
 	<Structure objectType="struct_Stockpile">
 		<Name>struct_Stockpile</Name>
+		<DefaultSpriteName>struct_Stockpile_</DefaultSpriteName>
+		<SpriteName>struct_Stockpile_</SpriteName>
 		<MoveCost>1</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
-		<LinksToNeighbors>true</LinksToNeighbors>
+		<LinksToNeighbors>stockpile</LinksToNeighbors>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		<Tint>255 0 255 255</Tint>
@@ -66,7 +115,6 @@
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
 		<Height>3</Height>
-		<LinksToNeighbors>false</LinksToNeighbors>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		<JobOffset>1 0</JobOffset>
@@ -86,7 +134,6 @@
 		<MoveCost>10</MoveCost>
 		<Width>2</Width>
 		<Height>2</Height>
-		<LinksToNeighbors>false</LinksToNeighbors>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		
@@ -111,7 +158,6 @@
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
 		<Height>2</Height>
-		<LinksToNeighbors>false</LinksToNeighbors>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		<JobOffset>1 0</JobOffset>

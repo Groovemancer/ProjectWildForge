@@ -19,7 +19,6 @@ public class MouseController : MonoBehaviour
     List<GameObject> dragPreviewGameObjects;
 
     BuildModeController bmc;
-    StructureSpriteController ssc;
 
     MouseMode currentMode = MouseMode.Select;
 
@@ -27,7 +26,6 @@ public class MouseController : MonoBehaviour
     void Start()
     {
         bmc = GameObject.FindObjectOfType<BuildModeController>();
-        ssc = GameObject.FindObjectOfType<StructureSpriteController>();
 
         dragPreviewGameObjects = new List<GameObject>();
     }
@@ -63,8 +61,16 @@ public class MouseController : MonoBehaviour
             }
         }
 
+        if (Input.GetMouseButtonUp(1))
+        {
+            if (currentMode == MouseMode.Build)
+            {
+                currentMode = MouseMode.Select;
+            }
+        }
+
         //UpdateCursor();
-        
+
         UpdateDragging();
         UpdateCameraMovement();
 
@@ -206,7 +212,7 @@ public class MouseController : MonoBehaviour
 
         SpriteRenderer spr = go.AddComponent<SpriteRenderer>();
         spr.sortingLayerName = "Jobs";
-        spr.sprite = ssc.GetSpriteForStructure(structureType);
+        spr.sprite = WorldController.StructureSpriteController.GetSpriteForStructure(structureType);
 
         if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t))
         {

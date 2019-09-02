@@ -53,8 +53,15 @@ function OnUpdate_Door(structure, deltaAuts)
 	
 	structure.SetParameter("openness", Clamp(structure.GetParameter("openness"), 0,
 		structure.GetParameter("doorOpenTime")))
+		
+	if (structure.VerticalDoor == true) then
+		structure.SetAnimationState("vertical")
+	else
+		structure.SetAnimationState("horizontal")
+	end
 	
 	structure.cbOnChanged(structure)
+	structure.SetAnimationProgressValue(structure.GetParameter("openness"), 1)
 end
 
 -- IsEnterable_Door

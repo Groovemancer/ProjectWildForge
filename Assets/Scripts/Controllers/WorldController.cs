@@ -12,6 +12,7 @@ public class WorldController : MonoBehaviour
     public static WorldController Instance { get; protected set; }
 
     public static TileSpriteController TileSpriteController { get; protected set; }
+    public static StructureSpriteController StructureSpriteController { get; protected set; }
     
     public World World { get; protected set; }
 
@@ -51,6 +52,8 @@ public class WorldController : MonoBehaviour
     public void Start()
     {
         TileSpriteController = new TileSpriteController(World);
+        StructureSpriteController = new StructureSpriteController(World);
+
         DebugUtils.LogChannel("WorldController", "TileSpriteController isNotNull?: " + (TileSpriteController != null));
     }
 

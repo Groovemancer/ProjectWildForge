@@ -258,7 +258,9 @@ public static class SpriteManager
 
         int pixelPerUnit = int.Parse(obj["pixelPerUnit"].ToString());
 
-        LoadSprite(spriteCategory, name, imageTexture, new Rect(x, y, w, h), pixelPerUnit, new Vector2(pivotX, pivotY));
+        LoadSprite(spriteCategory, name, imageTexture,
+            new Rect(x * pixelPerUnit, y * pixelPerUnit, w * pixelPerUnit, h * pixelPerUnit),
+            pixelPerUnit, new Vector2(pivotX, pivotY));
     }
 
     private static T ReadJson<T>(T value, JToken jtoken)

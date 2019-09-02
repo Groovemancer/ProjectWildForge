@@ -1,0 +1,50 @@
+[
+   {
+      "name": "struct_WoodDoor_Horizontal_0",
+      "x": 0,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_WoodDoor_Horizontal_1",
+      "x": 1,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_WoodDoor_Horizontal_2",
+      "x": 0,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_WoodDoor_Horizontal_3",
+      "x": 1,
+      "y": 1,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_WoodDoor_Horizontal_4",
+      "x": 0,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "struct_WoodDoor_Horizontal_5",
+      "x": 1,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "pixelPerUnit": 32
+   }
+]

@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using UnityEngine;
+
 using MoonSharp.Interpreter;
-using System.IO;
-using System.Linq;
+
+using UnityEngine;
+
+using Animation;
+
 
 // Structures are things like walls, doors, and furniture (e.g. table)
 
@@ -52,6 +57,11 @@ public class Structure : IXmlSerializable
             //updateActions(this, deltaAuts);
             StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
         }
+
+        if (Animations != null)
+        {
+            Animations.Update(Time.deltaTime);
+        }
     }
 
     public Enterability IsEnterable()
@@ -64,6 +74,78 @@ public class Structure : IXmlSerializable
         DynValue ret = StructureActions.CallFunction(isEnterableAction, this);
 
         return (Enterability)ret.Number;
+    }
+
+    /// <summary>
+    /// Gets or sets the structure animation.
+    /// </summary>
+    public StructureAnimation Animations { get; set; }
+
+    public string GetDefaultSpriteName()
+    {
+        if (!string.IsNullOrEmpty(DefaultSpriteName))
+        {
+            return DefaultSpriteName;
+        }
+
+        // Else return default Type string
+        return ObjectType;
+    }
+
+    /// <summary>
+    /// Check if the furniture has a function to determine the sprite name and calls that function.
+    /// </summary>
+    /// <param name="explicitSpriteUsed">Out: true if explicit sprite was used, false if default type was used.</param>
+    /// <returns>Name of the sprite.</returns>
+    public string GetSpriteName(out bool explicitSpriteUsed)
+    {
+        explicitSpriteUsed = true;
+        if (!string.IsNullOrEmpty(SpriteName))
+        {
+            return SpriteName;
+        }
+
+        // Try to get spritename from animation
+        if (Animations != null)
+        {
+            return Animations.GetSpriteName();
+        }
+
+        // Else return default Type string
+        explicitSpriteUsed = false;
+        return ObjectType;
+    }
+
+    /// <summary>
+    /// Set the animation state. Will only have an effect if stateName is different from current animation stateName.
+    /// </summary>
+    public void SetAnimationState(string stateName)
+    {
+        if (Animations == null)
+        {
+            return;
+        }
+
+        Animations.SetState(stateName);
+    }
+
+    /// <summary>
+    /// Set the animation frame depending on a value. The currentvalue percent of the maxvalue will determine which frame is shown.
+    /// </summary>
+    public void SetAnimationProgressValue(float currentValue, float maxValue)
+    {
+        if (Animations == null)
+        {
+            return;
+        }
+
+        if (maxValue == 0)
+        {
+            DebugUtils.LogError("SetAnimationProgressValue maxValue is zero");
+        }
+
+        float percent = Mathf.Clamp01(currentValue / maxValue);
+        Animations.SetProgressValue(percent);
     }
 
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
@@ -105,9 +187,31 @@ public class Structure : IXmlSerializable
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
-    public Color Tint = Color.white;
+    /// <summary>
+    /// Gets the tint used to change the color of the structure.
+    /// </summary>
+    /// <value>The Color of the structure.</value>
+    public Color Tint { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the door is Vertical or not.
+    /// Should be false if the furniture is not a door.
+    /// This field will most likely be moved to another class.
+    /// </summary>
+    /// <value>Whether the door is Vertical or not.</value>
+    public bool VerticalDoor { get; set; }
 
     public string LinksToNeighbors { get; protected set; }
+
+    /// <summary>
+    /// Represents name of the sprite shown in menus.
+    /// </summary>
+    public string DefaultSpriteName { get; set; }
+
+    /// <summary>
+    /// Actual sprite name (can be null).
+    /// </summary>
+    public string SpriteName { get; set; }
 
     public Action<Structure> cbOnChanged;
     public Action<Structure> cbOnRemoved;
@@ -125,6 +229,7 @@ public class Structure : IXmlSerializable
         updateActions = new List<string>();
 
         Tint = Color.white;
+        VerticalDoor = false;
 
         Width = 1;
         Height = 1;
@@ -153,6 +258,11 @@ public class Structure : IXmlSerializable
 
         this.structureParameters = new Dictionary<string, float>(other.structureParameters);
         jobs = new List<Job>();
+
+        if (other.Animations != null)
+        {
+            Animations = other.Animations.Clone();
+        }
 
         if (other.updateActions != null)
             this.updateActions = new List<string>(other.updateActions);
@@ -415,6 +525,11 @@ public class Structure : IXmlSerializable
         }
     }
 
+    public bool HasTag(string tag)
+    {
+        return Tags.Contains(tag);
+    }
+
     public bool IsStockpile()
     {
         return Tags.Contains("Stockpile");
@@ -557,8 +672,23 @@ public class Structure : IXmlSerializable
         MovementCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
         Width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
         Height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
-        LinksToNeighbors = structNode.SelectSingleNode("LinksToNeighbors").InnerText;
+        if (structNode.SelectSingleNode("LinksToNeighbors") != null)
+        {
+            LinksToNeighbors = structNode.SelectSingleNode("LinksToNeighbors").InnerText;
+        }
         RoomEnclosure = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
+
+        XmlNode defaultSpriteNode = structNode.SelectSingleNode("DefaultSpriteName");
+        if (defaultSpriteNode != null)
+        {
+            DefaultSpriteName = defaultSpriteNode.InnerText;
+        }
+
+        XmlNode spriteNode = structNode.SelectSingleNode("SpriteName");
+        if (spriteNode != null)
+        {
+            SpriteName = spriteNode.InnerText;
+        }
 
         funcPositionValidation = DefaulIsValidPosition;
 
@@ -638,7 +768,43 @@ public class Structure : IXmlSerializable
             }
         }
 
+        // Animation
+        Animations = ReadAnimations(structNode.SelectNodes("Animations/Animation"));
+        //XmlNode animationsNode = structNode.SelectSingleNode("Animations");
+        //if (animationsNode != null)
+        //{
+        //    XmlNodeList animationNodes = animationsNode.SelectNodes("Animations/Animation");
+
+        //    Dictionary<string, SpritenameAnimation> animations = new Dictionary<string, SpritenameAnimation>();
+        //    foreach (XmlNode animationNode in animationNodes)
+        //    {
+        //        SpritenameAnimation animation = new SpritenameAnimation();
+        //        animation.ReadXml(animationNode);
+        //        animations.Add(animation.State, animation);
+        //    }
+        //    Animations = new StructureAnimation(animations);
+        //}
+
         jobs = new List<Job>();
+    }
+
+    public StructureAnimation ReadAnimations(XmlNodeList animationNodes)
+    {
+        if (animationNodes == null || animationNodes.Count == 0)
+        {
+            return null;
+        }
+
+        Dictionary<string, SpritenameAnimation> animations = new Dictionary<string, SpritenameAnimation>();
+
+        foreach (XmlNode animationNode in animationNodes)
+        {
+            SpritenameAnimation animation = new SpritenameAnimation();
+            animation.ReadXml(animationNode);
+            animations.Add(animation.State, animation);
+        }
+
+        return new StructureAnimation(animations);
     }
     #endregion
 }
