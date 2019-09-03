@@ -7,9 +7,37 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using ProjectWildForge.Pathfinding;
 
-public class Actor : IXmlSerializable
+public class Actor : IXmlSerializable, IUpdatable
 {
-    public Tile CurrTile { get; protected set; }
+    public Bounds Bounds
+    {
+        get
+        {
+            return new Bounds(
+                new Vector3(X - 1, Y - 1, 0),
+                new Vector3(1, 1));
+        }
+    }
+
+    private Tile currTile;
+    public Tile CurrTile
+    {
+        get
+        {
+            return currTile;
+        }
+        set
+        {
+            if (currTile != null)
+            {
+                //currTile.Actors.Remove(this);
+            }
+            currTile = value;
+            //currTile.Actors.Add(this);
+
+            TileOffset = Vector3.zero;
+        }
+    }
 
     // If we aren't moving, then destTile = CurrTile
     Tile _destTile;
@@ -25,6 +53,45 @@ public class Actor : IXmlSerializable
         }
     }
     Tile nextTile;
+
+    /// Tile offset for animation
+    public Vector3 TileOffset { get; set; }
+
+    /// <summary>
+    /// Returns a float representing the Character's X position, which can
+    /// be part-way between two tiles during movement.
+    /// </summary>
+    public float X
+    {
+        get
+        {
+            return CurrTile.X + TileOffset.x;
+        }
+    }
+
+    /// <summary>
+    /// Returns a float representing the Character's Y position, which can
+    /// be part-way between two tiles during movement.
+    /// </summary>
+    public float Y
+    {
+        get
+        {
+            return CurrTile.Y + TileOffset.y;
+        }
+    }
+
+    /// <summary>
+    /// Returns a float representing the Character's Z position, which can
+    /// be part-way between two tiles during movement.
+    /// </summary>
+    public float Z
+    {
+        get
+        {
+            return CurrTile.Z + TileOffset.z;
+        }
+    }
 
     public List<Tile> Path { get; set; }
 
@@ -236,7 +303,7 @@ public class Actor : IXmlSerializable
                     Inventory desired = myJob.GetFirstDesiredInventory();
 
                     Inventory supplier = World.Current.InventoryManager.GetClosestInventoryOfType(
-                        desired.objectType,
+                        desired.Type,
                         CurrTile,
                         desired.MaxStackSize - desired.StackSize,
                         myJob.canTakeFromStockpile
@@ -244,7 +311,7 @@ public class Actor : IXmlSerializable
 
                     if (supplier == null)
                     {
-                        Debug.Log("No tile contains objects of type'" + desired.objectType + "' to satisfy job requirements.");
+                        Debug.Log("No tile contains objects of type'" + desired.Type + "' to satisfy job requirements.");
                         AbandonJob();
                         return false;
                     }
@@ -284,9 +351,74 @@ public class Actor : IXmlSerializable
         return false;
     }
 
+    public void EveryFrameUpdate(float deltaAuts)
+    {
+        /*
+        // Run all the global states first so that they can interrupt or queue up new states
+        foreach (States.State globalState in globalStates)
+        {
+            globalState.Update(deltaTime);
+        }
+
+        // We finished the last state
+        if (state == null)
+        {
+            if (stateQueue.Count > 0)
+            {
+                SetState(stateQueue.Dequeue());
+            }
+            else
+            {
+                Job job = World.Current.jobManager.GetJob(this);
+                if (job != null)
+                {
+                    SetState(new States.JobState(this, job));
+                }
+                else
+                {
+                    // TODO: Lack of job states should be more interesting. Maybe go to the pub and have a pint?
+                    SetState(new States.IdleState(this));
+                }
+            }
+        }
+
+        state.Update(deltaTime);
+
+        Animation.Update(deltaTime);
+
+        if (OnCharacterChanged != null)
+        {
+            OnCharacterChanged(this);
+        }
+        */
+
+        //DebugUtils.LogChannel("Actor", "EveryFrameUpdate called deltaAuts: " + deltaAuts);
+        bool didSomething = false;
+        actionPoints += deltaAuts;
+
+        if (UpdateDoJob(deltaAuts))
+            didSomething = true;
+
+        if (UpdateHandleMovement())
+            didSomething = true;
+
+        if (didSomething == false)
+            actionPoints -= deltaAuts;
+
+        if (cbActorChanged != null)
+            cbActorChanged(this);
+    }
+
+    public void FixedFrequencyUpdate(float deltaAuts)
+    {
+        throw new InvalidOperationException("Not supported by this class");
+    }
+
     // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
     public void Update(float deltaAuts)
     {
+        return;
+        DebugUtils.LogChannel("Actor", "Update called deltaAuts: " + deltaAuts);
         bool didSomething = false;
         actionPoints += deltaAuts;
 

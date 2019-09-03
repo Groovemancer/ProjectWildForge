@@ -50,11 +50,77 @@ public class DataManager : MonoBehaviour
         LocaleData.LoadData();
         TileTypeData.LoadData();
 
-        PrototypeManager.Initialize();
+        //LoadFunctions("Structure.lua", "Structure");
 
-        SetupPrototypeHandlers();
+        //PrototypeManager.Initialize();
 
-        LoadPrototypes();
+        //SetupPrototypeHandlers();
+
+        //LoadPrototypes();
+    }
+
+    /// <summary>
+    /// Loads all the functions using the given file name.
+    /// </summary>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="functionsName">The functions name.</param>
+    private void LoadFunctions(string fileName, string functionsName)
+    {
+        string ext = Path.GetExtension(fileName);
+        string folder = "Scripts";
+        Functions.Type scriptType = Functions.Type.Lua;
+
+        if (string.Compare(".cs", ext, true) == 0)
+        {
+            folder = "CSharp";
+            scriptType = Functions.Type.CSharp;
+        }
+
+        LoadTextFile(
+            folder,
+            fileName,
+            (filePath) =>
+            {
+                if (File.Exists(filePath))
+                {
+                    string text = File.ReadAllText(filePath);
+                    FunctionsManager.Get(functionsName).LoadScript(text, functionsName, scriptType);
+                }
+                else
+                {
+                    DebugUtils.LogErrorChannel(folder == "CSharp" ? "CSharp" : "LUA", "file " + filePath + " not found");
+                }
+            });
+    }
+
+    /// <summary>
+    /// Loads the given file from the given folder in the base and inside the mods and
+    /// calls the Action with the file path.
+    /// </summary>
+    /// <param name="directoryName">Directory name.</param>
+    /// <param name="fileName">File name.</param>
+    /// <param name="readText">Called to handle the text reading and actual loading.</param>
+    private void LoadTextFile(string directoryName, string fileName, Action<string> readText)
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, directoryName);
+        filePath = Path.Combine(filePath, fileName);
+        if (File.Exists(filePath))
+        {
+            readText(filePath);
+        }
+        else
+        {
+            DebugUtils.LogError("File at " + filePath + " not found");
+        }
+
+        //foreach (DirectoryInfo mod in mods)
+        //{
+        //    filePath = Path.Combine(mod.FullName, fileName);
+        //    if (File.Exists(filePath))
+        //    {
+        //        readText(filePath);
+        //    }
+        //}
     }
 
     /// <summary>
@@ -62,6 +128,7 @@ public class DataManager : MonoBehaviour
     /// </summary>
     public void SetupPrototypeHandlers()
     {
+        HandlePrototypes("Inventories", PrototypeManager.Inventory.LoadXmlPrototypes);
         HandlePrototypes("Stats", PrototypeManager.Stat.LoadXmlPrototypes);
     }
 

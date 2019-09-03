@@ -57,7 +57,7 @@ public class GameSpeedButtons : MonoBehaviour
     {
         currentGameSpeed = gameSpeed;
         ToggleButtons(currentGameSpeed);
-        WorldController.Instance.SetGameSpeed(currentGameSpeed);
+        //WorldController.Instance.SetGameSpeed(currentGameSpeed);
     }
 
     private void ToggleButtons(GameSpeed gameSpeed)

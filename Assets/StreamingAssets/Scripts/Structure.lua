@@ -85,7 +85,7 @@ function Stockpile_GetItemsFromFilter()
 	-- Since jobs copy arrays automatically, we could already have
 	-- an Inventory[] prepared and just return that (as a sort of example filter)
 
-	return { Inventory.__new("inv_RawStone", 50, 0) }
+	return { Inventory.__new("inv_RawStone", 0, 50) }
 end
 
 -- OnUpdate_Stockpile
@@ -232,7 +232,7 @@ function WorkStation_JobComplete(j)
 	--Debug.Log("WorkStation_JobComplete");
 
 	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
-		Inventory.__new("inv_RawStone", 50, 10))
+		Inventory.__new("inv_RawStone", 10, 50))
 end
 
 -- OnUpdate_StoneCuttingTable
@@ -288,7 +288,7 @@ function StoneCuttingTable_JobComplete(j)
 	--Debug.Log("StoneCuttingTable_JobComplete");
 
 	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
-		Inventory.__new("inv_StoneBlock", 50, 5))
+		Inventory.__new("inv_StoneBlock", 5, 50))
 		
 	j.CancelJob()
 end

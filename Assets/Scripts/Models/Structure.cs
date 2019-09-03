@@ -17,7 +17,7 @@ using Animation;
 // Structures are things like walls, doors, and furniture (e.g. table)
 
 [MoonSharpUserData]
-public class Structure : IXmlSerializable
+public class Structure : IXmlSerializable, IUpdatable
 {
     /// <summary>
     /// Custom parameters for this particular structure. We
@@ -55,12 +55,12 @@ public class Structure : IXmlSerializable
         if (updateActions != null)
         {
             //updateActions(this, deltaAuts);
-            StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
+            //StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
         }
 
         if (Animations != null)
         {
-            Animations.Update(Time.deltaTime);
+            //Animations.Update(Time.deltaTime);
         }
     }
 
@@ -71,7 +71,7 @@ public class Structure : IXmlSerializable
             return Enterability.Yes;
         }
 
-        DynValue ret = StructureActions.CallFunction(isEnterableAction, this);
+        DynValue ret = FunctionsManager.Structure.Call(isEnterableAction, this);
 
         return (Enterability)ret.Number;
     }
@@ -116,6 +116,37 @@ public class Structure : IXmlSerializable
         return ObjectType;
     }
 
+    #region Update and Animation
+    /// <summary>
+    /// This function is called to update the furniture animation in lua.
+    /// This will be called every frame and should be used carefully.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update was called.</param>
+    public void EveryFrameUpdate(float deltaTime)
+    {
+        if (EventActions != null)
+        {
+            EventActions.Trigger("OnFastUpdate", this, deltaTime);
+        }
+    }
+
+    /// <summary>
+    /// This function is called to update the structure. This will also trigger EventsActions.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update was called.</param>
+    public void FixedFrequencyUpdate(float deltaTime)
+    {
+        if (EventActions != null)
+        {
+            EventActions.Trigger("OnUpdate", this, deltaTime);
+        }
+
+        if (Animations != null)
+        {
+            Animations.Update(deltaTime);
+        }
+    }
+
     /// <summary>
     /// Set the animation state. Will only have an effect if stateName is different from current animation stateName.
     /// </summary>
@@ -147,6 +178,8 @@ public class Structure : IXmlSerializable
         float percent = Mathf.Clamp01(currentValue / maxValue);
         Animations.SetProgressValue(percent);
     }
+    #endregion
+
 
     // This represents the BASE tile of the object -- but in practices, large objects may actually occupy
     // multiple tiles.
@@ -213,6 +246,28 @@ public class Structure : IXmlSerializable
     /// </summary>
     public string SpriteName { get; set; }
 
+    public bool RequiresFastUpdate { get; set; }
+
+    public bool RequiresSlowUpdate { get; set; }
+
+    /// <summary>
+    /// Gets the EventAction for the current structure.
+    /// These actions are called when an event is called. They get passed the structure
+    /// they belong to, plus a deltaTime (which defaults to 0).
+    /// </summary>
+    /// <value>The event actions that is called on update.</value>
+    public EventActions EventActions { get; private set; }
+
+    public Bounds Bounds
+    {
+        get
+        {
+            return new Bounds(
+                new Vector3(Tile.X - 0.5f + (Width / 2), Tile.Y - 0.5f + (Height / 2), 0),
+                new Vector3(Width, Height));
+        }
+    }
+
     public Action<Structure> cbOnChanged;
     public Action<Structure> cbOnRemoved;
 
@@ -227,6 +282,7 @@ public class Structure : IXmlSerializable
         structureParameters = new Dictionary<string, float>();
         jobs = new List<Job>();
         updateActions = new List<string>();
+        EventActions = new EventActions();
 
         Tint = Color.white;
         VerticalDoor = false;
@@ -264,6 +320,11 @@ public class Structure : IXmlSerializable
             Animations = other.Animations.Clone();
         }
 
+        if (other.EventActions != null)
+        {
+            EventActions = other.EventActions.Clone();
+        }
+
         if (other.updateActions != null)
             this.updateActions = new List<string>(other.updateActions);
 
@@ -271,6 +332,9 @@ public class Structure : IXmlSerializable
 
         if (other.funcPositionValidation != null)
             this.funcPositionValidation = (Func<Tile, bool>)other.funcPositionValidation.Clone();
+
+        RequiresSlowUpdate = EventActions.HasEvent("OnUpdate");
+        RequiresFastUpdate = EventActions.HasEvent("OnFastUpdate");
 
         //this.IsEnterable = other.IsEnterable;
     }
@@ -744,6 +808,12 @@ public class Structure : IXmlSerializable
         {
             string updateFuncName = updateFnNode.Attributes["FunctionName"].InnerText;
             RegisterUpdateAction(updateFuncName);
+        }
+
+        XmlNodeList eventActionNodeList = structNode.SelectNodes("EventAction");
+        foreach (XmlNode eventActionNode in eventActionNodeList)
+        {
+            EventActions.ReadXml(eventActionNode);
         }
 
         XmlNode isEnterableFnNode = structNode.SelectSingleNode("IsEnterable");

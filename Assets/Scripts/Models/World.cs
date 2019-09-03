@@ -182,29 +182,29 @@ public class World : IXmlSerializable
 
     public void Update(float deltaTime)
     {
-        float deltaAuts = autsPerSec * gameSpeed * deltaTime;
+        //float deltaAuts = autsPerSec * gameSpeed * deltaTime;
 
-        if (deltaAuts > 0)
-        {
-            count++;
-            avgDeltaAuts += deltaAuts / count;
-            if (count > maxCount)
-            {
-                DebugUtils.LogChannel("World", "Update Avg Delta Auts: " + avgDeltaAuts);
-                count = 0;
-                avgDeltaAuts = 0;
-            }
+        //if (deltaAuts > 0)
+        //{
+        //    count++;
+        //    avgDeltaAuts += deltaAuts / count;
+        //    if (count > maxCount)
+        //    {
+        //        DebugUtils.LogChannel("World", "Update Avg Delta Auts: " + avgDeltaAuts);
+        //        count = 0;
+        //        avgDeltaAuts = 0;
+        //    }
 
-            foreach (Actor a in actors)
-            {
-                a.Update(deltaAuts);
-            }
+        //    foreach (Actor a in actors)
+        //    {
+        //        a.Update(deltaAuts);
+        //    }
 
-            foreach (Structure s in structures)
-            {
-                s.Update(deltaAuts);
-            }
-        }
+        //    foreach (Structure s in structures)
+        //    {
+        //        s.Update(deltaAuts);
+        //    }
+        //}
     }
 
     public void SetGameSpeed(GameSpeed desiredSpeed)
@@ -229,25 +229,27 @@ public class World : IXmlSerializable
         }
     }
 
-    public Actor CreateActor(Tile t)
+    public Actor CreateActor(Tile tile)
     {
-        Actor a = new Actor(t);
+        Actor actor = new Actor(tile);
 
-        actors.Add(a);
+        actors.Add(actor);
+
+        TimeManager.Instance.RegisterFastUpdate(actor);
 
         if (cbActorCreated != null)
-            cbActorCreated(a);
+            cbActorCreated(actor);
 
-        return a;
+        return actor;
     }
 
     void LoadStructureLua()
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
-        filePath = Path.Combine(filePath, "StructureActions.lua");
+        //string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
+        //filePath = Path.Combine(filePath, "StructureActions.lua");
 
         // Instantiate the singleton
-        new StructureActions(filePath);
+        //new StructureActions(filePath);
     }
 
     private void CreateStructurePrototypes()
@@ -288,7 +290,7 @@ public class World : IXmlSerializable
                     {
                         string invType = invNode.Attributes["objectType"].InnerText;
                         int invAmount = int.Parse(invNode.Attributes["amount"].InnerText);
-                        invReqs.Add(new Inventory(invType, invAmount, 0));
+                        invReqs.Add(new Inventory(invType, 0, invAmount));
                     }
 
                     World.Current.structureJobPrototypes.Add(structurePrototype.ObjectType,
@@ -413,6 +415,16 @@ public class World : IXmlSerializable
 
         structure.RegisterOnRemovedCallback(OnStructureRemoved);
         structures.Add(structure);
+
+        if (structure.RequiresFastUpdate)
+        {
+            TimeManager.Instance.RegisterFastUpdate(structure);
+        }
+
+        if (structure.RequiresSlowUpdate)
+        {
+            TimeManager.Instance.RegisterSlowUpdate(structure);
+        }
 
         // Do we need to recalculate our rooms?
         if (doRoomFloodFill && structure.RoomEnclosure)
@@ -554,6 +566,8 @@ public class World : IXmlSerializable
     public void OnStructureRemoved(Structure strct)
     {
         structures.Remove(strct);
+        TimeManager.Instance.UnregisterFastUpdate(strct);
+        TimeManager.Instance.UnregisterSlowUpdate(strct);
     }
 
     #region Saving & Loading
@@ -668,7 +682,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory("inv_RawStone", 50, 4);
+        inv = new Inventory("inv_RawStone", 4, 50);
         t = GetTileAt(Width / 2 + 2, Height / 2, 0);
         InventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)
@@ -676,7 +690,7 @@ public class World : IXmlSerializable
             cbInventoryCreated(t.Inventory);
         }
 
-        inv = new Inventory("inv_RawStone", 50, 3);
+        inv = new Inventory("inv_RawStone", 3, 50);
         t = GetTileAt(Width / 2 + 1, Height / 2 + 2, 0);
         InventoryManager.PlaceInventory(t, inv);
         if (cbInventoryCreated != null)

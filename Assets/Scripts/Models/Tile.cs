@@ -155,7 +155,7 @@ public class Tile : IXmlSerializable
         {
             // There's already inventory here. Maybe we can combine a stack?
 
-            if (Inventory.objectType != inv.objectType)
+            if (Inventory.Type != inv.Type)
             {
                 Debug.LogError("Trying to assign inventory to a tile that already has some of a different type!");
                 return false;

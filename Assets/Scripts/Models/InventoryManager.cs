@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using MoonSharp.Interpreter;
 
@@ -10,18 +11,45 @@ public class InventoryManager
     // of a single master list. (Or in addition to.)
     public Dictionary<string, List<Inventory>> Inventories { get; private set; }
 
+    private Dictionary<string, List<InventoryOfTypeCreated>> inventoryTypeCreated = new Dictionary<string, List<InventoryOfTypeCreated>>();
+
+    public delegate bool InventoryOfTypeCreated(Inventory inventory);
+
+    public event Action<Inventory> InventoryCreated;
+
     public InventoryManager()
     {
         Inventories = new Dictionary<string, List<Inventory>>();
+    }
+
+    public void RegisterInventoryTypeCreated(InventoryOfTypeCreated func, string type)
+    {
+        List<InventoryOfTypeCreated> inventories;
+        if (inventoryTypeCreated.TryGetValue(type, out inventories) == false)
+        {
+            inventories = new List<InventoryOfTypeCreated>();
+            inventoryTypeCreated[type] = inventories;
+        }
+
+        inventories.Add(func);
+    }
+
+    public void UnregisterInventoryTypeCreated(InventoryOfTypeCreated func, string type)
+    {
+        List<InventoryOfTypeCreated> list;
+        if (inventoryTypeCreated.TryGetValue(type, out list))
+        {
+            list.Remove(func);
+        }
     }
 
     void CleanupInventory(Inventory inv)
     {
         if (inv.StackSize == 0)
         {
-            if (Inventories.ContainsKey(inv.objectType))
+            if (Inventories.ContainsKey(inv.Type))
             {
-                Inventories[inv.objectType].Remove(inv);
+                Inventories[inv.Type].Remove(inv);
             }
             if (inv.Tile != null)
             {
@@ -51,31 +79,51 @@ public class InventoryManager
         // We may have also created a new stack on the tile, if the tile was previously empty.
         if (tileWasEmpty)
         {
-            if (Inventories.ContainsKey(tile.Inventory.objectType) == false)
+            if (Inventories.ContainsKey(tile.Inventory.Type) == false)
             {
-                Inventories[tile.Inventory.objectType] = new List<Inventory>();
+                Inventories[tile.Inventory.Type] = new List<Inventory>();
             }
-            Inventories[tile.Inventory.objectType].Add(tile.Inventory);
+            Inventories[tile.Inventory.Type].Add(tile.Inventory);
 
-            World.Current.OnInventoryCreated(tile.Inventory);
+            InvokeInventoryCreated(tile.Inventory);
         }
 
         return true;
     }
 
+    private void InvokeInventoryCreated(Inventory inventory)
+    {
+        Action<Inventory> handler = InventoryCreated;
+        if (handler != null)
+        {
+            handler(inventory);
+
+            InventoryAvailable(inventory);
+        }
+    }
+
+    public void InventoryAvailable(Inventory inventory)
+    {
+        List<InventoryOfTypeCreated> inventories;
+        if (inventoryTypeCreated.TryGetValue(inventory.Type, out inventories))
+        {
+            inventories.RemoveAll(func => func(inventory));
+        }
+    }
+
     public bool PlaceInventory(Job job, Inventory inv)
     {
-        if (job.inventoryRequirements.ContainsKey(inv.objectType) == false)
+        if (job.inventoryRequirements.ContainsKey(inv.Type) == false)
         {
             Debug.LogError("Trying to add inventory to a job that it doesn't want.");
             return false;
         }
-        job.inventoryRequirements[inv.objectType].StackSize += inv.StackSize;
+        job.inventoryRequirements[inv.Type].StackSize += inv.StackSize;
 
-        if (job.inventoryRequirements[inv.objectType].MaxStackSize < job.inventoryRequirements[inv.objectType].StackSize)
+        if (job.inventoryRequirements[inv.Type].MaxStackSize < job.inventoryRequirements[inv.Type].StackSize)
         {
-            inv.StackSize = job.inventoryRequirements[inv.objectType].StackSize - job.inventoryRequirements[inv.objectType].MaxStackSize;
-            job.inventoryRequirements[inv.objectType].StackSize = job.inventoryRequirements[inv.objectType].MaxStackSize;
+            inv.StackSize = job.inventoryRequirements[inv.Type].StackSize - job.inventoryRequirements[inv.Type].MaxStackSize;
+            job.inventoryRequirements[inv.Type].StackSize = job.inventoryRequirements[inv.Type].MaxStackSize;
         }
         else
         {
@@ -102,9 +150,9 @@ public class InventoryManager
         {
             actor.inventory = sourceInventory.Clone();
             actor.inventory.StackSize = 0;
-            Inventories[actor.inventory.objectType].Add(actor.inventory);
+            Inventories[actor.inventory.Type].Add(actor.inventory);
         }
-        else if (actor.inventory.objectType != sourceInventory.objectType)
+        else if (actor.inventory.Type != sourceInventory.Type)
         {
             Debug.LogError("Character is trying to pick up a mismatched inventory object type.");
             return false;

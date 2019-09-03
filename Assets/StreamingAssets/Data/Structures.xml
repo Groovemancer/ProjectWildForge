@@ -49,6 +49,8 @@
 		
 		<OnUpdate FunctionName="OnUpdate_Door" />
 		
+		<EventAction event="OnUpdate" FunctionName="OnUpdate_Door" />
+		
 		<IsEnterable FunctionName="IsEnterable_Door" />
 		
 		<Params>
@@ -109,6 +111,7 @@
 		</Tags>
 		
 		<OnUpdate FunctionName="OnUpdate_Stockpile" />
+		<EventAction event="OnUpdate" FunctionName="OnUpdate_Stockpile" />
 	</Structure>
 	<Structure objectType="struct_WorkStation">
 		<Name>struct_WorkStation</Name>
@@ -120,6 +123,7 @@
 		<JobOffset>1 0</JobOffset>
 		
 		<OnUpdate FunctionName="OnUpdate_WorkStation" />
+		<EventAction event="OnUpdate" FunctionName="OnUpdate_WorkStation" />
 		
 		<!--<BuildingJob jobCost="600">
 			<Inventory objectType="inv_Wood" amount="25"/>
@@ -138,6 +142,7 @@
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		
 		<OnUpdate FunctionName="OnUpdate_GasGenerator" />
+		<EventAction event="OnUpdate" FunctionName="OnUpdate_GasGenerator" />
 		
 		<Params>
 			<!--<Param name="gas_name" value="O2" />-->
@@ -164,6 +169,7 @@
 		<JobSpawnOffset>2 0</JobSpawnOffset>
 		
 		<OnUpdate FunctionName="OnUpdate_StoneCuttingTable" />
+		<EventAction event="OnUpdate" FunctionName="OnUpdate_StoneCuttingTable" />
 		
 		<BuildingJob jobCost="1200">
 			<Inventory objectType="inv_RawStone" amount="25"/>

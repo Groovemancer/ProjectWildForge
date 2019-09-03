@@ -9,6 +9,12 @@ public static class PrototypeManager
     private static bool isInitialized = false;
 
     /// <summary>
+    /// Gets the inventory prototype map.
+    /// </summary>
+    /// <value>The inventory prototype map.</value>
+    public static PrototypeMap<Inventory> Inventory { get; private set; }
+
+    /// <summary>
     /// Gets the stat prototype map.
     /// </summary>
     /// <value>The stat prototype map.</value>
@@ -24,6 +30,7 @@ public static class PrototypeManager
             return;
         }
 
+        Inventory = new PrototypeMap<Inventory>();
         Stat = new PrototypeMap<Stat>();
 
         isInitialized = true;

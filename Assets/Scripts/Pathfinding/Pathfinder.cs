@@ -418,7 +418,7 @@ namespace ProjectWildForge.Pathfinding
         /// </summary>
         public static GoalEvaluator GoalInventoryEvaluator(string[] types, bool canTakeFromStockpile = true)
         {
-            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ types.Contains(tile.Inventory.objectType);//.Type);
+            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ types.Contains(tile.Inventory.Type);
         }
 
         /// <summary>
@@ -426,7 +426,7 @@ namespace ProjectWildForge.Pathfinding
         /// </summary>
         public static GoalEvaluator GoalInventoryEvaluator(string type, bool canTakeFromStockpile = true)
         {
-            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ type == tile.Inventory.objectType;//.Type;
+            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ type == tile.Inventory.Type;
         }
 
         public static RoomGoalEvaluator RoomGoalInventoryEvaluator(string[] types, bool canTakeFromStockpile = true)

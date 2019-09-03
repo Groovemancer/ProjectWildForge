@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 9/1/2019 12:02:24 AM-->
+<!--Last Updated: 9/2/2019 8:07:28 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -195,6 +195,24 @@
 		<Text>
 			<en-US>O2 Generator</en-US>
 			<de-DE>O2 Generator</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="23">
+		<Comment>time_string</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>{0:h}:{0:mm} {0:tt}</en-US>
+			<de-DE>{0:h}:{0:mm} {0:tt}</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="24">
+		<Comment>date_string</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Q{0:q} Day {0:d}, {0:y}</en-US>
+			<de-DE>Q{0:q} Day {0:d}, {0:y}</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

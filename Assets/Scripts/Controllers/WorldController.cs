@@ -1,20 +1,29 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Xml.Serialization;
-using System.IO;
 
+[MoonSharpUserData]
 public class WorldController : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject inventoryUI;
+
+    #region Instances
     public static WorldController Instance { get; protected set; }
 
     public static TileSpriteController TileSpriteController { get; protected set; }
+
     public static StructureSpriteController StructureSpriteController { get; protected set; }
-    
+
+    public static InventorySpriteController InventorySpriteController { get; protected set; }
+
+    public ModsManager ModsManager { get; private set; }
+
     public World World { get; protected set; }
+    #endregion
 
     static bool loadWorld = false;
     
@@ -30,8 +39,12 @@ public class WorldController : MonoBehaviour
             Debug.LogError("There should never be two world controllers.");
         }
 
+        FunctionsManager.Initialize();
+        PrototypeManager.Initialize();
         SpriteManager.Initialize();
-        LoadDirectoryAssets("Sprites", SpriteManager.LoadSpriteFiles);
+        //LoadDirectoryAssets("Sprites", SpriteManager.LoadSpriteFiles);
+
+        ModsManager = new ModsManager();
 
         if (loadWorld)
         {
@@ -53,8 +66,7 @@ public class WorldController : MonoBehaviour
     {
         TileSpriteController = new TileSpriteController(World);
         StructureSpriteController = new StructureSpriteController(World);
-
-        DebugUtils.LogChannel("WorldController", "TileSpriteController isNotNull?: " + (TileSpriteController != null));
+        InventorySpriteController = new InventorySpriteController(World, inventoryUI);
     }
 
     /// <summary>
@@ -100,6 +112,11 @@ public class WorldController : MonoBehaviour
         int y = Mathf.FloorToInt(coord.y + 0.5f);
 
         return World.GetTileAt(x, y, (int)coord.z);
+    }
+
+    public void Destroy()
+    {
+        TimeManager.Instance.Destroy();
     }
 
     public void NewWorld()

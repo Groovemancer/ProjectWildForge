@@ -64,7 +64,7 @@ public class Job
         {
             foreach (Inventory inv in invReqs)
             {
-                inventoryRequirements[inv.objectType] = inv.Clone();
+                inventoryRequirements[inv.Type] = inv.Clone();
             }
         }
     }
@@ -85,7 +85,7 @@ public class Job
         {
             foreach (Inventory inv in other.inventoryRequirements.Values)
             {
-                this.inventoryRequirements[inv.objectType] = inv.Clone();
+                this.inventoryRequirements[inv.Type] = inv.Clone();
             }
         }
     }
@@ -111,7 +111,8 @@ public class Job
 
         foreach (string luaFunction in cbJobWorkedLua.ToList())
         {
-            StructureActions.CallFunction(luaFunction, this);
+            //StructureActions.CallFunction(luaFunction, this);
+            FunctionsManager.Structure.Call(luaFunction, this);
         }
 
         // Check to make sure we actually have everything we need.
@@ -134,7 +135,8 @@ public class Job
 
             foreach (string luaFunction in cbJobCompletedLua.ToList())
             {
-                StructureActions.CallFunction(luaFunction, this);
+                //StructureActions.CallFunction(luaFunction, this);
+                FunctionsManager.Structure.Call(luaFunction, this);
             }
 
             if (jobRepeats == false)
@@ -227,19 +229,19 @@ public class Job
             return inv.MaxStackSize;
         }
 
-        if (inventoryRequirements.ContainsKey(inv.objectType) == false)
+        if (inventoryRequirements.ContainsKey(inv.Type) == false)
         {
             return 0;
         }
 
-        if (inventoryRequirements[inv.objectType].StackSize >= inventoryRequirements[inv.objectType].MaxStackSize)
+        if (inventoryRequirements[inv.Type].StackSize >= inventoryRequirements[inv.Type].MaxStackSize)
         {
             // We already have all that we need!
             return 0;
         }
 
         // The inventory is of a type we want, and still need more
-        return inventoryRequirements[inv.objectType].MaxStackSize - inventoryRequirements[inv.objectType].StackSize;
+        return inventoryRequirements[inv.Type].MaxStackSize - inventoryRequirements[inv.Type].StackSize;
     }
 
     public Inventory GetFirstDesiredInventory()
