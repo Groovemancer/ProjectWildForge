@@ -76,16 +76,17 @@ public class ModsManager
     public void SetupPrototypeHandlers()
     {
         //HandlePrototypes("Tile", PrototypeManager.TileType.LoadXmlPrototypes);
-        //HandlePrototypes("Structure", PrototypeManager.Structure.LoadXmlPrototypes);
+        HandlePrototypes("Structures", PrototypeManager.Structure.LoadXmlPrototypes);
         //HandlePrototypes("Utility", PrototypeManager.Utility.LoadXmlPrototypes);
         //HandlePrototypes("RoomBehavior", PrototypeManager.RoomBehavior.LoadXmlPrototypes);
         HandlePrototypes("Inventories", PrototypeManager.Inventory.LoadXmlPrototypes);
-        //HandlePrototypes("Need", PrototypeManager.Need.LoadXmlPrototypes);
+        HandlePrototypes("Need", PrototypeManager.Need.LoadXmlPrototypes);
         //HandlePrototypes("Trader", PrototypeManager.Trader.LoadXmlPrototypes);
         //HandlePrototypes("Currency", PrototypeManager.Currency.LoadXmlPrototypes);
         //HandlePrototypes("GameEvent", PrototypeManager.GameEvent.LoadXmlPrototypes);
         //HandlePrototypes("ScheduledEvent", PrototypeManager.ScheduledEvent.LoadXmlPrototypes);
         HandlePrototypes("Stats", PrototypeManager.Stat.LoadXmlPrototypes);
+        HandlePrototypes("Races", PrototypeManager.Race.LoadXmlPrototypes);
         //HandlePrototypes("Quest", PrototypeManager.Quest.LoadXmlPrototypes);
         //HandlePrototypes("Headline", PrototypeManager.Headline.LoadXmlPrototypes);
         //HandlePrototypes("Overlay", PrototypeManager.Overlay.LoadXmlPrototypes);
@@ -139,6 +140,12 @@ public class ModsManager
         }
 
         LoadPrototypes();
+
+        foreach (Race race in PrototypeManager.Race.Values)
+        {
+            LoadActorNames(race.Type, false, race.ActorMaleNamesFile + ".txt");
+            LoadActorNames(race.Type, true, race.ActorFemaleNamesFile + ".txt");
+        }
     }
 
     private void LoadMainSceneFiles()
@@ -158,7 +165,7 @@ public class ModsManager
 
         SetupPrototypeHandlers();
 
-        //LoadCharacterNames("CharacterNames.txt");
+        
 
         LoadDirectoryAssets("Sprites", SpriteManager.LoadSpriteFiles);
         //LoadDirectoryAssets("Audio", AudioManager.LoadAudioFiles);
@@ -292,18 +299,18 @@ public class ModsManager
     }
 
     /// <summary>
-    /// Loads all the character names from the given file.
+    /// Loads all the actor names from the given file.
     /// </summary>
     /// <param name="fileName">The file name.</param>
-    private void LoadCharacterNames(string fileName)
+    private void LoadActorNames(string raceType, bool isFemale, string fileName)
     {
         LoadTextFile(
-            "Data",
+            Path.Combine("Data", "ActorNames"),
             fileName,
             (filePath) =>
             {
                 string[] lines = File.ReadAllLines(filePath);
-                //CharacterNameManager.LoadNames(lines);
+                ActorNameManager.LoadNames(raceType, isFemale, lines);
             });
     }
 

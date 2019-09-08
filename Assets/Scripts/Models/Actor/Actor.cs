@@ -6,9 +6,16 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using ProjectWildForge.Pathfinding;
+using System.Linq;
 
 public class Actor : IXmlSerializable, IUpdatable
 {
+    /// Unique ID of the actor
+    public readonly int Id;
+
+    /// What Id we currently are sitting at
+    private static int currentId = 0;
+
     public Bounds Bounds
     {
         get
@@ -108,6 +115,15 @@ public class Actor : IXmlSerializable, IUpdatable
         }
     }
 
+    // The current state
+    private State state;
+
+    // List of global states that always run
+    private List<State> globalStates;
+
+    // Queue of states that aren't important enough to interrupt, but should run soon
+    private Queue<State> stateQueue;
+
     float workCost = 25f;   // Amount of action points required to do any amount of work
     private float workRate;   // Amount of work completed per DoWork attempt
     private float baseWorkRate = 50f;   // Amount of work completed per DoWork attempt
@@ -117,14 +133,24 @@ public class Actor : IXmlSerializable, IUpdatable
         get { return workRate; }
     }
 
-    float actionPoints = 0f;
+    public float ActionPoints { get; set; }
+    public bool Acted { get; set; }
 
-    Action<Actor> cbActorChanged;
+    /// A callback to trigger when actor information changes (notably, the position).
+    public event Action<Actor> OnActorChanged;
 
     Job myJob;
 
+    public string Name { get; protected set; }
+
+    public Race Race { get; protected set; }
+
+    public string SpriteName { get; set; }
+
+    public bool IsFemale { get; set; }
+
     // The item we are carrying (not gear/equipment)
-    public Inventory inventory;
+    public Inventory Inventory { get; set; }
 
     /// Stats, for character.
     public Dictionary<string, Stat> Stats { get; protected set; }
@@ -133,18 +159,45 @@ public class Actor : IXmlSerializable, IUpdatable
     {
         // Use only for serialization
         InitializeActorValues();
+        Id = currentId++;
+        IsFemale = false;
     }
 
-    public Actor(Tile tile)
+    public Actor(Tile tile, string name, string race, bool isFemale)
     {
         CurrTile = destTile = tile;
+        Name = name;
+        Race = PrototypeManager.Race.Get(race);
+        IsFemale = isFemale;
         InitializeActorValues();
+
+        if (IsFemale)
+        {
+            SpriteName = RandomUtils.ObjectFromList(Race.FemaleSprites, string.Empty);
+        }
+        else
+        {
+            SpriteName = RandomUtils.ObjectFromList(Race.MaleSprites, string.Empty);
+        }
+
+        stateQueue = new Queue<State>();
+        globalStates = new List<State>
+        {
+            // TODO Add NeedState
+            //new NeedState(this);
+        };
+        Id = currentId++;
     }
 
     private void InitializeActorValues()
     {
         LoadStats();
         UseStats();
+    }
+
+    public string GetName()
+    {
+        return Name;
     }
 
     private void LoadStats()
@@ -155,15 +208,29 @@ public class Actor : IXmlSerializable, IUpdatable
             Stat prototypeStat = PrototypeManager.Stat.Values[i];
             Stat newStat = prototypeStat.Clone();
 
+            Stat raceStat = Race.StatModifiers.Find(stat => stat.Type == newStat.Type);
+            int raceValue = (raceStat != null) ? raceStat.Value : 0;
+
             // Gets a random value within the min and max range of the stat.
             // TODO: Should there be any bias or any other algorithm applied here to make stats more interesting?
-            newStat.Value = UnityEngine.Random.Range(1, 20);
+            newStat.Value = Math.Max(StatRange(raceValue), 1);
             Stats.Add(newStat.Type, newStat);
 
             DebugUtils.LogChannel("Actor", "Stat: " + newStat.ToString());
         }
 
         DebugUtils.LogChannel("Actor", "Initialized " + Stats.Count + " Stats.");
+    }
+
+    private int StatRange(int raceMod)
+    {
+        int val = raceMod;
+
+        for (int i = 0; i < 3; i++)
+        {
+            val += RandomUtils.Range(1, 9); // 8
+        }
+        return val;
     }
 
     private void UseStats()
@@ -173,8 +240,8 @@ public class Actor : IXmlSerializable, IUpdatable
             movementCost = baseMovementCost - (0.3f * baseMovementCost * ((float)Stats["Agility"].Value - 10) / 10); // +/- 30%
             workRate = baseWorkRate + (0.5f * baseWorkRate * ((float)Stats["Dexterity"].Value - 10) / 10); // +/- 50%
 
-            DebugUtils.LogChannel("Actor", string.Format("Actor {0} movementCost: {1}", World.Current.actors.IndexOf(this), movementCost));
-            DebugUtils.LogChannel("Actor", string.Format("Actor {0} workRate: {1}", World.Current.actors.IndexOf(this), workRate));
+            DebugUtils.LogChannel("Actor", string.Format("Actor {0} movementCost: {1}", Id, movementCost));
+            DebugUtils.LogChannel("Actor", string.Format("Actor {0} workRate: {1}", Id, workRate));
         }
         catch (KeyNotFoundException)
         {
@@ -230,9 +297,9 @@ public class Actor : IXmlSerializable, IUpdatable
             // No, we are missing something!
 
             // STEP 2: Are we CARRYING anything that the job location wants?
-            if (inventory != null)
+            if (Inventory != null)
             {
-                if (myJob.DesiresInventoryType(inventory) > 0)
+                if (myJob.DesiresInventoryType(Inventory) > 0)
                 {
                     // If so, deliver the goods.
                     //  Walk to the job tile, then drop off the stack into the job.
@@ -240,20 +307,20 @@ public class Actor : IXmlSerializable, IUpdatable
                     if (CurrTile == myJob.Tile)
                     {
                         // We are at the job's site, so drop the inventory
-                        World.Current.InventoryManager.PlaceInventory(myJob, inventory);
+                        World.Current.InventoryManager.PlaceInventory(myJob, Inventory);
                         myJob.DoWork(0); // This will call all cbJobWorked callbacks, because even though
                                         // we aren't progressing, it might want to do something with the fact
                                         // that the requirements are being met.
 
                         // Are we still carrying things?
-                        if (inventory.StackSize == 0)
+                        if (Inventory.StackSize == 0)
                         {
-                            inventory = null;
+                            Inventory = null;
                         }
                         else
                         {
                             Debug.LogError("Character is still carrying inventory, which shouldn't be. Just setting to null for now, but this means we are LEAKING inventory.");
-                            inventory = null;
+                            Inventory = null;
                         }
                     }
                     else
@@ -268,13 +335,13 @@ public class Actor : IXmlSerializable, IUpdatable
                     // We are carrying something, but the job doesn't want it!
                     // Dump the inventory at our feet
                     // TODO: Actually, walk to the nearest empty tile and dump it there.
-                    if (World.Current.InventoryManager.PlaceInventory(CurrTile, inventory) == false)
+                    if (World.Current.InventoryManager.PlaceInventory(CurrTile, Inventory) == false)
                     {
                         Debug.LogError("Character tried to dump inventory into an invalid tile (maybe there's already something here.");
                         // FIXME: For the sake of continuing on, we are still going to dump any
                         // reference to the current inventory, but this means we are "leaking"
                         // inventory. This is permanently lost now.
-                        inventory = null;
+                        Inventory = null;
                     }
                 }
             }
@@ -336,10 +403,10 @@ public class Actor : IXmlSerializable, IUpdatable
             // call its "Job Complete" callback.
             if (myJob != null)
             {
-                if (actionPoints >= workCost)
+                if (ActionPoints >= workCost)
                 {
                     myJob.DoWork(workRate);
-                    actionPoints -= workCost;
+                    ActionPoints -= workCost;
                 }
                 return true;
             }
@@ -351,13 +418,16 @@ public class Actor : IXmlSerializable, IUpdatable
         return false;
     }
 
+    // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
     public void EveryFrameUpdate(float deltaAuts)
     {
-        /*
+        Acted = false;
+        ActionPoints += deltaAuts;
+        
         // Run all the global states first so that they can interrupt or queue up new states
-        foreach (States.State globalState in globalStates)
+        foreach (State globalState in globalStates)
         {
-            globalState.Update(deltaTime);
+            globalState.Update(deltaAuts);
         }
 
         // We finished the last state
@@ -369,44 +439,47 @@ public class Actor : IXmlSerializable, IUpdatable
             }
             else
             {
-                Job job = World.Current.jobManager.GetJob(this);
+                Job job = null;// = World.Current.jobManager.GetJob(this);
                 if (job != null)
                 {
-                    SetState(new States.JobState(this, job));
+                    //SetState(new JobState(this, job));
                 }
                 else
                 {
                     // TODO: Lack of job states should be more interesting. Maybe go to the pub and have a pint?
-                    SetState(new States.IdleState(this));
+                    SetState(new IdleState(this));
                 }
             }
         }
 
-        state.Update(deltaTime);
+        state.Update(deltaAuts);
 
-        Animation.Update(deltaTime);
+        //Animation.Update(deltaAuts);
 
-        if (OnCharacterChanged != null)
+        if (Acted == false)
+            ActionPoints -= deltaAuts;
+
+        if (OnActorChanged != null)
         {
-            OnCharacterChanged(this);
+            OnActorChanged(this);
         }
-        */
 
         //DebugUtils.LogChannel("Actor", "EveryFrameUpdate called deltaAuts: " + deltaAuts);
-        bool didSomething = false;
-        actionPoints += deltaAuts;
+        /*
+        ActionPoints += deltaAuts;
 
         if (UpdateDoJob(deltaAuts))
-            didSomething = true;
+            Acted = true;
 
         if (UpdateHandleMovement())
-            didSomething = true;
+            Acted = true;
 
-        if (didSomething == false)
-            actionPoints -= deltaAuts;
+        if (Acted == false)
+            ActionPoints -= deltaAuts;
 
         if (cbActorChanged != null)
             cbActorChanged(this);
+        */
     }
 
     public void FixedFrequencyUpdate(float deltaAuts)
@@ -420,19 +493,16 @@ public class Actor : IXmlSerializable, IUpdatable
         return;
         DebugUtils.LogChannel("Actor", "Update called deltaAuts: " + deltaAuts);
         bool didSomething = false;
-        actionPoints += deltaAuts;
+        ActionPoints += deltaAuts;
 
         if (UpdateDoJob(deltaAuts))
             didSomething = true;
 
-        if (UpdateHandleMovement())
-            didSomething = true;
-
         if (didSomething == false)
-            actionPoints -= deltaAuts;
+            ActionPoints -= deltaAuts;
 
-        if (cbActorChanged != null)
-            cbActorChanged(this);
+        if (OnActorChanged != null)
+            OnActorChanged(this);
     }
 
     public void AbandonJob()
@@ -445,159 +515,75 @@ public class Actor : IXmlSerializable, IUpdatable
         myJob = null;
     }
 
-    bool UpdateHandleMovement()
+    #region State
+
+    public void PrioritizeJob(Job job)
     {
-        if (CurrTile == destTile)
+        if (state != null)
         {
-            //pathAStar = null;
-            Path = null;
-            return false;
+            state.Interrupt();
         }
 
-        if (nextTile == null || nextTile == CurrTile)
-        {
-            // Get the next tile from the pathfinder
-            //if (pathAStar == null || pathAStar.Length() == 0)
-            if (Path == null || Path.Count == 0)
-            {
-                // Generate a path to our destination
-                //pathAStar = new Path_AStar(World.Current, CurrTile, destTile); // This will calculate a path from curr to dest.
-                Path = Pathfinder.FindPathToTile(CurrTile, destTile);
-
-                if (Path.Count == 0)
-                {
-                    Debug.LogError("PathAStar returned no path to destination!");
-                    AbandonJob();
-                    return false;
-                }
-                // Let's ignore the first tile, because that's the tile we're currently in.
-                //nextTile = pathAStar.Dequeue();
-                AdvanceNextTile();
-            }
-
-            // Grab the next waypoint from the pathing system!
-            //nextTile = pathAStar.Dequeue();
-            AdvanceNextTile();
-
-            if (nextTile == CurrTile)
-            {
-                //Debug.LogError("UpdateHandleMovement - nextTile is currtile?");
-            }
-        }
-
-        if (nextTile.IsEnterable() == Enterability.Never)
-        {
-            //FIXME: Ideally, when a wall gets spawned, we should invalidate our path immediately,
-            //      so that we don't waste a bunch of time walking towards a dead end.
-            //      To save CPU, maybe we can only check every so often?
-            //      Or maybe we should register a callback to the OnTileChanged event?
-            Debug.LogError("FIXME: A character was trying to enter an unwalkable tile.");
-            nextTile = null;    // our next tile is a no-go
-            //pathAStar = null;   // clearly our pathfinding is out of date.
-            Path = null;
-            return false;
-        }
-        else if (nextTile.IsEnterable() == Enterability.Soon)
-        {
-            // We can't enter NOW, but we should be able to in the
-            // future. This is likely a DOOR.
-            // So we DON'T bail on our movement/path, but we do return
-            // now and don't actually process the movement.
-            return false;
-        }
-
-        // At this point we should have a valid nextTile to move to.
-
-        float moveCost = CalculatedMoveCost();
-
-        Vector2 heading = new Vector2(nextTile.X - CurrTile.X, nextTile.Y - CurrTile.Y);
-        float distance = heading.magnitude;
-        Vector2 direction = heading / distance;
-
-        int dirX;
-        int dirY;
-
-        if (direction.x > 0)
-            dirX = Mathf.CeilToInt(direction.x);
-        else if (direction.x < 0)
-            dirX = Mathf.FloorToInt(direction.x);
-        else
-            dirX = 0;
-
-        if (direction.y > 0)
-            dirY = Mathf.CeilToInt(direction.y);
-        else if (direction.y < 0)
-            dirY = Mathf.FloorToInt(direction.y);
-        else
-            dirY = 0;
-
-
-        if (CurrTile != nextTile)
-        {
-            if (actionPoints >= moveCost)
-            {
-                Debug.Log("Moving heading: " + heading);
-                Debug.Log("Moving distance: " + distance);
-                Debug.Log("Moving Dir: " + dirX + ", " + dirY);
-
-                if (dirX != 0)
-                {
-                    CurrTile = World.Current.GetTileAt(CurrTile.X + dirX, CurrTile.Y, CurrTile.Z);
-                }
-                else if (dirY != 0)
-                {
-                    CurrTile = World.Current.GetTileAt(CurrTile.X, CurrTile.Y + dirY, CurrTile.Z);
-                }
-
-                if (CurrTile == nextTile)
-                {
-                    // TODO: Get the next tile from the pathfinding system.
-                    //       If there are no more tiles, then we have TRULY
-                    //       reached our destination.
-
-                    CurrTile = nextTile;
-                    Debug.Log("Arrived!");
-                }
-                actionPoints -= moveCost;
-            }
-            return true;
-        }
-
-        return false;
+        //SetState(new JobState(this, job));
     }
 
-    private void AdvanceNextTile()
+    /// <summary>
+    /// Stops the current state. Makes the character halt what is going on and start looking for something new to do, might be the same thing.
+    /// </summary>
+    public void InterruptState()
     {
-        nextTile = Path[0];
-        Path.RemoveAt(0);
-    }
-
-    public float CalculatedMoveCost()
-    {
-        float tileCost = nextTile.CalculatedMoveCost();
-        if (tileCost == 0)
-            tileCost = 1f;
-        return MovementCost * tileCost;
-    }
-
-    public void SetDestination(Tile tile)
-    {
-        if (CurrTile.IsNeighbor(tile) == false)
+        if (state != null)
         {
-            Debug.Log("Actor::SetDestination -- Our destination tile isn't actually our neighbor");
+            state.Interrupt();
+
+            // We can't use SetState(null), because it runs Exit on the state and we don't want to run both Interrupt and Exit.
+            state = null;
+        }
+    }
+
+    /// <summary>
+    /// Removes all the queued up states.
+    /// </summary>
+    public void ClearStateQueue()
+    {
+        // If we interrupt, we get rid of the queue as well.
+        while (stateQueue.Count > 0)
+        {
+            State queuedState = stateQueue.Dequeue();
+            queuedState.Interrupt();
+        }
+    }
+
+    public void QueueState(State newState)
+    {
+        stateQueue.Enqueue(newState);
+    }
+
+    public void SetState(State newState)
+    {
+        if (state != null)
+        {
+            state.Exit();
         }
 
-        destTile = tile;
+        state = newState;
+
+        if (state != null)
+        {
+            state.Enter();
+        }
     }
+
+    #endregion
 
     public void RegisterOnChangedCallback(Action<Actor> cb)
     {
-        cbActorChanged += cb;
+        OnActorChanged += cb;
     }
 
     public void UnregisterOnChangedCallback(Action<Actor> cb)
     {
-        cbActorChanged -= cb;
+        OnActorChanged -= cb;
     }
 
     void OnJobStopped(Job j)

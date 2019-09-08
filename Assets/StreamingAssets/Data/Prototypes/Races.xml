@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Races>
+	<Race type="race_Elf">
+		<Name>race_Elf</Name>
+		<MaleSprites>
+			<Sprite>Elf_M_Front</Sprite>
+		</MaleSprites>
+		<FemaleSprites>
+			<Sprite>Elf_F_Front</Sprite>
+		</FemaleSprites>		
+		<ActorMaleNamesFile>ElfMaleActorNames</ActorMaleNamesFile>
+		<ActorFemaleNamesFile>ElfFemaleActorNames</ActorFemaleNamesFile>
+		<StatMods>
+			<Stat type="Dexterity" value="3"/>
+			<Stat type="Agility" value="5"/>
+		</StatMods>
+	</Race>
+	<Race type="race_Orc">
+		<Name>race_Orc</Name>
+		<MaleSprites>
+			<Sprite>Orc_M_Front</Sprite>
+		</MaleSprites>
+		<FemaleSprites>
+			<Sprite>Orc_F_Front</Sprite>
+		</FemaleSprites>		
+		<ActorMaleNamesFile>OrcMaleActorNames</ActorMaleNamesFile>
+		<ActorFemaleNamesFile>OrcFemaleActorNames</ActorFemaleNamesFile>
+		<StatMods>
+			<Stat type="Strength" value="5"/>
+			<Stat type="Constitution" value="3"/>
+		</StatMods>
+	</Race>
+</Races>

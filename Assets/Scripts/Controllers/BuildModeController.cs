@@ -26,15 +26,15 @@ public class BuildModeController : MonoBehaviour
             return true;
         }
 
-        Structure proto = WorldController.Instance.World.GetStructurePrototype(buildModeObjectType);
+        Structure proto = PrototypeManager.Structure.Get(buildModeObjectType);
 
         return proto.Width == 1 && proto.Height == 1;
     }
 
 
-    void OnStructureJobComplete(string objectType, Tile t)
+    void OnStructureJobComplete(string objectType, Tile tile)
     {
-        WorldController.Instance.World.PlaceStructure(objectType, t);
+        World.Current.StructureManager.PlaceStructure(objectType, tile);
     }
 
     public BuildMode GetBuildMode()
@@ -92,7 +92,7 @@ public class BuildModeController : MonoBehaviour
         buildModeObjectType = objStructure;
     }
 
-    public void DoBuild(Tile t)
+    public void DoBuild(Tile tile)
     {
         if (buildMode == BuildMode.Structure)
         {
@@ -105,51 +105,51 @@ public class BuildModeController : MonoBehaviour
             // Run the ValidPlacement function
             string structureType = buildModeObjectType;
 
-            if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t) &&
-                t.PendingStructureJob == null)
+            if (World.Current.StructureManager.IsPlacementValid(structureType, tile) &&
+                tile.PendingStructureJob == null)
             {
                 // This tile position is valid for this object
                 // Create a job for it to be build
-                Job j;
+                Job job;
 
                 if (WorldController.Instance.World.structureJobPrototypes.ContainsKey(structureType))
                 {
                     // Make a clone of the job prototype
-                    j = WorldController.Instance.World.structureJobPrototypes[structureType].Clone();
+                    job = WorldController.Instance.World.structureJobPrototypes[structureType].Clone();
                     // Assign the correct tile.
-                    j.Tile = t;
+                    job.Tile = tile;
+                    job.OnJobCompleted += (theJob) => World.Current.StructureManager.ConstructJobCompleted(theJob);
                 }
                 else
                 {
-                    j = new Job(t, structureType, StructureActions.JobComplete_StructureBuilding,
-                        100, // AUTs needed to complete
-                        null
-                    );
+                    job = new Job(tile, structureType, World.Current.StructureManager.ConstructJobCompleted, 100, null);
+
+                    job.OnJobCompleted += (theJob) => World.Current.StructureManager.ConstructJobCompleted(theJob);
                 }
 
-                j.structurePrototype = WorldController.Instance.World.GetStructurePrototype(structureType);
+                job.structurePrototype = PrototypeManager.Structure.Get(structureType);
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!
-                t.PendingStructureJob = j;
+                tile.PendingStructureJob = job;
 
-                j.RegisterJobStoppedCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
+                job.RegisterJobStoppedCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
 
                 // Add job to queue later
-                WorldController.Instance.World.jobQueue.Enqueue(j);
+                WorldController.Instance.World.jobQueue.Enqueue(job);
             }
         }
         else if (buildMode == BuildMode.Tile)
         {
             // We are in tile-changing mode.
-            t.SetTileType(buildModeTile);
+            tile.SetTileType(buildModeTile);
         }
         else if (buildMode == BuildMode.Deconstruct)
         {
             // TODO
-            if (t.Structure != null)
+            if (tile.Structure != null)
             {
-                t.Structure.Deconstruct();
+                tile.Structure.Deconstruct();
             }
         }
         else

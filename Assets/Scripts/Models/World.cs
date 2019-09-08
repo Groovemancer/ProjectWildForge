@@ -20,17 +20,34 @@ public class World : IXmlSerializable
         return tiles;
     }
 
-    public List<Actor> actors;
-    public List<Structure> structures;
-
+    /// <summary>
+    /// Gets the room manager.
+    /// </summary>
+    /// <value>The room manager.</value>
     public RoomManager RoomManager { get; private set; }
+
+    /// <summary>
+    /// Gets the inventory manager.
+    /// </summary>
+    /// <value>The inventory manager.</value>
     public InventoryManager InventoryManager { get; private set; }
+
+    /// <summary>
+    /// Gets the structure manager.
+    /// </summary>
+    /// <value>The structure manager.</value>
+    public StructureManager StructureManager { get; private set; }
+
+    /// <summary>
+    /// Gets the actor manager.
+    /// </summary>
+    /// <value>The actor manager.</value>
+    public ActorManager ActorManager { get; private set; }
 
     // The pathfinding graph used to navigate our world map.
     public Path_TileGraph tileGraph;
     private Path_RoomGraph roomGraph;
 
-    public Dictionary<string, Structure> structurePrototypes;
     public Dictionary<string, Job> structureJobPrototypes;
 
     public int Width { get; protected set; }
@@ -113,11 +130,14 @@ public class World : IXmlSerializable
         SetupWorld(width, height, depth);
 
         // Make one actor
-        Actor initialActor = CreateActor(GetTileAt(Width / 2, Height / 2, 0));
-        Actor initialActor2 = CreateActor(GetTileAt(Width / 2 + 2, Height / 2, 0));
-        Actor initialActor3 = CreateActor(GetTileAt(Width / 2 + 4, Height / 2, 0));
+        Actor initialActor1 = ActorManager.Create(GetTileAt(Width / 2, Height / 2, 0),
+            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
+        Actor initialActor2 = ActorManager.Create(GetTileAt(Width / 2 + 2, Height / 2, 0),
+            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
+        Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
+            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
 
-        DetermineVisibility(initialActor.CurrTile);
+        DetermineVisibility(initialActor1.CurrTile);
     }
 
     /// <summary>
@@ -148,15 +168,15 @@ public class World : IXmlSerializable
 
         FillTilesArray();
 
-        RegisterStructureCreated(OnStructureCreated);
+        StructureManager = new StructureManager();
+        StructureManager.Created += OnStructureCreated;
+        structureJobPrototypes = new Dictionary<string, Job>();
 
         //Debug.Log("World created with " + (Width * Height) + " tiles.");
 
-        CreateStructurePrototypes();
-
-        actors = new List<Actor>();
-        structures = new List<Structure>();
         InventoryManager = new InventoryManager();
+
+        ActorManager = new ActorManager();
     }
 
     private void FillTilesArray()
@@ -229,20 +249,6 @@ public class World : IXmlSerializable
         }
     }
 
-    public Actor CreateActor(Tile tile)
-    {
-        Actor actor = new Actor(tile);
-
-        actors.Add(actor);
-
-        TimeManager.Instance.RegisterFastUpdate(actor);
-
-        if (cbActorCreated != null)
-            cbActorCreated(actor);
-
-        return actor;
-    }
-
     void LoadStructureLua()
     {
         //string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
@@ -250,63 +256,6 @@ public class World : IXmlSerializable
 
         // Instantiate the singleton
         //new StructureActions(filePath);
-    }
-
-    private void CreateStructurePrototypes()
-    {
-        LoadStructureLua();
-
-        structurePrototypes = new Dictionary<string, Structure>();
-        structureJobPrototypes = new Dictionary<string, Job>();
-
-        // READ STRUCTURE PROTOTYPE XML FILE HERE
-
-        try
-        {
-            XmlDocument doc = new XmlDocument();
-
-            string filePath = Path.Combine(Application.streamingAssetsPath, "Data");
-            filePath = Path.Combine(filePath, "Structures.xml");
-            doc.Load(filePath);
-
-            XmlNodeList structNodes = doc.SelectNodes("Structures/Structure");
-
-            foreach (XmlNode structNode in structNodes)
-            {
-                Structure structurePrototype = new Structure();
-
-                structurePrototype.CreateStructurePrototype(structNode);
-
-                structurePrototypes.Add(structurePrototype.ObjectType, structurePrototype);
-
-                // Building Job
-                XmlNode buildJobNode = structNode.SelectSingleNode("BuildingJob");
-                if (buildJobNode != null)
-                {
-                    float jobCost = float.Parse(buildJobNode.Attributes["jobCost"].InnerText);
-                    XmlNodeList invNodes = buildJobNode.SelectNodes("Inventory");
-                    List<Inventory> invReqs = new List<Inventory>();
-                    foreach (XmlNode invNode in invNodes)
-                    {
-                        string invType = invNode.Attributes["objectType"].InnerText;
-                        int invAmount = int.Parse(invNode.Attributes["amount"].InnerText);
-                        invReqs.Add(new Inventory(invType, 0, invAmount));
-                    }
-
-                    World.Current.structureJobPrototypes.Add(structurePrototype.ObjectType,
-                        new Job(null, structurePrototype.ObjectType, StructureActions.JobComplete_StructureBuilding,
-                            jobCost, invReqs.ToArray()));
-                }
-                // Deconstruct Job
-                // TODO
-
-            }
-        }
-        catch (Exception e)
-        {
-            DebugUtils.DisplayError(e.ToString(), false);
-            DebugUtils.LogException(e);
-        }
     }
 
     public void SetupPathfindingExample()
@@ -326,7 +275,7 @@ public class World : IXmlSerializable
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        PlaceStructure("struct_StoneWall", tiles[x, y, 0], false);
+                        StructureManager.PlaceStructure("struct_StoneWall", tiles[x, y, 0], false);
                     }
                 }
             }
@@ -394,55 +343,6 @@ public class World : IXmlSerializable
 
         return tiles[x, y, z];
     }
-
-    public Structure PlaceStructure(string structureType, Tile t, bool doRoomFloodFill = true)
-    {
-        //TODO: This function assumes 1x1 tiles -- change this later!
-
-        if (structurePrototypes.ContainsKey(structureType) == false)
-        {
-            Debug.LogError("structurePrototypes doesn't contain a proto for key: " + structureType);
-            return null;
-        }
-
-        Structure structure = Structure.PlaceInstance(structurePrototypes[structureType], t);
-
-        if (structure == null)
-        {
-            // Failed to place object -- most likely there was already something there.
-            return null;
-        }
-
-        structure.RegisterOnRemovedCallback(OnStructureRemoved);
-        structures.Add(structure);
-
-        if (structure.RequiresFastUpdate)
-        {
-            TimeManager.Instance.RegisterFastUpdate(structure);
-        }
-
-        if (structure.RequiresSlowUpdate)
-        {
-            TimeManager.Instance.RegisterSlowUpdate(structure);
-        }
-
-        // Do we need to recalculate our rooms?
-        if (doRoomFloodFill && structure.RoomEnclosure)
-        {
-            RoomManager.DoRoomFloodFill(structure.Tile, true);
-        }
-
-        if (cbStructureCreated != null)
-        {
-            cbStructureCreated(structure);
-        }
-
-        //InvalidateTileGraph(); // Reset the pathfinding system
-
-        return structure;
-    }
-
-
 
     // This should be called whenever a change to the world
     // means that our old pathfinding info is invalid
@@ -541,35 +441,6 @@ public class World : IXmlSerializable
         }
     }
 
-    public bool IsStructurePlacementValid(string structureType, Tile t)
-    {
-        return structurePrototypes[structureType].IsValidPosition(t);
-    }
-
-    public Structure GetStructurePrototype(string objType)
-    {
-        if (structurePrototypes.ContainsKey(objType) == false)
-        {
-            Debug.LogError("No structure with type: " + objType);
-            return null;
-        }
-
-        return structurePrototypes[objType];
-    }
-
-    public void OnInventoryCreated(Inventory inv)
-    {
-        if (cbInventoryCreated != null)
-            cbInventoryCreated(inv);
-    }
-
-    public void OnStructureRemoved(Structure strct)
-    {
-        structures.Remove(strct);
-        TimeManager.Instance.UnregisterFastUpdate(strct);
-        TimeManager.Instance.UnregisterSlowUpdate(strct);
-    }
-
     #region Saving & Loading
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,7 +494,7 @@ public class World : IXmlSerializable
         writer.WriteEndElement();
 
         writer.WriteStartElement("Structures");
-        foreach (Structure structure in structures)
+        foreach (Structure structure in StructureManager)
         {
             writer.WriteStartElement("Structure");
             structure.WriteXml(writer);
@@ -632,7 +503,7 @@ public class World : IXmlSerializable
         writer.WriteEndElement();
 
         writer.WriteStartElement("Actors");
-        foreach (Actor actor in actors)
+        foreach (Actor actor in ActorManager)
         {
             writer.WriteStartElement("Actor");
             actor.WriteXml(writer);
@@ -729,7 +600,7 @@ public class World : IXmlSerializable
                 int y = int.Parse(reader.GetAttribute("Y"));
                 int z = int.Parse(reader.GetAttribute("Z"));
 
-                Structure structure = PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y, z], false);
+                Structure structure = StructureManager.PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y, z], false);
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
 
@@ -767,7 +638,7 @@ public class World : IXmlSerializable
                 int y = int.Parse(reader.GetAttribute("Y"));
                 int z = int.Parse(reader.GetAttribute("Z"));
 
-                Actor actor = CreateActor(tiles[x, y, z]);
+                Actor actor = ActorManager.Create(tiles[x, y, z], "race_Elf");
                 actor.ReadXml(reader);
             } while (reader.ReadToNextSibling("Actor"));
         }

@@ -51,12 +51,6 @@ public class StructureActions
 
     //static RemoteDebugService remoteDebugger;
 
-    public static void JobComplete_StructureBuilding(Job theJob)
-    {
-        WorldController.Instance.World.PlaceStructure(theJob.jobObjectType, theJob.Tile);
-        theJob.Tile.PendingStructureJob = null;
-    }
-
     public static void CallFuncitonsWithStructure(string[] functionNames, Structure structure, float deltaAuts)
     {
         foreach (string fn in functionNames)

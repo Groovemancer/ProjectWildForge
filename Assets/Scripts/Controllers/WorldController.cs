@@ -16,6 +16,8 @@ public class WorldController : MonoBehaviour
 
     public static TileSpriteController TileSpriteController { get; protected set; }
 
+    public ActorSpriteController ActorSpriteController { get; private set; }
+
     public static StructureSpriteController StructureSpriteController { get; protected set; }
 
     public static InventorySpriteController InventorySpriteController { get; protected set; }
@@ -41,6 +43,7 @@ public class WorldController : MonoBehaviour
 
         FunctionsManager.Initialize();
         PrototypeManager.Initialize();
+        ActorNameManager.Initialize();
         SpriteManager.Initialize();
         //LoadDirectoryAssets("Sprites", SpriteManager.LoadSpriteFiles);
 
@@ -65,6 +68,7 @@ public class WorldController : MonoBehaviour
     public void Start()
     {
         TileSpriteController = new TileSpriteController(World);
+        ActorSpriteController = new ActorSpriteController(World);
         StructureSpriteController = new StructureSpriteController(World);
         InventorySpriteController = new InventorySpriteController(World, inventoryUI);
     }

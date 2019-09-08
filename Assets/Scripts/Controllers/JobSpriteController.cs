@@ -62,7 +62,7 @@ public class JobSpriteController : MonoBehaviour
             Tile southTile = World.Current.GetTileAt(job.Tile.X, job.Tile.Y - 1, job.Tile.Z);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
-                northTile.Structure.ObjectType == "Wall" && southTile.Structure.ObjectType == "Wall")
+                northTile.Structure.Type == "Wall" && southTile.Structure.Type == "Wall")
             {
                 job_go.transform.rotation = Quaternion.Euler(0, 0, 90);
                 //job_go.transform.Translate(1f, 0, 0, Space.World);    // UGLY HACK TO COMPENSATE FOR BOTOM_LEFT ANCHOR POINT!

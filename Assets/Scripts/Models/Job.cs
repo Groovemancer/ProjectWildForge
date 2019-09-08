@@ -38,7 +38,8 @@ public class Job
 
     public bool canTakeFromStockpile = true;
 
-    Action<Job> cbJobCompleted; // We have finished the work cycle and so things should probably get built or whatever.
+    // We have finished the work cycle and so things should probably get built or whatever.
+    public event Action<Job> OnJobCompleted;
     Action<Job> cbJobStopped;   // The job has been stopped, either because it's non-repeateing or was cancelled.
     Action<Job> cbJobWorked;    // Gets called each time some work is performed -- maybe update the UI?
 
@@ -51,7 +52,7 @@ public class Job
     {
         this.Tile = tile;
         this.jobObjectType = jobObjectType;
-        this.cbJobCompleted += cbJobComplete;
+        this.OnJobCompleted += cbJobComplete;
         this.jobCostRequired = this.jobCost = jobCost;
         this.jobRepeats = jobRepeats;
 
@@ -73,7 +74,7 @@ public class Job
     {
         this.Tile = other.Tile;
         this.jobObjectType = other.jobObjectType;
-        this.cbJobCompleted += other.cbJobCompleted;
+        this.OnJobCompleted += other.OnJobCompleted;
         this.jobCost = other.jobCost;
 
         this.cbJobWorkedLua = new List<string>(other.cbJobWorkedLua);
@@ -128,9 +129,9 @@ public class Job
         if (jobCost <= 0)
         {
             // Do whatever is supposed to happen when a job cycle completes.
-            if (cbJobCompleted != null)
+            if (OnJobCompleted != null)
             {
-                cbJobCompleted(this);
+                OnJobCompleted(this);
             }
 
             foreach (string luaFunction in cbJobCompletedLua.ToList())
@@ -163,7 +164,7 @@ public class Job
 
     public void RegisterJobCompletedCallback(Action<Job> cb)
     {
-        cbJobCompleted += cb;
+        OnJobCompleted += cb;
     }
 
     public void RegisterJobStoppedCallback(Action<Job> cb)
@@ -178,7 +179,7 @@ public class Job
 
     public void UnregisterJobCompletedCallback(Action<Job> cb)
     {
-        cbJobCompleted -= cb;
+        OnJobCompleted -= cb;
     }
 
     public void UnregisterJobStoppedCallback(Action<Job> cb)

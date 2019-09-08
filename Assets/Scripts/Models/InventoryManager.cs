@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MoonSharp.Interpreter;
+using System.Linq;
+using ProjectWildForge.Pathfinding;
 
 [MoonSharpUserData]
 public class InventoryManager
@@ -58,7 +60,7 @@ public class InventoryManager
             }
             if (inv.actor != null)
             {
-                inv.actor.inventory = null;
+                inv.actor.Inventory = null;
                 inv.actor = null;
             }
         }
@@ -146,24 +148,24 @@ public class InventoryManager
             amount = Mathf.Min(amount, sourceInventory.StackSize);
         }
 
-        if (actor.inventory == null)
+        if (actor.Inventory == null)
         {
-            actor.inventory = sourceInventory.Clone();
-            actor.inventory.StackSize = 0;
-            Inventories[actor.inventory.Type].Add(actor.inventory);
+            actor.Inventory = sourceInventory.Clone();
+            actor.Inventory.StackSize = 0;
+            Inventories[actor.Inventory.Type].Add(actor.Inventory);
         }
-        else if (actor.inventory.Type != sourceInventory.Type)
+        else if (actor.Inventory.Type != sourceInventory.Type)
         {
             Debug.LogError("Character is trying to pick up a mismatched inventory object type.");
             return false;
         }
 
-        actor.inventory.StackSize += amount;
+        actor.Inventory.StackSize += amount;
 
-        if (actor.inventory.MaxStackSize < actor.inventory.StackSize)
+        if (actor.Inventory.MaxStackSize < actor.Inventory.StackSize)
         {
-            sourceInventory.StackSize = actor.inventory.StackSize - actor.inventory.MaxStackSize;
-            actor.inventory.StackSize = actor.inventory.MaxStackSize;
+            sourceInventory.StackSize = actor.Inventory.StackSize - actor.Inventory.MaxStackSize;
+            actor.Inventory.StackSize = actor.Inventory.MaxStackSize;
         }
         else
         {
@@ -206,5 +208,57 @@ public class InventoryManager
         }
 
         return null;
+    }
+
+    public List<Tile> GetPathToClosestInventoryOfType(string[] types, Tile tile, bool canTakeFromStockpile)
+    {
+        if (HasInventoryOfType(types, canTakeFromStockpile) == false)
+        {
+            return null;
+        }
+
+        // We know the objects are out there, now find the closest.
+        return Pathfinder.FindPathToInventory(tile, types, canTakeFromStockpile);
+    }
+
+    public Inventory GetClosestInventoryOfType(string type, Tile tile, bool canTakeFromStockpile)
+    {
+        List<Tile> path = GetPathToClosestInventoryOfType(type, tile, canTakeFromStockpile);
+        return path != null ? path.Last().Inventory : null;
+    }
+
+    public List<Tile> GetPathToClosestInventoryOfType(string type, Tile tile, bool canTakeFromStockpile)
+    {
+        if (HasInventoryOfType(type, canTakeFromStockpile) == false)
+        {
+            return null;
+        }
+
+        // We know the objects are out there, now find the closest.
+        return Pathfinder.FindPathToInventory(tile, type, canTakeFromStockpile);
+    }
+
+    public bool HasInventoryOfType(string type, bool canTakeFromStockpile)
+    {
+        List<Inventory> inventories;
+        if (Inventories.TryGetValue(type, out inventories) == false || inventories.Count == 0)
+        {
+            return false;
+        }
+
+        return inventories.Find(inventory => inventory.CanBePickedUp(canTakeFromStockpile)) != null;
+    }
+
+    public bool HasInventoryOfType(string[] types, bool canTakeFromStockpile)
+    {
+        foreach (string type in types)
+        {
+            if (HasInventoryOfType(type, canTakeFromStockpile))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

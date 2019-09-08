@@ -395,7 +395,7 @@ namespace ProjectWildForge.Pathfinding
         /// </summary>
         public static GoalEvaluator GoalFurnitureEvaluator(string type)
         {
-            return current => current.Structure != null && current.Structure.ObjectType == type;
+            return current => current.Structure != null && current.Structure.Type == type;
         }
 
         public static GoalEvaluator GoalHasRoomEvaluator()

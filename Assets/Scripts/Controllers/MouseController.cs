@@ -186,10 +186,10 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    void OnStructureJobComplete(string objectType, Tile t)
-    {
-        WorldController.Instance.World.PlaceStructure(objectType, t);
-    }
+    //void OnStructureJobComplete(string objectType, Tile t)
+    //{
+    //    WorldController.Instance.World.PlaceStructure(objectType, t);
+    //}
 
     void UpdateCameraMovement()
     {
@@ -217,7 +217,7 @@ public class MouseController : MonoBehaviour
         spr.sortingLayerName = "Jobs";
         spr.sprite = WorldController.StructureSpriteController.GetSpriteForStructure(structureType);
 
-        if (WorldController.Instance.World.IsStructurePlacementValid(structureType, t))
+        if (World.Current.StructureManager.IsPlacementValid(structureType, t))
         {
             spr.color = new Color(0.5f, 1f, 0.5f, 0.5f);
         }
@@ -226,7 +226,7 @@ public class MouseController : MonoBehaviour
             spr.color = new Color(1f, 0.5f, 0.5f, 0.5f);
         }
 
-        Structure proto = World.Current.GetStructurePrototype(structureType);
+        Structure proto = PrototypeManager.Structure.Get(structureType);
 
         go.transform.position = new Vector3(t.X + ((proto.Width - 1) / 2f), t.Y + ((proto.Height - 1) / 2f), 0);
     }

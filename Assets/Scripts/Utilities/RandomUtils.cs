@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public class RandomUtils
 {
@@ -15,6 +16,11 @@ public class RandomUtils
     public static ulong Calls
     {
         get { return calls; }
+    }
+
+    public static float value
+    {
+        get { return Range(0.0f, 1.0f); }
     }
 
     public static Random Instance
@@ -64,5 +70,26 @@ public class RandomUtils
         float result = (oldValue * range) + min;
 
         return result;
+    }
+
+    public static bool Boolean()
+    {
+        return Convert.ToBoolean(Instance.Next(0, 2));
+    }
+
+    /// <summary>
+    /// Returns a random value from a list
+    /// </summary>
+    /// <param name="list"></param>
+    /// <param name="nullValue">if list is empty or null, return this value</param>
+    /// <returns></returns>
+    public static T ObjectFromList<T>(List<T> list, T nullValue)
+    {
+        calls++;
+
+        if (list == null || list.Count == 0)
+            return nullValue;
+
+        return list[Range(0, list.Count)];
     }
 }

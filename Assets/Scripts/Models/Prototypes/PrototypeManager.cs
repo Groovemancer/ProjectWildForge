@@ -21,6 +21,24 @@ public static class PrototypeManager
     public static PrototypeMap<Stat> Stat { get; private set; }
 
     /// <summary>
+    /// Gets the race prototype map.
+    /// </summary>
+    /// <value>The race prototype map.</value>
+    public static PrototypeMap<Race> Race { get; private set; }
+
+    /// <summary>
+    /// Gets the structure prototype map.
+    /// </summary>
+    /// <value>The furniture prototype map.</value>
+    public static PrototypeMap<Structure> Structure { get; private set; }
+
+    /// <summary>
+    /// Gets the need prototype map.
+    /// </summary>
+    /// <value>The need prototype map.</value>
+    public static PrototypeMap<Need> Need { get; private set; }
+
+    /// <summary>
     /// Initializes the <see cref="PrototypeManager"/> static class files.
     /// </summary>
     public static void Initialize()
@@ -32,6 +50,9 @@ public static class PrototypeManager
 
         Inventory = new PrototypeMap<Inventory>();
         Stat = new PrototypeMap<Stat>();
+        Race = new PrototypeMap<Race>();
+        Structure = new PrototypeMap<Structure>();
+        Need = new PrototypeMap<Need>();
 
         isInitialized = true;
     }

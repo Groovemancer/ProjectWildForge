@@ -35,10 +35,10 @@ public class StructureSpriteController : BaseSpriteController<Structure>
 
         // Register our callback so that our GameObject gets updated whenever
         // the tile's type changes.
-        world.RegisterStructureCreated(OnCreated);
+        world.StructureManager.Created += OnCreated;
 
         // Go through any EXISTING structure (i.e. from a save that was loaded OnEnable) and call the OnCreated event manually.
-        foreach (Structure structure in world.structures)// world.StructureManager)
+        foreach (Structure structure in world.StructureManager)
         {
             OnCreated(structure);
         }
@@ -46,13 +46,12 @@ public class StructureSpriteController : BaseSpriteController<Structure>
 
     public override void RemoveAll()
     {
-        //world.StructureManager.Created -= OnCreated;
-        world.UnregisterStructureCreated(OnCreated);
+        world.StructureManager.Created -= OnCreated;
 
-        foreach (Structure structure in world.structures)//.StructureManager)
+        foreach (Structure structure in world.StructureManager)
         {
-            structure.UnregisterOnChangedCallback(OnChanged);//.Changed -= OnChanged;
-            structure.UnregisterOnRemovedCallback(OnRemoved);//.Removed -= OnRemoved;
+            structure.Changed -= OnChanged;
+            structure.Removed -= OnRemoved;
             //structure.IsOperatingChanged -= OnIsOperatingChanged;
         }
         /*
@@ -68,7 +67,7 @@ public class StructureSpriteController : BaseSpriteController<Structure>
 
     public Sprite GetSpriteForStructure(string type)
     {
-        Structure proto = world.GetStructurePrototype(type);// PrototypeManager.Structure.Get(type);
+        Structure proto = PrototypeManager.Structure.Get(type);
         Sprite s = SpriteManager.GetSprite("Structure", proto.GetDefaultSpriteName());
 
         return s;
@@ -146,7 +145,7 @@ public class StructureSpriteController : BaseSpriteController<Structure>
 
         sr.sortingLayerName = "Structures";
 
-        structure_go.name = structure.ObjectType + "_" + structure.Tile.X + "_" + structure.Tile.Y;
+        structure_go.name = structure.Type + "_" + structure.Tile.X + "_" + structure.Tile.Y;
         //structure_go.transform.position = structure.Tile.Vector3;// + ImageUtils.SpritePivotOffset(sr.sprite, structure.Rotation);
         structure_go.transform.position = new Vector3(structure.Tile.X + ((structure.Width - 1) / 2f), structure.Tile.Y + ((structure.Height - 1) / 2f), 0);
         //structure_go.transform.Rotate(0, 0, structure.Rotation);
@@ -200,8 +199,9 @@ public class StructureSpriteController : BaseSpriteController<Structure>
         
         // Register our callback so that our GameObject gets updated whenever
         // the object's into changes.
-        structure.RegisterOnChangedCallback(OnChanged);
-        structure.RegisterOnRemovedCallback(OnRemoved);
+        structure.Changed += OnChanged;
+        structure.Removed += OnRemoved;
+
         //structure.IsOperatingChanged += OnIsOperatingChanged;
     }
 

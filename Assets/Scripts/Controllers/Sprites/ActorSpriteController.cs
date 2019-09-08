@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 public class ActorSpriteController : MonoBehaviour
 {
 
@@ -82,5 +83,78 @@ public class ActorSpriteController : MonoBehaviour
         //actor_go.GetComponent<SpriteRenderer>().sprite = GetSpriteForStructure(obj);
 
         actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
+    }
+}
+*/
+
+public class ActorSpriteController : BaseSpriteController<Actor>
+{
+    // Use this for initialization
+    public ActorSpriteController(World world) : base(world, "Actor", 100)
+    {
+        // Register our callback so that our GameObject gets updated whenever
+        // the tile's type changes.
+        world.ActorManager.Created += OnCreated;
+
+        // Check for pre-existing actors, which won't do the callback.
+        foreach (Actor actor in world.ActorManager)
+        {
+            OnCreated(actor);
+        }
+    }
+
+    public override void RemoveAll()
+    {
+        world.ActorManager.Created -= OnCreated;
+
+        foreach (Actor actor in world.ActorManager)
+        {
+            actor.OnActorChanged -= OnChanged;
+        }
+
+        base.RemoveAll();
+    }
+
+    protected override void OnCreated(Actor actor)
+    {
+        // This creates a new GameObject and adds it to our scene.
+        GameObject actor_go = new GameObject();
+
+        // Add our tile/GO pair to the dictionary.
+        objectGameObjectMap.Add(actor, actor_go);
+
+        actor_go.name = "Actor";
+        actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
+        actor_go.transform.SetParent(objectParent.transform, true);
+
+        SpriteRenderer sr = actor_go.AddComponent<SpriteRenderer>();
+        sr.sortingLayerName = "Actors";
+        sr.sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+        sr.sprite = SpriteManager.GetSprite("Actor", actor.SpriteName);
+
+        // Register our callback so that our GameObject gets updated whenever
+        // the object's info changes.
+        actor.OnActorChanged += OnChanged;
+    }
+
+    protected override void OnChanged(Actor actor)
+    {
+        GameObject actor_go;
+        if (objectGameObjectMap.TryGetValue(actor, out actor_go) == false)
+        {
+            DebugUtils.LogErrorChannel("ActorSpriteController", "OnActorChanged -- trying to change visuals for actor not in our map.");
+            return;
+        }
+
+        actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
+        actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+    }
+
+    protected override void OnRemoved(Actor actor)
+    {
+        actor.OnActorChanged -= OnChanged;
+        GameObject actor_go = objectGameObjectMap[actor];
+        objectGameObjectMap.Remove(actor);
+        GameObject.Destroy(actor_go);
     }
 }

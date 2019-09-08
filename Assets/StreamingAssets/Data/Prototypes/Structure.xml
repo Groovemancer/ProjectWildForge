@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <Structures>
-	<Structure objectType="struct_StoneWall">
+	<Structure Type="struct_StoneWall">
 		<Name>struct_StoneWall</Name>
 		<DefaultSpriteName>struct_StoneWall_</DefaultSpriteName>
 		<SpriteName>struct_StoneWall_</SpriteName>
@@ -17,14 +17,14 @@
 		</Tags>
 		
 		<BuildingJob jobCost="300">
-			<Inventory objectType="inv_RawStone" amount="5"/>
+			<Inventory Type="inv_RawStone" amount="5"/>
 		</BuildingJob>
 		
 		<DeconstructJob jobCost="100">
-			<Inventory objectType="inv_RawStone" amount="3"/>
+			<Inventory Type="inv_RawStone" amount="3"/>
 		</DeconstructJob>
 	</Structure>
-	<Structure objectType="struct_WoodDoor">
+	<Structure Type="struct_WoodDoor">
 		<Name>struct_WoodDoor</Name>
 		<DefaultSpriteName>struct_WoodDoor_Horizontal_0</DefaultSpriteName>
 		<SpriteName>struct_WoodDoor_Horizontal_0</SpriteName>
@@ -39,12 +39,12 @@
 		</Tags>
 		
 		<BuildingJob jobCost="300">
-			<!--<Inventory objectType="inv_Wood" amount="2"/>-->
-			<Inventory objectType="inv_RawStone" amount="2"/>
+			<!--<Inventory Type="inv_Wood" amount="2"/>-->
+			<Inventory Type="inv_RawStone" amount="2"/>
 		</BuildingJob>
 		
 		<DeconstructJob jobCost="100">
-			<Inventory objectType="inv_Wood" amount="1"/>
+			<Inventory Type="inv_Wood" amount="1"/>
 		</DeconstructJob>
 		
 		<OnUpdate FunctionName="OnUpdate_Door" />
@@ -95,7 +95,7 @@
 		</Animations>
 		
 	</Structure>
-	<Structure objectType="struct_Stockpile">
+	<Structure Type="struct_Stockpile">
 		<Name>struct_Stockpile</Name>
 		<DefaultSpriteName>struct_Stockpile_</DefaultSpriteName>
 		<SpriteName>struct_Stockpile_</SpriteName>
@@ -113,7 +113,7 @@
 		<OnUpdate FunctionName="OnUpdate_Stockpile" />
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_Stockpile" />
 	</Structure>
-	<Structure objectType="struct_WorkStation">
+	<Structure Type="struct_WorkStation">
 		<Name>struct_WorkStation</Name>
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
@@ -126,14 +126,14 @@
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_WorkStation" />
 		
 		<!--<BuildingJob jobCost="600">
-			<Inventory objectType="inv_Wood" amount="25"/>
+			<Inventory Type="inv_Wood" amount="25"/>
 		</BuildingJob>-->
 		
 		<DeconstructJob jobCost="300">
-			<Inventory objectType="inv_RawStone" amount="15"/>
+			<Inventory Type="inv_RawStone" amount="15"/>
 		</DeconstructJob>
 	</Structure>
-	<Structure objectType="struct_O2Generator">
+	<Structure Type="struct_O2Generator">
 		<Name>struct_O2Generator</Name>
 		<MoveCost>10</MoveCost>
 		<Width>2</Width>
@@ -151,14 +151,14 @@
 		</Params>
 		
 		<!--<BuildingJob jobCost="600">
-			<Inventory objectType="inv_Wood" amount="25"/>
+			<Inventory Type="inv_Wood" amount="25"/>
 		</BuildingJob>
 		
 		<DeconstructJob jobCost="300">
-			<Inventory objectType="inv_RawStone" amount="15"/>
+			<Inventory Type="inv_RawStone" amount="15"/>
 		</DeconstructJob>-->
 	</Structure>
-	<Structure objectType="struct_StoneCuttingTable">
+	<Structure Type="struct_StoneCuttingTable">
 		<Name>struct_StoneCuttingTable</Name>
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
@@ -172,11 +172,11 @@
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_StoneCuttingTable" />
 		
 		<BuildingJob jobCost="1200">
-			<Inventory objectType="inv_RawStone" amount="25"/>
+			<Inventory Type="inv_RawStone" amount="25"/>
 		</BuildingJob>
 		
 		<DeconstructJob jobCost="300">
-			<Inventory objectType="inv_RawStone" amount="15"/>
+			<Inventory Type="inv_RawStone" amount="15"/>
 		</DeconstructJob>
 	</Structure>
 </Structures>

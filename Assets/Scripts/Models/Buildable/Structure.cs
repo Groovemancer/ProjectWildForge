@@ -17,7 +17,7 @@ using Animation;
 // Structures are things like walls, doors, and furniture (e.g. table)
 
 [MoonSharpUserData]
-public class Structure : IXmlSerializable, IUpdatable
+public class Structure : IXmlSerializable, IUpdatable, IPrototypable
 {
     /// <summary>
     /// Custom parameters for this particular structure. We
@@ -89,7 +89,7 @@ public class Structure : IXmlSerializable, IUpdatable
         }
 
         // Else return default Type string
-        return ObjectType;
+        return Type;
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class Structure : IXmlSerializable, IUpdatable
 
         // Else return default Type string
         explicitSpriteUsed = false;
-        return ObjectType;
+        return Type;
     }
 
     #region Update and Animation
@@ -186,7 +186,7 @@ public class Structure : IXmlSerializable, IUpdatable
     public Tile Tile { get; protected set; }
 
     // This "objectType" will be queried by the visual system to know what sprite to render for this object
-    public string ObjectType { get; protected set; }
+    public string Type { get; protected set; }
 
     private string _Name = null;
     public string Name
@@ -195,7 +195,7 @@ public class Structure : IXmlSerializable, IUpdatable
         {
             if (_Name == null || _Name.Length == 0)
             {
-                return ObjectType;
+                return Type;
             }
             return _Name;
         }
@@ -268,8 +268,16 @@ public class Structure : IXmlSerializable, IUpdatable
         }
     }
 
-    public Action<Structure> cbOnChanged;
-    public Action<Structure> cbOnRemoved;
+    /// <summary>
+    /// This event will trigger when the structure has been changed.
+    /// This is means that any change (parameters, job state etc) to the furniture will trigger this.
+    /// </summary>
+    public event Action<Structure> Changed;
+
+    /// <summary>
+    /// This event will trigger when the structure has been removed.
+    /// </summary>
+    public event Action<Structure> Removed;
 
     Func<Tile, bool> funcPositionValidation;
 
@@ -297,7 +305,7 @@ public class Structure : IXmlSerializable, IUpdatable
     // do ANY sub-classing. Instead use Clone(), which is more virtual.
     protected Structure(Structure other)
     {
-        this.ObjectType = other.ObjectType;
+        this.Type = other.Type;
         this.Name = other.Name;
         this.MovementCost = other.MovementCost;
         this.RoomEnclosure = other.RoomEnclosure;
@@ -352,7 +360,7 @@ public class Structure : IXmlSerializable, IUpdatable
         int width = 1, int height = 1, string linksToNeighbors = "", uint allowedTileTypes = 1,
         bool roomEnclosure = false)
     {
-        this.ObjectType = objectType;
+        this.Type = objectType;
         this.Name = name;
         this.MovementCost = movementCost;
         this.RoomEnclosure = roomEnclosure;
@@ -405,9 +413,9 @@ public class Structure : IXmlSerializable, IUpdatable
                 for (int ypos = y - 1; ypos < y + proto.Height + 1; ypos++)
                 {
                     Tile tileAt = World.Current.GetTileAt(xpos, ypos, tile.Z);
-                    if (tileAt != null && tileAt.Structure != null && tileAt.Structure.cbOnChanged != null)
+                    if (tileAt != null && tileAt.Structure != null && tileAt.Structure.Changed != null)
                     {
-                        tileAt.Structure.cbOnChanged(tileAt.Structure);
+                        tileAt.Structure.Changed(tileAt.Structure);
                     }
                 }
             }
@@ -483,22 +491,22 @@ public class Structure : IXmlSerializable, IUpdatable
 
     public void RegisterOnChangedCallback(Action<Structure> callbackFunc)
     {
-        cbOnChanged += callbackFunc;
+        Changed += callbackFunc;
     }
 
     public void UnregisterOnChangedCallback(Action<Structure> callbackFunc)
     {
-        cbOnChanged -= callbackFunc;
+        Changed -= callbackFunc;
     }
 
     public void RegisterOnRemovedCallback(Action<Structure> callbackFunc)
     {
-        cbOnRemoved += callbackFunc;
+        Removed += callbackFunc;
     }
 
     public void UnregisterOnRemovedCallback(Action<Structure> callbackFunc)
     {
-        cbOnRemoved -= callbackFunc;
+        Removed -= callbackFunc;
     }
 
 
@@ -619,8 +627,8 @@ public class Structure : IXmlSerializable, IUpdatable
 
         Tile.UnplaceStructure();
 
-        if (cbOnRemoved != null)
-            cbOnRemoved(this);
+        if (Removed != null)
+            Removed(this);
 
         // Do we need to recalculate our rooms?
         if (RoomEnclosure)
@@ -640,9 +648,9 @@ public class Structure : IXmlSerializable, IUpdatable
                 for (int ypos = y - 1; ypos < y + fheight + 1; ypos++)
                 {
                     Tile t = World.Current.GetTileAt(xpos, ypos, Tile.Z);
-                    if (t != null && t.Structure != null && t.Structure.cbOnChanged != null)
+                    if (t != null && t.Structure != null && t.Structure.Changed != null)
                     {
-                        t.Structure.cbOnChanged(t.Structure);
+                        t.Structure.Changed(t.Structure);
                     }
                 }
             }
@@ -680,7 +688,7 @@ public class Structure : IXmlSerializable, IUpdatable
         writer.WriteAttributeString("X", Tile.X.ToString());
         writer.WriteAttributeString("Y", Tile.Y.ToString());
         writer.WriteAttributeString("Z", Tile.Z.ToString());
-        writer.WriteAttributeString("objectType", ObjectType);
+        writer.WriteAttributeString("objectType", Type);
 
         foreach (string k in structureParameters.Keys)
         {
@@ -718,37 +726,26 @@ public class Structure : IXmlSerializable, IUpdatable
 
     #region Prototype Creation
 
-    void LoadStructureLua()
+    public void ReadXmlPrototype(XmlNode rootNode)
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "Scripts");
-        filePath = Path.Combine(filePath, "StructureActions.lua");
-
-        string luaCode = File.ReadAllText(filePath);
-
-        // Instantiate the singleton
-        new StructureActions(luaCode);
-    }
-
-    public void CreateStructurePrototype(XmlNode structNode)
-    {
-        ObjectType = structNode.Attributes["objectType"].InnerText;
-        Name = structNode.SelectSingleNode("Name").InnerText;
-        MovementCost = float.Parse(structNode.SelectSingleNode("MoveCost").InnerText);
-        Width = int.Parse(structNode.SelectSingleNode("Width").InnerText);
-        Height = int.Parse(structNode.SelectSingleNode("Height").InnerText);
-        if (structNode.SelectSingleNode("LinksToNeighbors") != null)
+        Type = rootNode.Attributes["Type"].InnerText;
+        Name = rootNode.SelectSingleNode("Name").InnerText;
+        MovementCost = float.Parse(rootNode.SelectSingleNode("MoveCost").InnerText);
+        Width = int.Parse(rootNode.SelectSingleNode("Width").InnerText);
+        Height = int.Parse(rootNode.SelectSingleNode("Height").InnerText);
+        if (rootNode.SelectSingleNode("LinksToNeighbors") != null)
         {
-            LinksToNeighbors = structNode.SelectSingleNode("LinksToNeighbors").InnerText;
+            LinksToNeighbors = rootNode.SelectSingleNode("LinksToNeighbors").InnerText;
         }
-        RoomEnclosure = bool.Parse(structNode.SelectSingleNode("EnclosesRooms").InnerText);
+        RoomEnclosure = bool.Parse(rootNode.SelectSingleNode("EnclosesRooms").InnerText);
 
-        XmlNode defaultSpriteNode = structNode.SelectSingleNode("DefaultSpriteName");
+        XmlNode defaultSpriteNode = rootNode.SelectSingleNode("DefaultSpriteName");
         if (defaultSpriteNode != null)
         {
             DefaultSpriteName = defaultSpriteNode.InnerText;
         }
 
-        XmlNode spriteNode = structNode.SelectSingleNode("SpriteName");
+        XmlNode spriteNode = rootNode.SelectSingleNode("SpriteName");
         if (spriteNode != null)
         {
             SpriteName = spriteNode.InnerText;
@@ -756,7 +753,7 @@ public class Structure : IXmlSerializable, IUpdatable
 
         funcPositionValidation = DefaulIsValidPosition;
 
-        string tileTags = structNode.SelectSingleNode("AllowedTiles").InnerText;
+        string tileTags = rootNode.SelectSingleNode("AllowedTiles").InnerText;
 
         string[] tileTypeTags = tileTags.Split('|');
 
@@ -766,7 +763,7 @@ public class Structure : IXmlSerializable, IUpdatable
             AllowedTileTypes |= TileTypeData.Flag(tileTypeTag);
         }
 
-        XmlNode jobOffsetNode = structNode.SelectSingleNode("JobOffset");
+        XmlNode jobOffsetNode = rootNode.SelectSingleNode("JobOffset");
         jobSpotOffset = Vector2.zero;
         if (jobOffsetNode != null)
         {
@@ -774,7 +771,7 @@ public class Structure : IXmlSerializable, IUpdatable
             jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
         }
 
-        XmlNode spawnOffsetNode = structNode.SelectSingleNode("JobSpawnOffset");
+        XmlNode spawnOffsetNode = rootNode.SelectSingleNode("JobSpawnOffset");
         jobSpawnSpotOffset = Vector2.zero;
         if (spawnOffsetNode != null)
         {
@@ -782,7 +779,7 @@ public class Structure : IXmlSerializable, IUpdatable
             jobSpawnSpotOffset = new Vector2(arrSpawnJobOffset[0], arrSpawnJobOffset[1]);
         }
 
-        XmlNode tintNode = structNode.SelectSingleNode("Tint");
+        XmlNode tintNode = rootNode.SelectSingleNode("Tint");
         Tint = Color.white;
         if (tintNode != null)
         {
@@ -792,7 +789,7 @@ public class Structure : IXmlSerializable, IUpdatable
             Tint = new Color32(arrTint[0], arrTint[1], arrTint[2], arrTint[3]);
         }
 
-        XmlNode tagsNode = structNode.SelectSingleNode("Tags");
+        XmlNode tagsNode = rootNode.SelectSingleNode("Tags");
         Tags = new List<string>();
         if (tagsNode != null)
         {
@@ -803,20 +800,16 @@ public class Structure : IXmlSerializable, IUpdatable
             }
         }
 
-        XmlNode updateFnNode = structNode.SelectSingleNode("OnUpdate");
+        XmlNode updateFnNode = rootNode.SelectSingleNode("OnUpdate");
         if (updateFnNode != null)
         {
             string updateFuncName = updateFnNode.Attributes["FunctionName"].InnerText;
             RegisterUpdateAction(updateFuncName);
         }
 
-        XmlNodeList eventActionNodeList = structNode.SelectNodes("EventAction");
-        foreach (XmlNode eventActionNode in eventActionNodeList)
-        {
-            EventActions.ReadXml(eventActionNode);
-        }
+        EventActions.ReadXml(rootNode.SelectNodes("EventAction"));
 
-        XmlNode isEnterableFnNode = structNode.SelectSingleNode("IsEnterable");
+        XmlNode isEnterableFnNode = rootNode.SelectSingleNode("IsEnterable");
         if (isEnterableFnNode != null)
         {
             string isEnterableFuncName = isEnterableFnNode.Attributes["FunctionName"].InnerText;
@@ -825,7 +818,7 @@ public class Structure : IXmlSerializable, IUpdatable
 
         // Params
         structureParameters = new Dictionary<string, float>();
-        XmlNode paramsNode = structNode.SelectSingleNode("Params");
+        XmlNode paramsNode = rootNode.SelectSingleNode("Params");
         if (paramsNode != null)
         {
             XmlNodeList paramNodes = paramsNode.SelectNodes("Param");
@@ -839,23 +832,31 @@ public class Structure : IXmlSerializable, IUpdatable
         }
 
         // Animation
-        Animations = ReadAnimations(structNode.SelectNodes("Animations/Animation"));
-        //XmlNode animationsNode = structNode.SelectSingleNode("Animations");
-        //if (animationsNode != null)
-        //{
-        //    XmlNodeList animationNodes = animationsNode.SelectNodes("Animations/Animation");
+        Animations = ReadAnimations(rootNode.SelectNodes("Animations/Animation"));
 
-        //    Dictionary<string, SpritenameAnimation> animations = new Dictionary<string, SpritenameAnimation>();
-        //    foreach (XmlNode animationNode in animationNodes)
-        //    {
-        //        SpritenameAnimation animation = new SpritenameAnimation();
-        //        animation.ReadXml(animationNode);
-        //        animations.Add(animation.State, animation);
-        //    }
-        //    Animations = new StructureAnimation(animations);
-        //}
+        // TODO Implement Order Actions
+        /*
+        // Building Job
+        XmlNode buildJobNode = rootNode.SelectSingleNode("BuildingJob");
+        if (buildJobNode != null)
+        {
+            float jobCost = float.Parse(buildJobNode.Attributes["jobCost"].InnerText);
+            XmlNodeList invNodes = buildJobNode.SelectNodes("Inventory");
+            List<Inventory> invReqs = new List<Inventory>();
+            foreach (XmlNode invNode in invNodes)
+            {
+                string invType = invNode.Attributes["Type"].InnerText;
+                int invAmount = int.Parse(invNode.Attributes["amount"].InnerText);
+                invReqs.Add(new Inventory(invType, 0, invAmount));
+            }
 
-        jobs = new List<Job>();
+            World.Current.structureJobPrototypes.Add(Type,
+                new Job(null, Type, StructureActions.JobComplete_StructureBuilding,
+                    jobCost, invReqs.ToArray()));
+        }
+        // Deconstruct Job
+        // TODO
+        */
     }
 
     public StructureAnimation ReadAnimations(XmlNodeList animationNodes)
@@ -876,5 +877,6 @@ public class Structure : IXmlSerializable, IUpdatable
 
         return new StructureAnimation(animations);
     }
+
     #endregion
 }

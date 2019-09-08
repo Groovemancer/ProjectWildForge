@@ -31,17 +31,20 @@ public class EventActions
     /// Fill the values of this from Xml
     /// </summary>
     /// <param name="rootNode">Xml node pointing to an EventAction tag.</param>
-    public void ReadXml(XmlNode rootNode)
+    public void ReadXml(XmlNodeList rootNodeList)
     {
-        if (rootNode == null)
+        if (rootNodeList == null)
         {
             return;
         }
 
-        string name = rootNode.Attributes["event"].InnerText;
-        string functionName = rootNode.Attributes["FunctionName"].InnerText;
+        foreach (XmlNode actionNode in rootNodeList)
+        {
+            string name = actionNode.Attributes["event"].InnerText;
+            string functionName = actionNode.Attributes["FunctionName"].InnerText;
 
-        Register(name, functionName);
+            Register(name, functionName);
+        }
     }
 
     /// <summary>

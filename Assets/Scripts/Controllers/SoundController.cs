@@ -36,7 +36,7 @@ public class SoundController : MonoBehaviour
             return;
 
         // FIXME
-        AudioClip ac = Resources.Load<AudioClip>("Sounds/" + obj.ObjectType + "_OnCreated");
+        AudioClip ac = Resources.Load<AudioClip>("Sounds/" + obj.Type + "_OnCreated");
         if (ac == null)
         {
             // If not found, use default -- i.e. Wall_OnCreated
