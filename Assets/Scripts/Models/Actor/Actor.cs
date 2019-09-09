@@ -7,7 +7,17 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using ProjectWildForge.Pathfinding;
 using System.Linq;
+using MoonSharp.Interpreter;
 
+public enum ActorJobPriority
+{
+    Urgent,
+    High,
+    Medium,
+    Low,
+}
+
+[MoonSharpUserData]
 public class Actor : IXmlSerializable, IUpdatable
 {
     /// Unique ID of the actor
@@ -115,6 +125,21 @@ public class Actor : IXmlSerializable, IUpdatable
         }
     }
 
+    /// Our job, if any.
+    public Job MyJob
+    {
+        get
+        {
+            JobState jobState = FindInitiatingState() as JobState;
+            if (jobState != null)
+            {
+                return jobState.Job;
+            }
+
+            return null;
+        }
+    }
+
     // The current state
     private State state;
 
@@ -124,9 +149,14 @@ public class Actor : IXmlSerializable, IUpdatable
     // Queue of states that aren't important enough to interrupt, but should run soon
     private Queue<State> stateQueue;
 
-    float workCost = 25f;   // Amount of action points required to do any amount of work
+    private float workCost = 25f;   // Amount of action points required to do any amount of work
     private float workRate;   // Amount of work completed per DoWork attempt
     private float baseWorkRate = 50f;   // Amount of work completed per DoWork attempt
+
+    public float WorkCost
+    {
+        get { return workCost; }
+    }
 
     public float WorkRate
     {
@@ -142,6 +172,9 @@ public class Actor : IXmlSerializable, IUpdatable
     Job myJob;
 
     public string Name { get; protected set; }
+
+    // Priorities for jobs for the actor
+    public Dictionary<JobCategory, ActorJobPriority> Priorities { get; private set; }
 
     public Race Race { get; protected set; }
 
@@ -189,10 +222,37 @@ public class Actor : IXmlSerializable, IUpdatable
         Id = currentId++;
     }
 
+    private State FindInitiatingState()
+    {
+        if (state == null)
+        {
+            return null;
+        }
+
+        State rootState = state;
+        while (rootState.NextState != null)
+        {
+            rootState = rootState.NextState;
+        }
+
+        return rootState;
+    }
+
     private void InitializeActorValues()
     {
         LoadStats();
         UseStats();
+        LoadPriorities();
+    }
+
+    private void LoadPriorities()
+    {
+        Priorities = new Dictionary<JobCategory, ActorJobPriority>();
+
+        foreach (JobCategory category in PrototypeManager.JobCategory.Values)
+        {
+            Priorities[category] = ActorJobPriority.High; // TODO: Set these in a meaningful way and store them!
+        }
     }
 
     public string GetName()
@@ -249,175 +309,6 @@ public class Actor : IXmlSerializable, IUpdatable
         }
     }
 
-    void GetNewJob()
-    {
-        myJob = World.Current.jobQueue.Dequeue();
-        if (myJob == null)
-            return;
-
-        destTile = myJob.Tile;
-        myJob.RegisterJobStoppedCallback(OnJobStopped);
-
-        // Immediately check to see if the job tile is reachable.
-        // NOTE: We might not be pathing to it right away (due to
-        // requiring materials), but we still need to verify that
-        // the final location can be reached.
-
-        //pathAStar = new Path_AStar(World.Current, CurrTile, destTile); // This will calculate a path from curr to dest.
-        Path = Pathfinder.FindPathToTile(CurrTile, destTile);
-        //if (pathAStar.Length() == 0)
-        if (Path.Count == 0)
-        {
-            Debug.LogError("PathAStar returned no path to target job tile!");
-            AbandonJob();
-            destTile = CurrTile;
-        }
-    }
-
-    bool UpdateDoJob(float deltaAuts)
-    {
-        // Do I have a job?
-        if (myJob == null)
-        {
-            GetNewJob();
-
-            if (myJob == null)
-            {
-                // There was no job on the queue for us, so just return.
-                destTile = CurrTile;
-                return false;
-            }
-        }
-
-        // We have a job! (And the job tile is reachable)
-
-        // STEP 1: Does the job have all the materials it needs?
-        if (myJob.HasAllMaterial() == false)
-        {
-            // No, we are missing something!
-
-            // STEP 2: Are we CARRYING anything that the job location wants?
-            if (Inventory != null)
-            {
-                if (myJob.DesiresInventoryType(Inventory) > 0)
-                {
-                    // If so, deliver the goods.
-                    //  Walk to the job tile, then drop off the stack into the job.
-
-                    if (CurrTile == myJob.Tile)
-                    {
-                        // We are at the job's site, so drop the inventory
-                        World.Current.InventoryManager.PlaceInventory(myJob, Inventory);
-                        myJob.DoWork(0); // This will call all cbJobWorked callbacks, because even though
-                                        // we aren't progressing, it might want to do something with the fact
-                                        // that the requirements are being met.
-
-                        // Are we still carrying things?
-                        if (Inventory.StackSize == 0)
-                        {
-                            Inventory = null;
-                        }
-                        else
-                        {
-                            Debug.LogError("Character is still carrying inventory, which shouldn't be. Just setting to null for now, but this means we are LEAKING inventory.");
-                            Inventory = null;
-                        }
-                    }
-                    else
-                    {
-                        // We still need to walk to the job site.
-                        destTile = myJob.Tile;
-                        return false;
-                    }
-                }
-                else
-                {
-                    // We are carrying something, but the job doesn't want it!
-                    // Dump the inventory at our feet
-                    // TODO: Actually, walk to the nearest empty tile and dump it there.
-                    if (World.Current.InventoryManager.PlaceInventory(CurrTile, Inventory) == false)
-                    {
-                        Debug.LogError("Character tried to dump inventory into an invalid tile (maybe there's already something here.");
-                        // FIXME: For the sake of continuing on, we are still going to dump any
-                        // reference to the current inventory, but this means we are "leaking"
-                        // inventory. This is permanently lost now.
-                        Inventory = null;
-                    }
-                }
-            }
-            else
-            {
-                // At this point, the job still requires inventory, but we aren't carrying it!
-
-                // Are we standing on a tile with goods that are desired by the job?
-
-                if (CurrTile.Inventory != null &&
-                    (myJob.canTakeFromStockpile || CurrTile.Structure == null || CurrTile.Structure.IsStockpile() == false) &&
-                    myJob.DesiresInventoryType(CurrTile.Inventory) > 0)
-                {
-                    // Pick up the stuff!
-                    World.Current.InventoryManager.PlaceInventory(
-                        this,
-                        CurrTile.Inventory,
-                        myJob.DesiresInventoryType(CurrTile.Inventory)
-                    );
-                }
-                else
-                {
-                    // Walk towards a tile containing the required goods.
-
-                    // Find the first thing in the job that isn't satisfied.
-                    Inventory desired = myJob.GetFirstDesiredInventory();
-
-                    Inventory supplier = World.Current.InventoryManager.GetClosestInventoryOfType(
-                        desired.Type,
-                        CurrTile,
-                        desired.MaxStackSize - desired.StackSize,
-                        myJob.canTakeFromStockpile
-                    );
-
-                    if (supplier == null)
-                    {
-                        Debug.Log("No tile contains objects of type'" + desired.Type + "' to satisfy job requirements.");
-                        AbandonJob();
-                        return false;
-                    }
-
-                    destTile = supplier.Tile;
-                    return false;
-                }
-            }
-            return false; // We can't continue until all materials are satisfied.
-        }
-
-        // If we get here, then the job has all the material that it needs.
-        // Lets make sure that our destination tile is the job site tile.
-        destTile = myJob.Tile;
-
-        // We are at our destination
-        if (CurrTile == destTile)
-        {
-            // We are at the correct tile for our job, so
-            // execute the job's "DoWork", which is mostly
-            // going to countdown jobTime and potentially
-            // call its "Job Complete" callback.
-            if (myJob != null)
-            {
-                if (ActionPoints >= workCost)
-                {
-                    myJob.DoWork(workRate);
-                    ActionPoints -= workCost;
-                }
-                return true;
-            }
-        }
-
-        // Nothing left for us to do here, we mostly just need Update_DoMovement to
-        // get us where we want to go.
-
-        return false;
-    }
-
     // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
     public void EveryFrameUpdate(float deltaAuts)
     {
@@ -439,10 +330,10 @@ public class Actor : IXmlSerializable, IUpdatable
             }
             else
             {
-                Job job = null;// = World.Current.jobManager.GetJob(this);
+                Job job = World.Current.JobManager.GetJob(this);
                 if (job != null)
                 {
-                    //SetState(new JobState(this, job));
+                    SetState(new JobState(this, job));
                 }
                 else
                 {
@@ -463,23 +354,6 @@ public class Actor : IXmlSerializable, IUpdatable
         {
             OnActorChanged(this);
         }
-
-        //DebugUtils.LogChannel("Actor", "EveryFrameUpdate called deltaAuts: " + deltaAuts);
-        /*
-        ActionPoints += deltaAuts;
-
-        if (UpdateDoJob(deltaAuts))
-            Acted = true;
-
-        if (UpdateHandleMovement())
-            Acted = true;
-
-        if (Acted == false)
-            ActionPoints -= deltaAuts;
-
-        if (cbActorChanged != null)
-            cbActorChanged(this);
-        */
     }
 
     public void FixedFrequencyUpdate(float deltaAuts)
@@ -487,32 +361,28 @@ public class Actor : IXmlSerializable, IUpdatable
         throw new InvalidOperationException("Not supported by this class");
     }
 
-    // AUTs are "Arbitrary Unit of Time", e.g. 100 AUT/s means every 1 second 100 AUTs pass
-    public void Update(float deltaAuts)
+    public ActorJobPriority GetPriority(JobCategory category)
     {
-        return;
-        DebugUtils.LogChannel("Actor", "Update called deltaAuts: " + deltaAuts);
-        bool didSomething = false;
-        ActionPoints += deltaAuts;
-
-        if (UpdateDoJob(deltaAuts))
-            didSomething = true;
-
-        if (didSomething == false)
-            ActionPoints -= deltaAuts;
-
-        if (OnActorChanged != null)
-            OnActorChanged(this);
+        return Priorities[category];
     }
 
-    public void AbandonJob()
+    public void SetPriority(JobCategory category, ActorJobPriority priority)
     {
-        Debug.Log("Abandon Job");
-        nextTile = destTile = CurrTile;
-        myJob.UnregisterJobStoppedCallback(OnJobStopped);
-        myJob.UnregisterJobCompletedCallback(OnJobStopped);
-        World.Current.jobQueue.Enqueue(myJob);
-        myJob = null;
+        Priorities[category] = priority;
+    }
+
+    public List<JobCategory> CategoriesOfPriority(ActorJobPriority priority)
+    {
+        List<JobCategory> ret = new List<JobCategory>();
+        foreach (KeyValuePair<JobCategory, ActorJobPriority> row in Priorities)
+        {
+            if (row.Value == priority)
+            {
+                ret.Add(row.Key);
+            }
+        }
+
+        return ret;
     }
 
     #region State

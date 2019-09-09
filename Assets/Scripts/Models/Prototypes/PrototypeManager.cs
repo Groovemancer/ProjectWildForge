@@ -39,6 +39,12 @@ public static class PrototypeManager
     public static PrototypeMap<Need> Need { get; private set; }
 
     /// <summary>
+    /// Gets the Job Category prototype map.
+    /// </summary>
+    /// <value>The job category prototype map.</value>
+    public static PrototypeMap<JobCategory> JobCategory { get; private set; }
+
+    /// <summary>
     /// Initializes the <see cref="PrototypeManager"/> static class files.
     /// </summary>
     public static void Initialize()
@@ -53,6 +59,7 @@ public static class PrototypeManager
         Race = new PrototypeMap<Race>();
         Structure = new PrototypeMap<Structure>();
         Need = new PrototypeMap<Need>();
+        JobCategory = new PrototypeMap<JobCategory>();
 
         isInitialized = true;
     }

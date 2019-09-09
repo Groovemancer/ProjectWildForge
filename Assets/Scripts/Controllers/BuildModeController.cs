@@ -116,18 +116,23 @@ public class BuildModeController : MonoBehaviour
                 {
                     // Make a clone of the job prototype
                     job = WorldController.Instance.World.structureJobPrototypes[structureType].Clone();
+
                     // Assign the correct tile.
                     job.Tile = tile;
                     job.OnJobCompleted += (theJob) => World.Current.StructureManager.ConstructJobCompleted(theJob);
                 }
                 else
                 {
-                    job = new Job(tile, structureType, World.Current.StructureManager.ConstructJobCompleted, 100, null);
+                    job = new Job(tile, structureType, World.Current.StructureManager.ConstructJobCompleted, 100, null, Job.JobPriority.High, "construct")
+                    {
+                        Adjacent = true,
+                        Description = "job_build_" + structureType + "_desc"
+                    };
 
                     job.OnJobCompleted += (theJob) => World.Current.StructureManager.ConstructJobCompleted(theJob);
                 }
 
-                job.structurePrototype = PrototypeManager.Structure.Get(structureType);
+                job.buildablePrototype = PrototypeManager.Structure.Get(structureType).Clone();
 
                 // FIXME: I don't like having to manually and explicitly set
                 // flags to prevent conflicts. It's too easy to forget to set/clear them!
@@ -136,7 +141,7 @@ public class BuildModeController : MonoBehaviour
                 job.RegisterJobStoppedCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
 
                 // Add job to queue later
-                WorldController.Instance.World.jobQueue.Enqueue(job);
+                World.Current.JobManager.Enqueue(job);
             }
         }
         else if (buildMode == BuildMode.Tile)

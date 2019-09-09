@@ -172,7 +172,7 @@ public class Inventory : IPrototypable
             return false;
         }
 
-        return Tile.Structure == null || canTakeFromStockpile == true || Tile.Structure.HasTag("Storage") == false;
+        return Tile.Structure == null || canTakeFromStockpile == true || Tile.Structure.HasTypeTag("Storage") == false;
     }
 
     public void ReadXmlPrototype(XmlNode rootNode)

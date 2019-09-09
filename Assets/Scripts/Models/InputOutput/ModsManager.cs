@@ -91,7 +91,7 @@ public class ModsManager
         //HandlePrototypes("Headline", PrototypeManager.Headline.LoadXmlPrototypes);
         //HandlePrototypes("Overlay", PrototypeManager.Overlay.LoadXmlPrototypes);
         //HandlePrototypes("Ship", PrototypeManager.Ship.LoadXmlPrototypes);
-        //HandlePrototypes("JobCategory", PrototypeManager.JobCategory.LoadXmlPrototypes);
+        HandlePrototypes("JobCategories", PrototypeManager.JobCategory.LoadXmlPrototypes);
     }
 
     /// <summary>

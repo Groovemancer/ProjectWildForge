@@ -17,7 +17,7 @@ using Animation;
 // Structures are things like walls, doors, and furniture (e.g. table)
 
 [MoonSharpUserData]
-public class Structure : IXmlSerializable, IUpdatable, IPrototypable
+public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 {
     /// <summary>
     /// Custom parameters for this particular structure. We
@@ -38,7 +38,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
 
     List<Job> jobs;
 
-    public List<string> Tags;
+    private HashSet<string> typeTags;
+
+    private Dictionary<string, OrderAction> orderActions;
 
     // If this structure gets worked by a person,
     // where is the correct spot for them to stand,
@@ -269,6 +271,11 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
     }
 
     /// <summary>
+    /// This flag is set if the structure is tasked to be destroyed.
+    /// </summary>
+    public bool IsBeingDestroyed { get; protected set; }
+
+    /// <summary>
     /// This event will trigger when the structure has been changed.
     /// This is means that any change (parameters, job state etc) to the furniture will trigger this.
     /// </summary>
@@ -297,7 +304,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
 
         Width = 1;
         Height = 1;
-        Tags = new List<string>();
+        typeTags = new HashSet<string>();
         LinksToNeighbors = string.Empty;
     }
 
@@ -317,8 +324,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
 
         this.jobSpotOffset = other.jobSpotOffset;
         this.jobSpawnSpotOffset = other.jobSpawnSpotOffset;
-        this.Tags = new List<string>();
-        this.Tags.AddRange(other.Tags);
+        this.typeTags = new HashSet<string>(other.typeTags);
 
         this.structureParameters = new Dictionary<string, float>(other.structureParameters);
         jobs = new List<Job>();
@@ -372,7 +378,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
         this.funcPositionValidation = this.DefaulIsValidPosition;
 
         structureParameters = new Dictionary<string, float>();
-        Tags = new List<string>();
+        typeTags = new HashSet<string>();
         updateActions = new List<string>();
         isEnterableAction = "";
     }
@@ -447,7 +453,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
     // to connect to.
     protected bool DefaulIsValidPosition(Tile tile)
     {
-        if (Tags.Contains("OutdoorOnly"))
+        if (typeTags.Contains("OutdoorOnly"))
         {
             if (tile.Room == null || !tile.Room.IsOutsideRoom())
             {
@@ -559,14 +565,6 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
         return jobs.Count;
     }
 
-    public void AddJob(Job j)
-    {
-        j.Structure = this;
-        jobs.Add(j);
-        j.RegisterJobStoppedCallback(OnJobStopped);
-        World.Current.jobQueue.Enqueue(j);
-    }
-
     public void OnJobStopped(Job j)
     {
         RemoveJob(j);
@@ -597,14 +595,19 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
         }
     }
 
-    public bool HasTag(string tag)
+    public bool HasTypeTag(string tag)
     {
-        return Tags.Contains(tag);
+        return typeTags.Contains(tag);
+    }
+
+    public string[] GetTypeTags()
+    {
+        return typeTags.ToArray();
     }
 
     public bool IsStockpile()
     {
-        return Tags.Contains("Stockpile");
+        return typeTags.Contains("Stockpile");
     }
 
     public void Deconstruct()
@@ -790,13 +793,13 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
         }
 
         XmlNode tagsNode = rootNode.SelectSingleNode("Tags");
-        Tags = new List<string>();
+        typeTags = new HashSet<string>();
         if (tagsNode != null)
         {
             XmlNodeList tagNodes = tagsNode.SelectNodes("Tag");
             foreach (XmlNode tagNode in tagNodes)
             {
-                Tags.Add(tagNode.InnerText);
+                typeTags.Add(tagNode.InnerText);
             }
         }
 
@@ -833,6 +836,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable
 
         // Animation
         Animations = ReadAnimations(rootNode.SelectNodes("Animations/Animation"));
+
+        orderActions = PrototypeReader.ReadOrderActions(rootNode.SelectSingleNode("OrderActions"));
 
         // TODO Implement Order Actions
         /*

@@ -45,14 +45,14 @@ public class Functions
                 FunctionsSets.Add(luaFunctions);
             }
         }
-        //else
-        //{
-        //    CSharpFunctions netFunctions = new CSharpFunctions();
-        //    if (netFunctions.LoadScript(text, scriptName))
-        //    {
-        //        FunctionsSets.Add(netFunctions);
-        //    }
-        //}
+        else
+        {
+            CSharpFunctions netFunctions = new CSharpFunctions();
+            if (netFunctions.LoadScript(text, scriptName))
+            {
+                FunctionsSets.Add(netFunctions);
+            }
+        }
 
         return result;
     }

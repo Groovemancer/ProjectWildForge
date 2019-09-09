@@ -117,7 +117,7 @@ public class StructureSpriteController : BaseSpriteController<Structure>
         objectGameObjectMap.Add(structure, structure_go);
 
         // FIXME: This hardcoding is not ideal!
-        if (structure.HasTag("Door"))
+        if (structure.HasTypeTag("Door"))
         {
             // Check to see if we actually have a wall north/south, and if so
             // set the structure verticalDoor flag to true.
@@ -125,7 +125,7 @@ public class StructureSpriteController : BaseSpriteController<Structure>
             Tile southTile = world.GetTileAt(structure.Tile.X, structure.Tile.Y - 1, structure.Tile.Z);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
-                northTile.Structure.HasTag("Wall") && southTile.Structure.HasTag("Wall"))
+                northTile.Structure.HasTypeTag("Wall") && southTile.Structure.HasTypeTag("Wall"))
             {
                 structure.VerticalDoor = true;
             }
@@ -215,7 +215,7 @@ public class StructureSpriteController : BaseSpriteController<Structure>
             return;
         }
 
-        if (structure.HasTag("Door"))
+        if (structure.HasTypeTag("Door"))
         {
             // Check to see if we actually have a wall north/south, and if so
             // set the structure verticalDoor flag to true.
@@ -225,12 +225,12 @@ public class StructureSpriteController : BaseSpriteController<Structure>
             Tile westTile = world.GetTileAt(structure.Tile.X - 1, structure.Tile.Y, structure.Tile.Z);
 
             if (northTile != null && southTile != null && northTile.Structure != null && southTile.Structure != null &&
-                northTile.Structure.HasTag("Wall") && southTile.Structure.HasTag("Wall"))
+                northTile.Structure.HasTypeTag("Wall") && southTile.Structure.HasTypeTag("Wall"))
             {
                 structure.VerticalDoor = true;
             }
             else if (eastTile != null && westTile != null && eastTile.Structure != null && westTile.Structure != null &&
-                eastTile.Structure.HasTag("Wall") && westTile.Structure.HasTag("Wall"))
+                eastTile.Structure.HasTypeTag("Wall") && westTile.Structure.HasTypeTag("Wall"))
             {
                 structure.VerticalDoor = false;
             }

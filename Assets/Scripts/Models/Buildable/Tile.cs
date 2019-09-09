@@ -425,6 +425,17 @@ public class Tile : IXmlSerializable
         return Pathfinder.FindNearestRoom(this);
     }
 
+    /// <summary>
+    /// Returns true if any of the neighors can reach this tile. Checks for clipping of diagonal paths.
+    /// </summary>
+    /// <param name="checkDiagonals">Will test diagonals as well if true.</param>
+    public bool IsReachableFromAnyNeighbor(bool checkDiagonals = false)
+    {
+        bool reachableFromSameLevel = GetNeighbors(checkDiagonals).Any(tile => tile != null && tile.CalculatedMoveCost() > 0 && (checkDiagonals == false || IsClippingCorner(tile) == false));
+        bool reachableVertically = GetVerticalNeighbors().Any(tile => tile.IsEnterable() != Enterability.Never);
+        return reachableFromSameLevel || reachableVertically;
+    }
+
     public bool IsClippingCorner(Tile neighborTile)
     {
         // If the movement from curr to neigh is diagonal (e.g. N-E)
@@ -452,6 +463,11 @@ public class Tile : IXmlSerializable
 
         // If we are here, we are either not clipping, or not diagonal
         return false;
+    }
+
+    public override string ToString()
+    {
+        return string.Format("[{0} {1}, {2}, {3}]", Type, X, Y, Z);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

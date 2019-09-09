@@ -20,6 +20,13 @@
 			<Inventory Type="inv_RawStone" amount="5"/>
 		</BuildingJob>
 		
+		<OrderActions>
+			<OrderAction Type="Build">
+				<JobCost>300</JobCost>
+				<Inventory Type="inv_RawStone" Amount="3" />
+			</OrderAction>
+		</OrderActions>
+		
 		<DeconstructJob jobCost="100">
 			<Inventory Type="inv_RawStone" amount="3"/>
 		</DeconstructJob>
@@ -125,9 +132,12 @@
 		<OnUpdate FunctionName="OnUpdate_WorkStation" />
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_WorkStation" />
 		
-		<!--<BuildingJob jobCost="600">
-			<Inventory Type="inv_Wood" amount="25"/>
-		</BuildingJob>-->
+		<!--<OrderActions>
+			<OrderAction Type="Build">
+				<JobCost>600</JobCost>
+				<Inventory Type="inv_Wood" Amount="25" />
+			</OrderAction>
+		</OrderActions>-->
 		
 		<DeconstructJob jobCost="300">
 			<Inventory Type="inv_RawStone" amount="15"/>

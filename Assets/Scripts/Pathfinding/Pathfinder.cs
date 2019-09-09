@@ -216,6 +216,12 @@ namespace ProjectWildForge.Pathfinding
 
             Dictionary<Room, Path_Node<Room>> nodes = World.Current.RoomGraph.nodes;
 
+            // We're already in the same room so theoretically we should be reachable?
+            if (goal.Count == 1 && goal.Contains(start))
+            {
+                return true;
+            }
+
             HashSet<int> roomsVisited = new HashSet<int>();
             Queue<Room> roomsToVisit = new Queue<Room>();
 

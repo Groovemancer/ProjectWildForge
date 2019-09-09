@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<JobCategories>
+	<JobCategory Type="need">
+		<Name>job_category_construct</Name>
+		<Hidden>true</Hidden>
+	</JobCategory>
+	<JobCategory Type="construct">
+		<Name>job_category_construct</Name>
+	</JobCategory>
+	<JobCategory Type="workshop">
+		<Name>job_category_workshop</Name>
+	</JobCategory>
+	<JobCategory Type="mining">
+		<Name>job_category_mining</Name>
+	</JobCategory>
+	<JobCategory Type="hauling">
+		<Name>job_category_hauling</Name>
+	</JobCategory>
+</JobCategories>

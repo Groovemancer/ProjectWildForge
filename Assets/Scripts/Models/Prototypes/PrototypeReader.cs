@@ -18,4 +18,18 @@ public class PrototypeReader
             return value;
         }
     }
+
+    public static Dictionary<string, OrderAction> ReadOrderActions(XmlNode orderActionsNode)
+    {
+        Dictionary<string, OrderAction> orderActions = new Dictionary<string, OrderAction>();
+        if (orderActionsNode != null)
+        {
+            foreach (XmlNode orderActionNode in orderActionsNode.SelectNodes("OrderAction"))
+            {
+                orderActions.Add(orderActionNode.Attributes["Type"].InnerText, OrderAction.FromXml(orderActionNode));
+            }
+        }
+
+        return orderActions;
+    }
 }

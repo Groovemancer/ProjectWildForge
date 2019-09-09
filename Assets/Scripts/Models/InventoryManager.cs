@@ -24,6 +24,18 @@ public class InventoryManager
         Inventories = new Dictionary<string, List<Inventory>>();
     }
 
+    public static bool CanBePickedUp(Inventory inventory, bool canTakeFromStockpile)
+    {
+        // You can't pick up stuff that isn't on a tile or if it's locked
+        if (inventory == null || inventory.Tile == null || inventory.Locked)
+        {
+            return false;
+        }
+
+        Structure structure = inventory.Tile.Structure;
+        return structure == null || canTakeFromStockpile == true || structure.HasTypeTag("Storage") == false;
+    }
+
     public void RegisterInventoryTypeCreated(InventoryOfTypeCreated func, string type)
     {
         List<InventoryOfTypeCreated> inventories;
@@ -45,24 +57,33 @@ public class InventoryManager
         }
     }
 
-    void CleanupInventory(Inventory inv)
+    void CleanupInventory(Inventory inventory)
     {
-        if (inv.StackSize == 0)
+        if (inventory.StackSize != 0)
         {
-            if (Inventories.ContainsKey(inv.Type))
-            {
-                Inventories[inv.Type].Remove(inv);
-            }
-            if (inv.Tile != null)
-            {
-                inv.Tile.Inventory = null;
-                inv.Tile = null;
-            }
-            if (inv.actor != null)
-            {
-                inv.actor.Inventory = null;
-                inv.actor = null;
-            }
+            return;
+        }
+
+        List<Inventory> inventories;
+        if (Inventories.TryGetValue(inventory.Type, out inventories))
+        {
+            inventories.Remove(inventory);
+        }
+
+        if (inventory.Tile != null)
+        {
+            inventory.Tile.Inventory = null;
+            inventory.Tile = null;
+        }
+    }
+
+    private void CleanupInventory(Actor actor)
+    {
+        CleanupInventory(actor.Inventory);
+
+        if (actor.Inventory.StackSize == 0)
+        {
+            actor.Inventory = null;
         }
     }
 
@@ -113,26 +134,31 @@ public class InventoryManager
         }
     }
 
-    public bool PlaceInventory(Job job, Inventory inv)
+    public bool PlaceInventory(Job job, Actor actor)
     {
-        if (job.inventoryRequirements.ContainsKey(inv.Type) == false)
+        Inventory sourceInventory = actor.Inventory;
+
+        // Check that it's wanted by the job
+        if (job.RequestedItems.ContainsKey(sourceInventory.Type) == false)
         {
-            Debug.LogError("Trying to add inventory to a job that it doesn't want.");
+            DebugUtils.LogErrorChannel("InventoryManager", "Trying to add inventory to a job that it doesn't want.");
             return false;
         }
-        job.inventoryRequirements[inv.Type].StackSize += inv.StackSize;
 
-        if (job.inventoryRequirements[inv.Type].MaxStackSize < job.inventoryRequirements[inv.Type].StackSize)
+        // Check that there is a target to transfer to
+        Inventory targetInventory;
+        if (job.DeliveredItems.TryGetValue(sourceInventory.Type, out targetInventory) == false)
         {
-            inv.StackSize = job.inventoryRequirements[inv.Type].StackSize - job.inventoryRequirements[inv.Type].MaxStackSize;
-            job.inventoryRequirements[inv.Type].StackSize = job.inventoryRequirements[inv.Type].MaxStackSize;
-        }
-        else
-        {
-            inv.StackSize = 0;
+            targetInventory = new Inventory(sourceInventory.Type, 0, sourceInventory.MaxStackSize);
+            job.DeliveredItems[sourceInventory.Type] = targetInventory;
         }
 
-        CleanupInventory(inv);
+        int transferAmount = Mathf.Min(targetInventory.MaxStackSize - targetInventory.StackSize, sourceInventory.StackSize);
+
+        sourceInventory.StackSize -= transferAmount;
+        targetInventory.StackSize += transferAmount;
+
+        CleanupInventory(actor);
 
         return true;
     }

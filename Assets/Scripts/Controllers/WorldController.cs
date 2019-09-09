@@ -20,6 +20,8 @@ public class WorldController : MonoBehaviour
 
     public static StructureSpriteController StructureSpriteController { get; protected set; }
 
+    public static JobSpriteController JobSpriteController { get; protected set; }
+
     public static InventorySpriteController InventorySpriteController { get; protected set; }
 
     public ModsManager ModsManager { get; private set; }
@@ -70,6 +72,7 @@ public class WorldController : MonoBehaviour
         TileSpriteController = new TileSpriteController(World);
         ActorSpriteController = new ActorSpriteController(World);
         StructureSpriteController = new StructureSpriteController(World);
+        JobSpriteController = new JobSpriteController(World, StructureSpriteController);
         InventorySpriteController = new InventorySpriteController(World, inventoryUI);
     }
 
@@ -98,11 +101,6 @@ public class WorldController : MonoBehaviour
         //        readDirectory(directoryPath);
         //    }
         //}
-    }
-
-    void Update()
-    {
-        World.Update(Time.deltaTime);
     }
 
     public void SetGameSpeed(GameSpeed gameSpeed)

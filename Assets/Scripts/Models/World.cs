@@ -44,6 +44,12 @@ public class World : IXmlSerializable
     /// <value>The actor manager.</value>
     public ActorManager ActorManager { get; private set; }
 
+    /// <summary>
+    /// Gets the job manager.
+    /// </summary>
+    /// <value>The job manager.</value>
+    public JobManager JobManager { get; private set; }
+
     // The pathfinding graph used to navigate our world map.
     public Path_TileGraph tileGraph;
     private Path_RoomGraph roomGraph;
@@ -77,13 +83,6 @@ public class World : IXmlSerializable
     const float SUPER_FAST_GAME_SPEED = 4.0f;
 
     float gameSpeed = 1.0f;
-    float autsPerSec = 100f;
-
-    // TODO: Most likely this will be replaced with a dedicated
-    // class for managing job queues (plural!) that might also
-    // be semi-static or self initializing or some damn thing.
-    // For now, this is just a PUBLIC member of world
-    public JobQueue jobQueue;
 
     public static World Current { get; protected set; }
 
@@ -150,8 +149,6 @@ public class World : IXmlSerializable
 
     private void SetupWorld(int width, int height, int depth)
     {
-        jobQueue = new JobQueue();
-
         // Set the current world to be this world.
         // TODO: Do we need to do any cleanup of the old world?
         Current = this;
@@ -167,6 +164,8 @@ public class World : IXmlSerializable
         RoomManager.Removing += (room) => roomGraph = null;
 
         FillTilesArray();
+        roomGraph = new Path_RoomGraph(this);
+        tileGraph = null;
 
         StructureManager = new StructureManager();
         StructureManager.Created += OnStructureCreated;
@@ -175,8 +174,8 @@ public class World : IXmlSerializable
         //Debug.Log("World created with " + (Width * Height) + " tiles.");
 
         InventoryManager = new InventoryManager();
-
         ActorManager = new ActorManager();
+        JobManager = new JobManager();
     }
 
     private void FillTilesArray()
@@ -194,37 +193,6 @@ public class World : IXmlSerializable
                 }
             }
         }
-    }
-
-    private float avgDeltaAuts = 0;
-    private int count = 0;
-    private int maxCount = 600;
-
-    public void Update(float deltaTime)
-    {
-        //float deltaAuts = autsPerSec * gameSpeed * deltaTime;
-
-        //if (deltaAuts > 0)
-        //{
-        //    count++;
-        //    avgDeltaAuts += deltaAuts / count;
-        //    if (count > maxCount)
-        //    {
-        //        DebugUtils.LogChannel("World", "Update Avg Delta Auts: " + avgDeltaAuts);
-        //        count = 0;
-        //        avgDeltaAuts = 0;
-        //    }
-
-        //    foreach (Actor a in actors)
-        //    {
-        //        a.Update(deltaAuts);
-        //    }
-
-        //    foreach (Structure s in structures)
-        //    {
-        //        s.Update(deltaAuts);
-        //    }
-        //}
     }
 
     public void SetGameSpeed(GameSpeed desiredSpeed)

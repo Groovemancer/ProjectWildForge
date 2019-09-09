@@ -91,7 +91,7 @@ public class StructureManager : IEnumerable<Structure>
     /// <param name="job">The completed job.</param>
     public void ConstructJobCompleted(Job job)
     {
-        Structure structure = job.structurePrototype;
+        Structure structure = (Structure)job.buildablePrototype;
 
 
         // TODO Add Reserve tile workspot
