@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -106,24 +107,24 @@ public class BuildModeController : MonoBehaviour
             string structureType = buildModeObjectType;
 
             if (World.Current.StructureManager.IsPlacementValid(structureType, tile) &&
-                tile.PendingStructureJob == null)
+                World.Current.StructureManager.IsWorkSpotClear(structureType, tile) &&
+                DoesStructureBuildJobOverlapExistingBuildJob(tile, structureType) == false)
             {
                 // This tile position is valid for this object
                 // Create a job for it to be build
                 Job job;
 
-                if (WorldController.Instance.World.structureJobPrototypes.ContainsKey(structureType))
+                Structure toBuildProto = PrototypeManager.Structure.Get(structureType);
+                OrderAction orderAction = toBuildProto.GetOrderAction<Build>();
+                if (orderAction != null)
                 {
                     // Make a clone of the job prototype
-                    job = WorldController.Instance.World.structureJobPrototypes[structureType].Clone();
-
-                    // Assign the correct tile.
-                    job.Tile = tile;
+                    job = orderAction.CreateJob(tile, structureType);
                     job.OnJobCompleted += (theJob) => World.Current.StructureManager.ConstructJobCompleted(theJob);
                 }
                 else
                 {
-                    job = new Job(tile, structureType, World.Current.StructureManager.ConstructJobCompleted, 100, null, Job.JobPriority.High, "construct")
+                    job = new Job(tile, structureType, null, 100, null, Job.JobPriority.High, "construct")
                     {
                         Adjacent = true,
                         Description = "job_build_" + structureType + "_desc"
@@ -134,14 +135,37 @@ public class BuildModeController : MonoBehaviour
 
                 job.buildablePrototype = PrototypeManager.Structure.Get(structureType).Clone();
 
-                // FIXME: I don't like having to manually and explicitly set
-                // flags to prevent conflicts. It's too easy to forget to set/clear them!
-                tile.PendingStructureJob = job;
+                for (int x_off = tile.X; x_off < (tile.X + job.buildablePrototype.Width); x_off++)
+                {
+                    for (int y_off = tile.Y; y_off < (tile.Y + job.buildablePrototype.Height); y_off++)
+                    {
+                        // FIXME: I don't like having to manually and explicitly set
+                        // flags that prevent conflicts. It's too easy to forget to set/clear them!
+                        Tile offsetTile = World.Current.GetTileAt(x_off, y_off, tile.Z);
+                        HashSet<Job> pendingBuildJobs = WorldController.Instance.World.GetTileAt(x_off, y_off, tile.Z).PendingBuildJobs;
+                        if (pendingBuildJobs != null)
+                        {
+                            // if the existing buildJobs structure is replaceable by the current structureType,
+                            // we can pretend it does not overlap with the new build
 
-                job.RegisterJobStoppedCallback((theJob) => { theJob.Tile.PendingStructureJob = null; });
+                            // We should only have 1 structure building job per tile, so this should return that job and only that job
+                            IEnumerable<Job> pendingStructureJob = pendingBuildJobs.Where(pendingJob => pendingJob.buildablePrototype.GetType() == typeof(Structure));
+                            if (pendingStructureJob.Count() == 1)
+                            {
+                                pendingStructureJob.Single().CancelJob();
+                            }
+                        }
+
+                        offsetTile.PendingBuildJobs.Add(job);
+                        job.OnJobStopped += (theJob) => offsetTile.PendingBuildJobs.Remove(job);
+                    }
+                }
 
                 // Add job to queue later
                 World.Current.JobManager.Enqueue(job);
+
+                // Let our workspot tile know it is reserved for us
+                World.Current.ReserveTileAsWorkSpot((Structure)job.buildablePrototype, job.Tile);
             }
         }
         else if (buildMode == BuildMode.Tile)
@@ -161,5 +185,32 @@ public class BuildModeController : MonoBehaviour
         {
             Debug.LogError("UNIMPLEMENTED BUILD MODE");
         }
+    }
+
+    public bool DoesStructureBuildJobOverlapExistingBuildJob(Tile t, string structureType, float rotation = 0)
+    {
+        Structure structureToBuild = PrototypeManager.Structure.Get(structureType).Clone();
+
+        for (int x_off = t.X; x_off < (t.X + structureToBuild.Width); x_off++)
+        {
+            for (int y_off = t.Y; y_off < (t.Y + structureToBuild.Height); y_off++)
+            {
+                HashSet<Job> pendingBuildJobs = WorldController.Instance.World.GetTileAt(x_off, y_off, t.Z).PendingBuildJobs;
+                if (pendingBuildJobs != null)
+                {
+                    // if the existing buildJobs furniture is replaceable by the current furnitureType,
+                    // we can pretend it does not overlap with the new build
+
+                    // We should only have 1 furniture building job per tile, so this should return that job and only that job
+                    IEnumerable<Job> pendingFurnitureJob = pendingBuildJobs.Where(job => job.buildablePrototype.GetType() == typeof(Structure));
+                    if (pendingFurnitureJob.Count() == 1)
+                    {
+                        return !structureToBuild.ReplaceableStructure.Any(pendingFurnitureJob.Single().buildablePrototype.HasTypeTag);
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

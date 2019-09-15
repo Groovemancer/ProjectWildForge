@@ -76,6 +76,7 @@ public class ModsManager
     public void SetupPrototypeHandlers()
     {
         //HandlePrototypes("Tile", PrototypeManager.TileType.LoadXmlPrototypes);
+        HandlePrototypes("JobCategories", PrototypeManager.JobCategory.LoadXmlPrototypes);
         HandlePrototypes("Structures", PrototypeManager.Structure.LoadXmlPrototypes);
         //HandlePrototypes("Utility", PrototypeManager.Utility.LoadXmlPrototypes);
         //HandlePrototypes("RoomBehavior", PrototypeManager.RoomBehavior.LoadXmlPrototypes);
@@ -91,7 +92,6 @@ public class ModsManager
         //HandlePrototypes("Headline", PrototypeManager.Headline.LoadXmlPrototypes);
         //HandlePrototypes("Overlay", PrototypeManager.Overlay.LoadXmlPrototypes);
         //HandlePrototypes("Ship", PrototypeManager.Ship.LoadXmlPrototypes);
-        HandlePrototypes("JobCategories", PrototypeManager.JobCategory.LoadXmlPrototypes);
     }
 
     /// <summary>

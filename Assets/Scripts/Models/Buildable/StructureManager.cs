@@ -93,10 +93,8 @@ public class StructureManager : IEnumerable<Structure>
     {
         Structure structure = (Structure)job.buildablePrototype;
 
-
-        // TODO Add Reserve tile workspot
         // Let our workspot tile know it is no longer reserved for us
-        //World.Current.UnreserveTileAsWorkSpot(structure, job.Tile);
+        World.Current.UnreserveTileAsWorkSpot(structure, job.Tile);
 
         PlaceStructure(structure, job.Tile);
     }
@@ -112,6 +110,32 @@ public class StructureManager : IEnumerable<Structure>
         Structure structure = PrototypeManager.Structure.Get(type).Clone();
         return structure.IsValidPosition(tile);
     }
+
+    /// <summary>
+    /// Determines whether the work spot of the structure with the given type at the given tile is clear.
+    /// </summary>
+    /// <returns><c>true</c> if the work spot at the give tile is clear; otherwise, <c>false</c>.</returns>
+    /// <param name="structureType">Structure type.</param>
+    /// <param name="tile">The tile we want to check.</param>
+    public bool IsWorkSpotClear(string type, Tile tile)
+    {
+        Structure proto = PrototypeManager.Structure.Get(type);
+
+        // If the workspot is internal, we don't care about structure blocking it, this will be stopped or allowed
+        //      elsewhere depending on if the structure being placed can replace the structure already in this tile.
+        if (proto.Jobs.WorkSpotIsInternal())
+        {
+            return true;
+        }
+
+        if (proto.Jobs != null && World.Current.GetTileAt((int)(tile.X + proto.Jobs.WorkSpotOffset.x), (int)(tile.Y + proto.Jobs.WorkSpotOffset.y), (int)tile.Z).Structure != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 
     public IEnumerator<Structure> GetEnumerator()
     {

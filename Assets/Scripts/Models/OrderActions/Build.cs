@@ -45,6 +45,7 @@ public class Build : OrderAction
             Inventory.Select(it => new RequestedItem(it.Key, it.Value)).ToArray(),
             Priority,
             Category);
+            job.Adjacent = true;
             job.Description = "job_build_" + type + "_desc";
             job.OrderName = Type;
         }

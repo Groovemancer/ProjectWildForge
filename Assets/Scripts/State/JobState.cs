@@ -40,6 +40,8 @@ public class JobState : State
             {
                 AbandonJob();
                 Finished();
+                actor.Acted = false;
+                return;
             }
 
             DebugLog(" - Next action: Haul material");
@@ -62,7 +64,7 @@ public class JobState : State
         }
         else
         {
-            DebugLog(" - Next action: Work");
+            //DebugLog(" - Next action: Work");
 
             if (Job.Tile != actor.CurrTile)
             {

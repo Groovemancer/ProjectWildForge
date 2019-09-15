@@ -15,6 +15,7 @@ public abstract class OrderAction : IXmlSerializable
 
     public OrderAction()
     {
+        Inventory = new Dictionary<string, int>();
     }
 
     public OrderAction(OrderAction other)
@@ -56,16 +57,16 @@ public abstract class OrderAction : IXmlSerializable
             using (XmlNodeReader reader = new XmlNodeReader(rootNode))
             {
                 OrderAction orderAction = (OrderAction)serial.Deserialize(reader);
-                orderAction.Type = orderActionType;
-                string prevCategory = string.Empty;
-                if (orderAction.Category != null)
-                {
-                    prevCategory = orderAction.Category.Type;
-                }
+                //orderAction.Type = orderActionType;
+                //string prevCategory = string.Empty;
+                //if (orderAction.Category != null)
+                //{
+                //    prevCategory = orderAction.Category.Type;
+                //}
 
-                string tempCategory = PrototypeReader.ReadXml(prevCategory, rootNode.SelectSingleNode("JobCategory"));
-                orderAction.Category = PrototypeManager.JobCategory.Get(tempCategory);
-                orderAction.Priority = (Job.JobPriority)PrototypeReader.ReadXml((int)orderAction.Priority, rootNode.SelectSingleNode("JobPriority"));
+                //string tempCategory = PrototypeReader.ReadXml(prevCategory, rootNode.SelectSingleNode("JobCategory"));
+                //orderAction.Category = PrototypeManager.JobCategory.Get(tempCategory);
+                //orderAction.Priority = (Job.JobPriority)PrototypeReader.ReadXml((int)orderAction.Priority, rootNode.SelectSingleNode("JobPriority"));
                 return orderAction;
             }
         }
@@ -136,16 +137,20 @@ public abstract class OrderAction : IXmlSerializable
             switch (reader.Name)
             {
                 case "JobCostFunction":
-                    JobCostFunction = reader.ReadInnerXml();
+                    reader.Read();
+                    JobCostFunction = reader.ReadContentAsString();
                     break;
                 case "JobCost":
-                    JobCost = float.Parse(reader.ReadInnerXml());
+                    reader.Read();
+                    JobCost = reader.ReadContentAsFloat();
                     break;
                 case "Category":
-                    Category = PrototypeManager.JobCategory.Get(reader.ReadInnerXml());
+                    reader.Read();
+                    Category = PrototypeManager.JobCategory.Get(reader.ReadContentAsString());
                     break;
                 case "Priority":
-                    Priority = (Job.JobPriority)int.Parse(reader.ReadInnerXml());
+                    reader.Read();
+                    Priority = (Job.JobPriority)reader.ReadContentAsInt();
                     break;
                 case "Inventory":
                     string invType = reader.GetAttribute("Type");

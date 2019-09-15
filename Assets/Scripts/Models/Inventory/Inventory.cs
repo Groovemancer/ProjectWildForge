@@ -62,7 +62,7 @@ public class Inventory : IPrototypable
 
     public Inventory()
     {
-
+        claims = new List<InventoryClaim>();
     }
 
     public Inventory(string type, int stackSize, int maxStackSize = 50)
@@ -70,6 +70,7 @@ public class Inventory : IPrototypable
         this.Type = type;
         ImportPrototypeSettings(maxStackSize, 1f, "inv_cat_none");
         this.StackSize = stackSize;
+        claims = new List<InventoryClaim>();
     }
 
     protected Inventory(Inventory other)
@@ -79,7 +80,9 @@ public class Inventory : IPrototypable
         BasePrice = other.BasePrice;
         Category = other.Category;
         StackSize = other.StackSize;
+        Locked = other.Locked;
         Name = other.Name;
+        claims = new List<InventoryClaim>();
     }
 
     private Inventory(string type, int maxStackSize, float basePrice, string category, string name)

@@ -61,9 +61,9 @@
 		<IsEnterable FunctionName="IsEnterable_Door" />
 		
 		<Params>
-			<Param name="openness" value="0"/>
-			<Param name="isOpening" value="0"/>
-			<Param name="doorOpenTime" value="25"/>
+			<Param Name="openness">0</Param>
+			<Param Name="isOpening">0</Param>
+			<Param Name="doorOpenTime">25</Param>
 		</Params>
 		
 		<Animations>
@@ -114,7 +114,7 @@
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
 		<Tint>255 0 255 255</Tint>
 		<Tags>
-			<Tag>Stockpile</Tag>
+			<Tag>Storage</Tag>
 		</Tags>
 		
 		<OnUpdate FunctionName="OnUpdate_Stockpile" />
@@ -127,7 +127,9 @@
 		<Height>3</Height>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
-		<JobOffset>1 0</JobOffset>
+		<Jobs>
+			<WorkSpotOffset>1 0</WorkSpotOffset>
+		</Jobs>
 		
 		<OnUpdate FunctionName="OnUpdate_WorkStation" />
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_WorkStation" />
@@ -156,8 +158,8 @@
 		
 		<Params>
 			<!--<Param name="gas_name" value="O2" />-->
-			<Param name="gas_limit" value="0.2" />
-			<Param name="gas_per_aut" value="0.01" />
+			<Param Name="gas_limit">0.2</Param>
+			<Param Name="gas_per_aut">0.01</Param>
 		</Params>
 		
 		<!--<BuildingJob jobCost="600">
@@ -175,15 +177,21 @@
 		<Height>2</Height>
 		<EnclosesRooms>false</EnclosesRooms>
 		<AllowedTiles>Dirt|Floor|Grass|RoughStone|Road</AllowedTiles>
-		<JobOffset>1 0</JobOffset>
-		<JobSpawnOffset>2 0</JobSpawnOffset>
+		<Jobs>
+			<WorkSpotOffset>1 0</WorkSpotOffset>
+			<InputSpotOffset>0 0</InputSpotOffset>
+			<OutputSpotOffset>2 0</OutputSpotOffset>
+		</Jobs>
 		
 		<OnUpdate FunctionName="OnUpdate_StoneCuttingTable" />
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_StoneCuttingTable" />
 		
-		<BuildingJob jobCost="1200">
-			<Inventory Type="inv_RawStone" amount="25"/>
-		</BuildingJob>
+		<OrderActions>
+			<OrderAction Type="Build">
+				<JobCost>1200</JobCost>
+				<Inventory Type="inv_RawStone" Amount="25" />
+			</OrderAction>
+		</OrderActions>
 		
 		<DeconstructJob jobCost="300">
 			<Inventory Type="inv_RawStone" amount="15"/>

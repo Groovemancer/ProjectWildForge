@@ -180,7 +180,7 @@ public class TimeManager
         avgDeltaAuts += deltaAuts / count;
         if (count > maxCount)
         {
-            DebugUtils.LogChannel("TimeManager", "Update Avg Delta Auts: " + avgDeltaAuts);
+            //DebugUtils.LogChannel("TimeManager", "Update Avg Delta Auts: " + avgDeltaAuts);
             count = 0;
             avgDeltaAuts = 0;
         }
@@ -269,6 +269,7 @@ public class TimeManager
             TimeScalePosition = newTimeScalePosition;
             TimeScale = possibleTimeScales[newTimeScalePosition];
             DebugUtils.LogChannel("Game speed", "Game speed set to " + TimeScale + "x");
+            IsPaused = false;
         }
     }
 

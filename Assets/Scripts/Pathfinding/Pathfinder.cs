@@ -120,7 +120,7 @@ namespace ProjectWildForge.Pathfinding
 
                 foreach (Inventory inventory in World.Current.InventoryManager.Inventories.Where(dictEntry => types.Contains(dictEntry.Key)).SelectMany(dictEntry => dictEntry.Value))
                 {
-                    if (inventory.Tile == null)// || !inventory.CanBePickedUp(canTakeFromStockpile))
+                    if (inventory.Tile == null || !inventory.CanBePickedUp(canTakeFromStockpile))
                     {
                         continue;
                     }
@@ -424,7 +424,7 @@ namespace ProjectWildForge.Pathfinding
         /// </summary>
         public static GoalEvaluator GoalInventoryEvaluator(string[] types, bool canTakeFromStockpile = true)
         {
-            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ types.Contains(tile.Inventory.Type);
+            return tile => tile.Inventory != null && tile.Inventory.CanBePickedUp(canTakeFromStockpile) && types.Contains(tile.Inventory.Type);
         }
 
         /// <summary>
@@ -432,13 +432,13 @@ namespace ProjectWildForge.Pathfinding
         /// </summary>
         public static GoalEvaluator GoalInventoryEvaluator(string type, bool canTakeFromStockpile = true)
         {
-            return tile => tile.Inventory != null && /*tile.Inventory.CanBePickedUp(canTakeFromStockpile) &&*/ type == tile.Inventory.Type;
+            return tile => tile.Inventory != null && tile.Inventory.CanBePickedUp(canTakeFromStockpile) && type == tile.Inventory.Type;
         }
 
         public static RoomGoalEvaluator RoomGoalInventoryEvaluator(string[] types, bool canTakeFromStockpile = true)
         {
             return room =>
-                World.Current.InventoryManager.Inventories.Where(dictEntry => types.Contains(dictEntry.Key)).SelectMany(dictEntry => dictEntry.Value).Any(inv => inv != null && /*inv.CanBePickedUp(canTakeFromStockpile) &&*/ inv.Tile != null && inv.Tile.GetNearestRoom() == room);
+                World.Current.InventoryManager.Inventories.Where(dictEntry => types.Contains(dictEntry.Key)).SelectMany(dictEntry => dictEntry.Value).Any(inv => inv != null && inv.CanBePickedUp(canTakeFromStockpile) && inv.Tile != null && inv.Tile.GetNearestRoom() == room);
         }
 
         public static RoomGoalEvaluator RoomEvaluator(Room goal)
@@ -448,7 +448,7 @@ namespace ProjectWildForge.Pathfinding
 
         public static RoomGoalEvaluator RoomGoalInventoryEvaluator(string type, bool canTakeFromStockpile = true)
         {
-            return room => World.Current.InventoryManager.Inventories.Keys.Contains(type) && World.Current.InventoryManager.Inventories[type].Any(inv => inv.Tile.GetNearestRoom() == room /*&& inv.CanBePickedUp(canTakeFromStockpile)*/);
+            return room => World.Current.InventoryManager.Inventories.Keys.Contains(type) && World.Current.InventoryManager.Inventories[type].Any(inv => inv.Tile.GetNearestRoom() == room && inv.CanBePickedUp(canTakeFromStockpile));
         }
 
         public static RoomGoalEvaluator RoomGoalStructureEvaluator(string type)

@@ -32,12 +32,14 @@ public class Tile : IXmlSerializable
     public event Action<Tile> TileChanged;
     public event Action<Tile> TileTypeChanged;
 
+    public HashSet<Structure> ReservedAsWorkSpotBy { get; private set; }
+
     public Inventory Inventory;
 
     public Room Room;
 
     public Structure Structure { get; protected set; }
-    public Job PendingStructureJob;
+    public HashSet<Job> PendingBuildJobs { get; set; }
 
     /// <summary>
     /// The total pathfinding cost of entering this tile.
@@ -59,6 +61,9 @@ public class Tile : IXmlSerializable
         this.Z = z;
         CanSee = false;
         _type = TileTypeData.Instance.DefaultType;
+
+        ReservedAsWorkSpotBy = new HashSet<Structure>();
+        PendingBuildJobs = new HashSet<Job>();
 
         UpdatePathfindingCost();
     }
@@ -196,6 +201,16 @@ public class Tile : IXmlSerializable
         }
 
         return Enterability.Yes;
+    }
+
+    // Called when the character has completed the job to change tile type
+    public static void ChangeTileTypeJobComplete(Job theJob)
+    {
+        theJob.Tile.SetTileType(theJob.JobTileType);
+
+        // FIXME: I don't like having to manually and explicitly set
+        // flags that preven conflicts. It's too easy to forget to set/clear them!
+        theJob.Tile.PendingBuildJobs.Remove(theJob);
     }
 
     public void SetTileType(TileType newTileType, bool doRoomFloodFill = true)

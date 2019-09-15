@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using MoonSharp.VsCodeDebugger;
 
 public class LuaFunctions : IFunctions
 {
@@ -35,16 +36,24 @@ public class LuaFunctions : IFunctions
         // We need to make the base type visible.
         RegisterGlobal(typeof(Inventory));
         RegisterGlobal(typeof(Job));
-        //RegisterGlobal(typeof(ModUtils));
+        RegisterGlobal(typeof(JobManager));
+        RegisterGlobal(typeof(ModUtils));
         RegisterGlobal(typeof(World));
         RegisterGlobal(typeof(WorldController));
         //RegisterGlobal(typeof(Connection));
         //RegisterGlobal(typeof(Scheduler.Scheduler));
         //RegisterGlobal(typeof(Scheduler.ScheduledEvent));
-        //RegisterGlobal(typeof(ProjectPorcupine.Jobs.RequestedItem));
+        RegisterGlobal(typeof(RequestedItem));
         //RegisterGlobal(typeof(DeveloperConsole.DevConsole));
         //RegisterGlobal(typeof(Settings));
     }
+
+    ~LuaFunctions()
+    {
+        server.Dispose();
+    }
+
+    static MoonSharpVsCodeDebugServer server;
 
     public bool HasFunction(string name)
     {
@@ -66,6 +75,14 @@ public class LuaFunctions : IFunctions
         this.scriptName = scriptName;
         try
         {
+            if (server == null)
+            {
+                server = new MoonSharpVsCodeDebugServer();
+                server.Start();
+            }
+
+            server.AttachToScript(script, "StructureActions", s => text);
+
             script.DoString(text, script.Globals);
         }
         catch (SyntaxErrorException e)

@@ -4,26 +4,6 @@ Enterability_Yes	 = 0
 Enterability_Never	 = 1
 Enterability_Soon	 = 2
 
-function Clamp01(value)
-	if (value > 1) then
-		return 1
-	elseif (value < 0) then
-		return 0
-	end
-	
-	return value
-end
-
-function Clamp(value, minVal, maxVal)
-	if (value > maxVal) then
-		return maxVal
-	elseif (value < minVal) then
-		return minVal
-	end
-	
-	return value
-end
-
 -- OnUpdate_GasGenerator
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
@@ -42,17 +22,23 @@ end
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
 function OnUpdate_Door(structure, deltaAuts)
-	if (structure.GetParameter("isOpening") >= 1) then
-		structure.ChangeParameter("openness", deltaAuts)
-		if (structure.GetParameter("openness") >= structure.GetParameter("doorOpenTime")) then
-			structure.SetParameter("isOpening", 0)
+	ModUtils.ULog("deltaAuts: " .. deltaAuts)
+	ModUtils.ULog("Openness: " .. structure.Parameters["openness"].value)
+	ModUtils.ULog("doorOpenTime: " .. structure.Parameters["doorOpenTime"].value)
+	ModUtils.ULog("isOpening: " .. structure.Parameters["isOpening"].value)
+	
+	
+	if (structure.Parameters["isOpening"].ToFloat() >= 1) then
+		structure.Parameters["openness"].ChangeFloatValue(deltaAuts)
+		if (structure.Parameters["openness"].ToFloat() >= structure.Parameters["doorOpenTime"].ToFloat()) then
+			structure.Parameters["isOpening"].SetValue(0)
 		end
 	else
-		structure.ChangeParameter("openness", -deltaAuts)
+		structure.Parameters["openness"].ChangeFloatValue(-deltaAuts)
 	end
 	
-	structure.SetParameter("openness", Clamp(structure.GetParameter("openness"), 0,
-		structure.GetParameter("doorOpenTime")))
+	structure.Parameters["openness"].SetValue(ModUtils.Clamp(structure.Parameters["openness"].ToFloat(), 0,
+		structure.Parameters["doorOpenTime"].ToFloat()))
 		
 	if (structure.VerticalDoor == true) then
 		structure.SetAnimationState("vertical")
@@ -60,24 +46,25 @@ function OnUpdate_Door(structure, deltaAuts)
 		structure.SetAnimationState("horizontal")
 	end
 	
-	structure.cbOnChanged(structure)
-	structure.SetAnimationProgressValue(structure.GetParameter("openness"), 1)
+	structure.SetAnimationProgressValue(structure.Parameters["openness"].ToFloat(), 1)
 end
 
 -- IsEnterable_Door
 -- @Params - structure:Structure
 function IsEnterable_Door(structure)
 
-	structure.SetParameter("isOpening", 1)
+	structure.Parameters["isOpening"].SetValue(1)
 
-	if (structure.GetParameter("openness") >= structure.GetParameter("doorOpenTime")) then
+	if (structure.Parameters["openness"].ToFloat() >= structure.Parameters["doorOpenTime"].ToFloat()) then
 		return Enterability_Yes
 	end
 
 	return Enterability_Soon
 end
 
-function Stockpile_GetItemsFromFilter()
+-- IsEnterable_Door
+-- @Params - structure:Structure
+function Stockpile_GetItemsFromFilter(structure)
 
 	-- TODO: This should be reading from some kind of UI for this
 	-- particular stockpile
@@ -85,7 +72,8 @@ function Stockpile_GetItemsFromFilter()
 	-- Since jobs copy arrays automatically, we could already have
 	-- an Inventory[] prepared and just return that (as a sort of example filter)
 
-	return { Inventory.__new("inv_RawStone", 0, 50) }
+	--return { Inventory.__new("inv_RawStone", 0, 50) }
+	return structure.AcceptsForStorage()
 end
 
 -- OnUpdate_Stockpile
@@ -108,11 +96,11 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 
 	if (structure.Tile.Inventory ~= nil and structure.Tile.Inventory.StackSize >=
 		structure.Tile.Inventory.MaxStackSize) then
-		structure.CancelJobs();
+		structure.Jobs.CancelAll();
 	end
 	
 	-- Maybe we already have a job queued up?
-	if (structure.JobCount() > 0) then
+	if (structure.Jobs.Count > 0) then
 		-- Cool, all done.
 		return;
 	end
@@ -122,7 +110,7 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 
 	-- Third possibility: Something is WHACK
 	if (structure.Tile.Inventory ~= null and structure.Tile.Inventory.stackSize == 0) then
-		structure.CancelJobs()
+		structure.CancelAll()
 		return "Stockpile has a zero-size stack. This is clearly WRONG!"
 	end
 	
@@ -135,77 +123,83 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 	-- could be a lot smarter, in that even if the stockpile has some stuff in it, it
 	-- can also still be requesting different object types in its job creation.
 
-	itemsDesired = {}
 	
-	if (structure.Tile.Inventory == nil) then
-		-- Debug.Log("Creating job for new stack.");
-		itemsDesired = Stockpile_GetItemsFromFilter()
-	else
-		-- Debug.Log("Creating job for existing stack.");
-		desInv = structure.Tile.Inventory.Clone()
-		desInv.MaxStackSize = desInv.MaxStackSize - desInv.StackSize
-		desInv.StackSize = 0
+	local itemsDesired = {}
 
-		itemsDesired = { desInv }
-	end
+	if( structure.Tile.Inventory == nil ) then
+		--ModUtils.ULog("Creating job for new stack.")
+		itemsDesired = Stockpile_GetItemsFromFilter( structure )
+	else
+		--ModUtils.ULog("Creating job for existing stack.")
+		local inventory = structure.Tile.Inventory
+		local item = RequestedItem.__new(inventory.Type, 1, inventory.MaxStackSize - inventory.StackSize)
+        itemsDesired = { item }
+    end
 	
-	j = Job.__new(
+	local job = Job.__new(
 		structure.Tile,
 		nil,
 		nil,
 		0,
 		itemsDesired,
+		Job.JobPriority.Low,
+		"hauling",
 		false
 	)
+	job.Description = "job_stockpile_moving_desc"
+	
+	ModUtils.ULog("OnUpdate_Stockpile Job Created")
+	
 	-- TODO: Later on, add stockpile priorities, so that we can take from a lower
     -- priority stockpile for a higher priority one.
-	j.canTakeFromStockpile = false;
+	job.canTakeFromStockpile = false;
+	job.acceptsAny = true
 
-	j.RegisterJobWorkedCallback("Stockpile_JobWorked")
-	structure.AddJob(j)
+	job.RegisterJobWorkedCallback("Stockpile_JobWorked")
+	structure.Jobs.Add(job)
 
 end
 
 -- Stockpile_JobWorked
--- @Params - j:Job
-function Stockpile_JobWorked(j)
-	j.CancelJob()
+-- @Params - job:Job
+function Stockpile_JobWorked(job)
+    job.CancelJob()
 
-	-- TODO: Change this when we figure out what we're doing for the all/any pickup job.
-	for k, inv in pairs(j.inventoryRequirements) do
-		if (inv.StackSize > 0) then
-			World.Current.InventoryManager.PlaceInventory(j.Tile, inv)
-			return
-		end
-	end
-
+    -- TODO: Change this when we figure out what we're doing for the all/any pickup job.
+    --values = job.GetInventoryRequirementValues();
+    for k, inv in pairs(job.DeliveredItems) do
+        if(inv.StackSize > 0) then
+            World.Current.InventoryManager.PlaceInventory(job.tile, inv)
+            return -- There should be no way that we ever end up with more than on inventory requirement with StackSize > 0
+        end
+    end
 end
 
 -- OnUpdate_WorkStation
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
 function OnUpdate_WorkStation(structure, deltaAuts)
-	spawnSpot = structure.GetSpawnSpotTile()
+	local outputSpot = structure.Jobs.OutputSpotTile
 	
-	if (structure.JobCount() > 0) then
+	if (structure.Jobs.Count > 0) then
 		-- Check to see if the Raw Stone destination tile is full.
-		if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
+		if (outputSpot.Inventory ~= nil and outputSpot.Inventory.StackSize >= outputSpot.Inventory.MaxStackSize) then
 			-- We should stop this job, because it's impossible to make any more items.
-			structure.CancelJobs()
+			structure.Jobs.CancelAll()
 		end
 
 		return
 	end
 	
 	-- If we get here, then we have no current job. Check to see if our destination is full.
-	if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
+	if (outputSpot.Inventory ~= nil and outputSpot.Inventory.StackSize >= outputSpot.Inventory.MaxStackSize) then
 		-- We are full! Don't make a job.
 		return
 	end
 	
 	-- If we get here, we need to CREATE a new job.
 
-	jobSpot = structure.GetJobSpotTile()
+	local jobSpot = structure.Jobs.WorkSpotTile
 
 	if (jobSpot.Inventory ~= nil and (jobSpot.Inventory.StackSize >= jobSpot.Inventory.MaxStackSize)) then
 		-- Our drop spot is already full, so don't create a job.
@@ -218,11 +212,13 @@ function OnUpdate_WorkStation(structure, deltaAuts)
 		nil,
 		600,
 		nil,
+		Job.JobPriority.Medium,
+		"workshop",
 		true    -- This job repeats until the destination tile is full.
 	)
 	j.RegisterJobCompletedCallback("WorkStation_JobComplete")
 
-	structure.AddJob(j)
+	structure.Jobs.Add(j)
 
 end
 
@@ -231,7 +227,7 @@ end
 function WorkStation_JobComplete(j)
 	--Debug.Log("WorkStation_JobComplete");
 
-	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
+	World.Current.InventoryManager.PlaceInventory(j.Buildable.Jobs.OutputSpotTile,
 		Inventory.__new("inv_RawStone", 10, 50))
 end
 
@@ -239,56 +235,144 @@ end
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
 function OnUpdate_StoneCuttingTable(structure, deltaAuts)
-	spawnSpot = structure.GetSpawnSpotTile()
+	ModUtils.ULog("OnUpdate_StoneCuttingTable 1")
+	local jobSpot = structure.Jobs.WorkSpotTile
+	local inputSpot = structure.Jobs.InputSpotTile
+	local outputSpot = structure.Jobs.OutputSpotTile
 	
-	if (structure.JobCount() > 0) then
-		-- Check to see if the Raw Stone destination tile is full.
-		if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
-			-- We should stop this job, because it's impossible to make any more items.
-			structure.CancelJobs()
-		end
-
-		return
-	end
+	--if (structure.Jobs.Count > 0) then
+	--	-- Check to see if the Raw Stone destination tile is full.
+	--	if (outputSpot.Inventory ~= nil and outputSpot.Inventory.StackSize >= outputSpot.Inventory.MaxStackSize) then
+	--		-- We should stop this job, because it's impossible to make any more items.
+	--		structure.Jobs.CancelAll()
+	--		ModUtils.ULog("OnUpdate_StoneCuttingTable 2")
+	--	end
+	--
+	--	ModUtils.ULog("OnUpdate_StoneCuttingTable 3")
+	--	return
+	--end
 	
 	-- If we get here, then we have no current job. Check to see if our destination is full.
-	if (spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize) then
-		-- We are full! Don't make a job.
+	if (outputSpot.Inventory ~= nil and outputSpot.Inventory.StackSize >= outputSpot.Inventory.MaxStackSize) then
+	--	-- We are full! Don't make a job.
+	--	ModUtils.ULog("OnUpdate_StoneCuttingTable 4")
 		return
 	end
 	
-	-- If we get here, we need to CREATE a new job.
-
-	jobSpot = structure.GetJobSpotTile()
-
-	if (jobSpot.Inventory ~= nil and (jobSpot.Inventory.StackSize >= jobSpot.Inventory.MaxStackSize)) then
-		-- Our drop spot is already full, so don't create a job.
-		return
-	end
+	if (inputSpot.Inventory ~= nil and inputSpot.Inventory.Type == "inv_RawStone" and
+		inputSpot.Inventory.StackSize >= 10) then
+		j = Job.__new(
+			jobSpot,
+			nil,
+			nil,
+			1200,
+			nil,
+			Job.JobPriority.Medium,
+			"workshop",
+			false
+		)
+		
+		j.RegisterJobCompletedCallback("StoneCuttingTable_JobComplete")
+		
+		structure.Jobs.Add(j)
+		
+		if (inputSpot.Inventory.StackSize <= 0) then
+			inputSpot.Inventory = nil
+		end
+		
+        --furniture.Parameters["smelttime"].ChangeFloatValue(deltaTime)
+        --if (furniture.Parameters["smelttime"].ToFloat() >= furniture.Parameters["smelttime_required"].ToFloat()) then
+        --    furniture.Parameters["smelttime"].SetValue(0)
+		--
+        --    if (outputSpot.Inventory == nil) then
+        --        World.Current.InventoryManager.PlaceInventory(outputSpot, Inventory.__new("Steel Plate", 5))
+        --        inputSpot.Inventory.StackSize = inputSpot.Inventory.StackSize - 5
+		--
+        --    elseif (outputSpot.Inventory.StackSize <= outputSpot.Inventory.MaxStackSize - 5) then
+        --        outputSpot.Inventory.StackSize = outputSpot.Inventory.StackSize + 5
+        --        inputSpot.Inventory.StackSize = inputSpot.Inventory.StackSize - 5
+        --    end
+		--
+        --    if (inputSpot.Inventory.StackSize <= 0) then
+        --        inputSpot.Inventory = nil
+        --    end
+        --end
+		ModUtils.ULog("OnUpdate_StoneCuttingTable 5")
+    end
 	
-	itemsDesired = { Inventory.__new("inv_RawStone", 10, 0) }
+	
+	if (inputSpot.Inventory ~= nil and inputSpot.Inventory.StackSize == inputSpot.Inventory.MaxStackSize) then
+        -- We have the max amount of resources, cancel the job.
+        -- This check exists mainly, because the job completed callback doesn't
+        -- seem to be reliable.
+        --structure.Jobs.CancelAll()
+		ModUtils.ULog("OnUpdate_StoneCuttingTable 6")
+        return
+    end
+
+    --if (structure.Jobs.Count > 0) then
+	--	ModUtils.ULog("OnUpdate_StoneCuttingTable 7")
+    --    return
+    --end
+	
+	-- Create job depending on the already available stack size.
+    local desiredStackSize = 50
+    if(inputSpot.Inventory ~= nil and inputSpot.Inventory.StackSize < inputSpot.Inventory.MaxStackSize) then
+        desiredStackSize = inputSpot.Inventory.MaxStackSize - inputSpot.Inventory.StackSize
+		ModUtils.ULog("OnUpdate_StoneCuttingTable 8")
+    end
+	
+	ModUtils.ULog("Desired StackSize: " .. desiredStackSize )
+	
+	local itemsDesired = { RequestedItem.__new("inv_RawStone", desiredStackSize) }
 	
 	j = Job.__new(
-		jobSpot,
+		inputSpot,
 		nil,
 		nil,
-		1200,
+		0,
 		itemsDesired,
-		true    -- This job repeats until the destination tile is full.
-	)
+		Job.JobPriority.Medium,
+		"hauling",
+		false
+	)  
 	
-	j.RegisterJobCompletedCallback("StoneCuttingTable_JobComplete")
+	j.RegisterJobWorkedCallback("StoneCuttingTable_JobWorked")
 
-	structure.AddJob(j)
+	structure.Jobs.Add(j)
+	ModUtils.ULog("OnUpdate_StoneCuttingTable 9")
+end
+
+function StoneCuttingTable_JobWorked(job)
+    job.CancelJob()
+    local inputSpot = job.Tile.Structure.Jobs.InputSpotTile
+    for k, inv in pairs(job.DeliveredItems) do
+        if(inv ~= nil and inv.StackSize > 0) then
+            World.Current.InventoryManager.PlaceInventory(inputSpot, inv)
+            inputSpot.Inventory.Locked = true
+            return
+        end
+    end
 end
 
 -- StoneCuttingTable_JobComplete
--- @Params - j:Job
-function StoneCuttingTable_JobComplete(j)
-	--Debug.Log("StoneCuttingTable_JobComplete");
-
-	World.Current.InventoryManager.PlaceInventory(j.Structure.GetSpawnSpotTile(),
-		Inventory.__new("inv_StoneBlock", 5, 50))
+-- @Params - job:Job
+function StoneCuttingTable_JobComplete(job)
+	ModUtils.ULog("StoneCuttingTable_JobComplete")
+	
+	job.CancelJob()
+	
+	local inputSpot = job.Tile.Structure.Jobs.InputSpotTile
+	--if (inputSpot.Inventory ~= nil) then
+		inputSpot.Inventory.StackSize = inputSpot.Inventory.StackSize - 10
 		
-	j.CancelJob()
+		if (inputSpot.Inventory.StackSize <= 0) then
+			inputSpot.Inventory = nil
+		end
+
+		World.Current.InventoryManager.PlaceInventory(job.Tile.Structure.Jobs.OutputSpotTile,
+			Inventory.__new("inv_StoneBlock", 5, 50))
+	--end
 end
+
+return "Lua Script Parsed!"

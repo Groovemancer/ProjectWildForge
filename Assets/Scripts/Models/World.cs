@@ -131,10 +131,10 @@ public class World : IXmlSerializable
         // Make one actor
         Actor initialActor1 = ActorManager.Create(GetTileAt(Width / 2, Height / 2, 0),
             RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
-        Actor initialActor2 = ActorManager.Create(GetTileAt(Width / 2 + 2, Height / 2, 0),
-            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
-        Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
-            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
+        //Actor initialActor2 = ActorManager.Create(GetTileAt(Width / 2 + 2, Height / 2, 0),
+        //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
+        //Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
+        //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
 
         DetermineVisibility(initialActor1.CurrTile);
     }
@@ -325,6 +325,50 @@ public class World : IXmlSerializable
         {
             tileGraph.RegenerateGraphAtTile(tile);
         }
+    }
+
+    /// <summary>
+    /// Reserves the structure's work spot, preventing it from being built on. Will not reserve a workspot inside of the structure.
+    /// </summary>
+    /// <param name="furniture">The structure whose workspot will be reserved.</param>
+    /// <param name="tile">The tile on which the structure is located, for structures which don't have a tile, such as prototypes.</param>
+    public void ReserveTileAsWorkSpot(Structure structure, Tile tile = null)
+    {
+        if (tile == null)
+        {
+            tile = structure.Tile;
+        }
+
+        // if it's an internal workspot bail before reserving.
+        if (structure.Jobs.WorkSpotIsInternal())
+        {
+            return;
+        }
+
+        GetTileAt(
+            tile.X + (int)structure.Jobs.WorkSpotOffset.x,
+            tile.Y + (int)structure.Jobs.WorkSpotOffset.y,
+            tile.Z)
+            .ReservedAsWorkSpotBy.Add(structure);
+    }
+
+    /// <summary>
+    /// Unreserves the structure's work spot, allowing it to be built on.
+    /// </summary>
+    /// <param name="structure">The structure whose workspot will be unreserved.</param>
+    /// <param name="tile">The tile on which the structure is located, for structures which don't have a tile, such as prototypes.</param>
+    public void UnreserveTileAsWorkSpot(Structure structure, Tile tile = null)
+    {
+        if (tile == null)
+        {
+            tile = structure.Tile;
+        }
+
+        World.Current.GetTileAt(
+            tile.X + (int)structure.Jobs.WorkSpotOffset.x,
+            tile.Y + (int)structure.Jobs.WorkSpotOffset.y,
+            tile.Z)
+            .ReservedAsWorkSpotBy.Remove(structure);
     }
 
     private void OnStructureCreated(Structure structure)

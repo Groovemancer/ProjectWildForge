@@ -8,6 +8,7 @@
 #endregion
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using MoonSharp.Interpreter;
 using Newtonsoft.Json.Linq;
 
@@ -192,45 +193,46 @@ public class Parameter
         return contents.Count > 0;
     }
 
-    public JToken ToJson()
+    public void ToXml(XmlWriter writer)
     {
         if (HasContents())
         {
-            JObject contentsJson = new JObject();
             foreach (string key in contents.Keys)
             {
-                contentsJson.Add(key, contents[key].ToJson());
-                return contentsJson;
+                writer.WriteStartElement("Param");
+                writer.WriteAttributeString("name", key);
+                writer.WriteAttributeString("value", contents[key].ToString());
+                writer.WriteEndElement();
             }
         }
-
-        return value;
     }
 
-    public void FromJson(JToken parameterToken)
+    public void FromXml(XmlNode rootNode)
     {
-        JObject parameterJObject = (JObject)parameterToken;
-        if (parameterJObject == null)
+        if (rootNode == null)
         {
             return;
         }
 
-        foreach (JProperty parameterProperty in parameterJObject.Properties())
+        foreach (XmlNode parameterNode in rootNode.ChildNodes)
         {
-            string key = parameterProperty.Name;
-            Parameter parameter = new Parameter(key);
-            JToken valueToken = parameterProperty.Value;
-
-            if (valueToken.Children().Count() >= 1)
+            if (parameterNode.Name == "Param")
             {
-                parameter.FromJson(valueToken);
-            }
-            else
-            {
-                parameter.SetValue((string)valueToken);
-            }
+                string key = parameterNode.Attributes["Name"].InnerText;
+                Parameter parameter = new Parameter(key);
+                string value = parameterNode.InnerText;
 
-            AddParameter(parameter);
+                if (parameterNode.ChildNodes.Count > 1)
+                {
+                    parameter.FromXml(parameterNode);
+                }
+                else
+                {
+                    parameter.SetValue(value);
+                }
+
+                AddParameter(parameter);
+            }
         }
     }
 

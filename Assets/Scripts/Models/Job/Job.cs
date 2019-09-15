@@ -17,6 +17,9 @@ public class Job
 
     public IBuildable buildablePrototype;
 
+    // The structure that owns this job. Frequently will be null.
+    public IBuildable Buildable;
+
     public float JobCost
     {
         get;
@@ -34,8 +37,6 @@ public class Job
     }
 
     public Structure structurePrototype;
-
-    public Structure Structure; // The structure that owns this job. Frequently will be null.
 
     bool acceptsAnyInventoryItem = false;
 
@@ -291,7 +292,6 @@ public class Job
 
         foreach (string luaFunction in cbJobWorkedLua.ToList())
         {
-            //StructureActions.CallFunction(luaFunction, this);
             FunctionsManager.Structure.Call(luaFunction, this);
         }
 
@@ -307,23 +307,27 @@ public class Job
 
         if (JobCost <= 0)
         {
-            // Do whatever is supposed to happen when a job cycle completes.
-            if (OnJobCompleted != null)
-            {
-                OnJobCompleted(this);
-            }
-
             foreach (string luaFunction in cbJobCompletedLua.ToList())
             {
                 //StructureActions.CallFunction(luaFunction, this);
                 FunctionsManager.Structure.Call(luaFunction, this);
             }
 
-            if (jobRepeats == false)
+            // Do whatever is supposed to happen when a job cycle completes.
+            if (OnJobCompleted != null)
+            {
+                OnJobCompleted(this);
+            }
+
+            World.Current.JobManager.Remove(this);
+
+            if (jobRepeats != true)
             {
                 // Let everyone know that the job is officially concluded
                 if (OnJobStopped != null)
+                {
                     OnJobStopped(this);
+                }
             }
             else
             {
@@ -379,14 +383,14 @@ public class Job
             OnJobStopped(this);
 
         // If we are a building job let our tile know we are no longer pending
-        //if (buildablePrototype != null)
-        //{
-        //    // If we are a structure building job, Let our workspot tile know it is no longer reserved for us.
-        //    if (buildablePrototype.GetType() == typeof(Structure))
-        //    {
-        //        World.Current.UnreserveTileAsWorkSpot((Structure)buildablePrototype, Tile);
-        //    }
-        //}
+        if (buildablePrototype != null)
+        {
+            // If we are a structure building job, Let our workspot tile know it is no longer reserved for us.
+            if (buildablePrototype.GetType() == typeof(Structure))
+            {
+                World.Current.UnreserveTileAsWorkSpot((Structure)buildablePrototype, Tile);
+            }
+        }
 
         World.Current.JobManager.Remove(this);
     }

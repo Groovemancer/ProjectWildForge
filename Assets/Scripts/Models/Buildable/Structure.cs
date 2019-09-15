@@ -20,14 +20,6 @@ using Animation;
 public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 {
     /// <summary>
-    /// Custom parameters for this particular structure. We
-    /// are using a dictionary because later, custom Lua functions will
-    /// be able to use whatever parameters teh user/modder would like.
-    /// Basically, the Lua code will bind to this dictionary.
-    /// </summary>
-    protected Dictionary<string, float> structureParameters;
-
-    /// <summary>
     /// These actions are called every update. They get passed the structure
     /// they belong to, plus a deltaTime.
     /// </summary>
@@ -36,35 +28,11 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
     protected string isEnterableAction;
 
-    List<Job> jobs;
-
     private HashSet<string> typeTags;
 
     private Dictionary<string, OrderAction> orderActions;
 
-    // If this structure gets worked by a person,
-    // where is the correct spot for them to stand,
-    // relative to the bottom-left tile of the sprite.
-    // NOTE: This could even be something outside of the actual
-    // structure tile itself!   (In fact, this will probably be common).
-    public Vector2 jobSpotOffset = Vector2.zero;
-
-    // If the job causes some kind of object to be spawned, where will it appear?
-    public Vector2 jobSpawnSpotOffset = Vector2.zero;
-
-    public void Update(float deltaAuts)
-    {
-        if (updateActions != null)
-        {
-            //updateActions(this, deltaAuts);
-            //StructureActions.CallFuncitonsWithStructure(updateActions.ToArray(), this, deltaAuts);
-        }
-
-        if (Animations != null)
-        {
-            //Animations.Update(Time.deltaTime);
-        }
-    }
+    private List<string> replaceableStructure = new List<string>();
 
     public Enterability IsEnterable()
     {
@@ -82,6 +50,16 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// Gets or sets the structure animation.
     /// </summary>
     public StructureAnimation Animations { get; set; }
+
+    /// <summary>
+    /// Gets a component that handles the jobs linked to the structure.
+    /// </summary>
+    public BuildableJobs Jobs { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the parameters that is tied to the structure.
+    /// </summary>
+    public Parameter Parameters { get; set; }
 
     public string GetDefaultSpriteName()
     {
@@ -138,6 +116,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// <param name="deltaTime">The time since the last update was called.</param>
     public void FixedFrequencyUpdate(float deltaTime)
     {
+        Jobs.ResumeAll();
+
         if (EventActions != null)
         {
             EventActions.Trigger("OnUpdate", this, deltaTime);
@@ -189,6 +169,16 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
     // This "objectType" will be queried by the visual system to know what sprite to render for this object
     public string Type { get; protected set; }
+
+    /// <summary>
+    /// Gets a list of structure Type this structure can be replaced with.
+    /// This should most likely not be a list of strings.
+    /// </summary>
+    /// <value>A list of structure that this structure can be replaced with.</value>
+    public List<string> ReplaceableStructure
+    {
+        get { return replaceableStructure; }
+    }
 
     private string _Name = null;
     public string Name
@@ -294,8 +284,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     // Empty constructor is used for serialization
     public Structure()
     {
-        structureParameters = new Dictionary<string, float>();
-        jobs = new List<Job>();
+        Parameters = new Parameter();
+        Jobs = new BuildableJobs(this);
         updateActions = new List<string>();
         EventActions = new EventActions();
 
@@ -322,12 +312,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         this.LinksToNeighbors = other.LinksToNeighbors;
         this.AllowedTileTypes = other.AllowedTileTypes;
 
-        this.jobSpotOffset = other.jobSpotOffset;
-        this.jobSpawnSpotOffset = other.jobSpawnSpotOffset;
+        this.Parameters = new Parameter(other.Parameters);
+        this.Jobs = new BuildableJobs(this, other.Jobs);
         this.typeTags = new HashSet<string>(other.typeTags);
-
-        this.structureParameters = new Dictionary<string, float>(other.structureParameters);
-        jobs = new List<Job>();
 
         if (other.Animations != null)
         {
@@ -377,7 +364,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
         this.funcPositionValidation = this.DefaulIsValidPosition;
 
-        structureParameters = new Dictionary<string, float>();
+        Parameters = new Parameter();
+        Jobs = new BuildableJobs(this);
         typeTags = new HashSet<string>();
         updateActions = new List<string>();
         isEnterableAction = "";
@@ -426,6 +414,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
                 }
             }
         }
+
+        // Let our workspot tile know it is reserved for us
+        World.Current.ReserveTileAsWorkSpot(obj);
 
         return obj;
     }
@@ -515,36 +506,39 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         Removed -= callbackFunc;
     }
 
-
     /// <summary>
-    /// Gets the custom structure parameter from a string key.
+    /// Accepts for storage.
     /// </summary>
-    /// <param name="key"></param>
-    /// <param name="defaultValue"></param>
-    /// <returns></returns>
-    public float GetParameter(string key, float defaultValue)
+    /// <returns>A list of RequestedItem which the Structure accepts for storage.</returns>
+    public RequestedItem[] AcceptsForStorage()
     {
-        if (structureParameters.ContainsKey(key) == false)
+        if (HasTypeTag("Storage") == false)
         {
-            return defaultValue;
+            DebugUtils.LogChannel("Stockpile_messages", "Someone is asking a non-stockpile to store stuff!?");
+            return null;
         }
-        return structureParameters[key];
+
+        // TODO: read this from structure params
+        Dictionary<string, RequestedItem> itemsDict = new Dictionary<string, RequestedItem>();
+        foreach (Inventory inventoryProto in PrototypeManager.Inventory.Values)
+        {
+            itemsDict[inventoryProto.Type] = new RequestedItem(inventoryProto.Type, 1, inventoryProto.MaxStackSize);
+        }
+
+        return itemsDict.Values.ToArray();
     }
 
-    public float GetParameter(string key)
+    public T GetOrderAction<T>() where T : OrderAction
     {
-        return GetParameter(key, 0);
-    }
-
-    public void SetParameter(string key, float value)
-    {
-        structureParameters[key] = value;
-    }
-
-    public void ChangeParameter(string key, float value)
-    {
-        if (structureParameters.ContainsKey(key))
-            structureParameters[key] += value;
+        OrderAction orderAction;
+        if (orderActions.TryGetValue(typeof(T).Name, out orderAction))
+        {
+            return (T)orderAction;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -560,41 +554,6 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         updateActions.Remove(luaFunctionName);
     }
 
-    public int JobCount()
-    {
-        return jobs.Count;
-    }
-
-    public void OnJobStopped(Job j)
-    {
-        RemoveJob(j);
-    }
-
-    protected void RemoveJob(Job j)
-    {
-        j.UnregisterJobStoppedCallback(OnJobStopped);
-        jobs.Remove(j);
-        j.Structure = null;
-    }
-
-    protected void ClearJobs()
-    {
-        Job[] jobs_array = jobs.ToArray();
-        foreach (Job j in jobs_array)
-        {
-            RemoveJob(j);
-        }
-    }
-
-    public void CancelJobs()
-    {
-        Job[] jobs_array = jobs.ToArray();
-        foreach (Job j in jobs_array)
-        {
-            j.CancelJob();
-        }
-    }
-
     public bool HasTypeTag(string tag)
     {
         return typeTags.Contains(tag);
@@ -603,11 +562,6 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     public string[] GetTypeTags()
     {
         return typeTags.ToArray();
-    }
-
-    public bool IsStockpile()
-    {
-        return typeTags.Contains("Stockpile");
     }
 
     public void Deconstruct()
@@ -625,8 +579,10 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
             fwidth = structure.Width;
             fheight = structure.Height;
             linksToNeighbors = structure.LinksToNeighbors;
-            structure.CancelJobs();
+            structure.Jobs.CancelAll();
         }
+
+        World.Current.UnreserveTileAsWorkSpot(this);
 
         Tile.UnplaceStructure();
 
@@ -663,16 +619,6 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         // should get garbage-collected.
     }
 
-    public Tile GetJobSpotTile()
-    {
-        return World.Current.GetTileAt(Tile.X + (int)jobSpotOffset.x, Tile.Y + (int)jobSpotOffset.y, Tile.Z);
-    }
-
-    public Tile GetSpawnSpotTile()
-    {
-        return World.Current.GetTileAt(Tile.X + (int)jobSpawnSpotOffset.x, Tile.Y + (int)jobSpawnSpotOffset.y, Tile.Z);
-    }
-
     #region Saving & Loading
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -691,16 +637,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         writer.WriteAttributeString("X", Tile.X.ToString());
         writer.WriteAttributeString("Y", Tile.Y.ToString());
         writer.WriteAttributeString("Z", Tile.Z.ToString());
-        writer.WriteAttributeString("objectType", Type);
+        writer.WriteAttributeString("Type", Type);
 
-        foreach (string k in structureParameters.Keys)
-        {
-            writer.WriteStartElement("Param");
-            writer.WriteAttributeString("name", k);
-            writer.WriteAttributeString("value", structureParameters[k].ToString());
-            Debug.Log("Write Param name: " + k + " val: " + structureParameters[k].ToString());
-            writer.WriteEndElement();
-        }
+        Parameters.ToXml(writer);
     }
 
     public void ReadXml(XmlReader reader)
@@ -719,8 +658,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
             {
                 string k = reader.GetAttribute("name");
                 Debug.Log("Read Param name: " + k);
-                float v = float.Parse(reader.GetAttribute("value"));
-                structureParameters[k] = v;
+                string v = reader.GetAttribute("value");
+                Parameters[k].SetValue(v);
             } while (reader.ReadToNextSibling("Param"));
         }
     }
@@ -766,21 +705,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
             AllowedTileTypes |= TileTypeData.Flag(tileTypeTag);
         }
 
-        XmlNode jobOffsetNode = rootNode.SelectSingleNode("JobOffset");
-        jobSpotOffset = Vector2.zero;
-        if (jobOffsetNode != null)
-        {
-            float[] arrJobOffset = jobOffsetNode.InnerText.Split(' ').Select(f => float.Parse(f)).ToArray();
-            jobSpotOffset = new Vector2(arrJobOffset[0], arrJobOffset[1]);
-        }
-
-        XmlNode spawnOffsetNode = rootNode.SelectSingleNode("JobSpawnOffset");
-        jobSpawnSpotOffset = Vector2.zero;
-        if (spawnOffsetNode != null)
-        {
-            float[] arrSpawnJobOffset = spawnOffsetNode.InnerText.Split(' ').Select(f => float.Parse(f)).ToArray();
-            jobSpawnSpotOffset = new Vector2(arrSpawnJobOffset[0], arrSpawnJobOffset[1]);
-        }
+        Jobs.ReadOffsets(rootNode.SelectSingleNode("Jobs"));
 
         XmlNode tintNode = rootNode.SelectSingleNode("Tint");
         Tint = Color.white;
@@ -820,19 +745,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         }
 
         // Params
-        structureParameters = new Dictionary<string, float>();
-        XmlNode paramsNode = rootNode.SelectSingleNode("Params");
-        if (paramsNode != null)
-        {
-            XmlNodeList paramNodes = paramsNode.SelectNodes("Param");
-            foreach (XmlNode paramNode in paramNodes)
-            {
-                string paramName = paramNode.Attributes["name"].InnerText;
-                float paramValue = float.Parse(paramNode.Attributes["value"].InnerText);
-
-                SetParameter(paramName, paramValue);
-            }
-        }
+        Parameters.FromXml(rootNode.SelectSingleNode("Params"));
 
         // Animation
         Animations = ReadAnimations(rootNode.SelectNodes("Animations/Animation"));

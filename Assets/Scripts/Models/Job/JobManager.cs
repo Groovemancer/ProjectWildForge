@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProjectWildForge.Pathfinding;
+using MoonSharp.Interpreter;
 
-
+[MoonSharpUserData]
 public class JobManager
 {
     private Dictionary<JobCategory, HashSet<Job>> jobQueue;

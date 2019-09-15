@@ -165,20 +165,22 @@ public class InventoryManager
 
     public bool PlaceInventory(Actor actor, Inventory sourceInventory, int amount = -1)
     {
-        if (amount < 0)
-        {
-            amount = sourceInventory.StackSize;
-        }
-        else
-        {
-            amount = Mathf.Min(amount, sourceInventory.StackSize);
-        }
+        amount = amount < 0 ? sourceInventory.StackSize : Math.Min(amount, sourceInventory.StackSize);
+        sourceInventory.ReleaseClaim(actor);
 
         if (actor.Inventory == null)
         {
             actor.Inventory = sourceInventory.Clone();
             actor.Inventory.StackSize = 0;
-            Inventories[actor.Inventory.Type].Add(actor.Inventory);
+
+            List<Inventory> inventories;
+            if (Inventories.TryGetValue(actor.Inventory.Type, out inventories) == false)
+            {
+                inventories = new List<Inventory>();
+                Inventories[actor.Inventory.Type] = inventories;
+            }
+
+            inventories.Add(actor.Inventory);
         }
         else if (actor.Inventory.Type != sourceInventory.Type)
         {
@@ -203,37 +205,10 @@ public class InventoryManager
         return true;
     }
 
-    /// <summary>
-    /// Gets the type of the closest
-    /// </summary>
-    /// <param name="objectType"></param>
-    /// <param name="t"></param>
-    /// <param name="desiredAmount">Desired amount. If no stack has enough, it instead returns the largest</param>
-    public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredAmount, bool canTakeFromStockpile)
+    public Inventory GetClosestInventoryOfType(string type, Tile tile, bool canTakeFromStockpile)
     {
-        // FIXME:
-        //      a) We are LYING about returning the closest item.
-        //      b) There's no way to return the closest item in an optimal manner
-        //         until our "inventories" database is more sophisticated.
-        //         (i.e. separate tile inventory from character inventory and maybe
-        //          has room content optimization.)
-
-        if (Inventories.ContainsKey(objectType) == false)
-        {
-            Debug.LogError("GetClosestInventoryOfType -- no items of desired type.");
-            return null;
-        }
-
-        foreach (Inventory inv in Inventories[objectType])
-        {
-            if (inv.Tile != null &&
-                (canTakeFromStockpile || inv.Tile.Structure == null || inv.Tile.Structure.IsStockpile() == false))
-            {
-                return inv;
-            }
-        }
-
-        return null;
+        List<Tile> path = GetPathToClosestInventoryOfType(type, tile, canTakeFromStockpile);
+        return path != null ? path.Last().Inventory : null;
     }
 
     public List<Tile> GetPathToClosestInventoryOfType(string[] types, Tile tile, bool canTakeFromStockpile)
@@ -245,12 +220,6 @@ public class InventoryManager
 
         // We know the objects are out there, now find the closest.
         return Pathfinder.FindPathToInventory(tile, types, canTakeFromStockpile);
-    }
-
-    public Inventory GetClosestInventoryOfType(string type, Tile tile, bool canTakeFromStockpile)
-    {
-        List<Tile> path = GetPathToClosestInventoryOfType(type, tile, canTakeFromStockpile);
-        return path != null ? path.Last().Inventory : null;
     }
 
     public List<Tile> GetPathToClosestInventoryOfType(string type, Tile tile, bool canTakeFromStockpile)
