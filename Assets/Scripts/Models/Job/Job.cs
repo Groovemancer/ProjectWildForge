@@ -38,7 +38,10 @@ public class Job
 
     public Structure structurePrototype;
 
-    bool acceptsAnyInventoryItem = false;
+    public string SkillType
+    {
+        get; protected set;
+    }
 
     public bool canTakeFromStockpile = true;
 
@@ -163,13 +166,13 @@ public class Job
 
     private List<Actor> actorsCantReach = new List<Actor>();
 
-    public Job(Tile tile, string type, Action<Job> jobComplete, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, string category, bool jobRepeats = false, bool need = false, bool critical = false, bool adjacent = false) :
-        this(tile, type, jobComplete, jobCost, requestedItems, jobPriority, PrototypeManager.JobCategory.Get(category), jobRepeats, need, critical, adjacent)
+    public Job(Tile tile, string type, Action<Job> jobComplete, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, string category, string jobSkillType, bool jobRepeats = false, bool need = false, bool critical = false, bool adjacent = false) :
+        this(tile, type, jobComplete, jobCost, requestedItems, jobPriority, PrototypeManager.JobCategory.Get(category), jobSkillType, jobRepeats, need, critical, adjacent)
     {
         // This is identical to the next structure, except the category is a string. Intended primarily for Lua
     }
 
-    public Job(Tile tile, string type, Action<Job> jobComplete, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, JobCategory category, bool jobRepeats = false, bool need = false, bool critical = false, bool adjacent = false)
+    public Job(Tile tile, string type, Action<Job> jobComplete, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, JobCategory category, string jobSkillType, bool jobRepeats = false, bool need = false, bool critical = false, bool adjacent = false)
     {
         this.Tile = tile;
         this.Type = type;
@@ -183,6 +186,7 @@ public class Job
         this.Adjacent = adjacent;
         this.IsActive = true;
         this.Description = "job_error_missing_desc";
+        this.SkillType = jobSkillType;
 
         this.cbJobWorkedLua = new List<string>();
         this.cbJobCompletedLua = new List<string>();
@@ -204,7 +208,7 @@ public class Job
         }
     }
 
-    public Job(Tile tile, TileType jobTileType, Action<Job> jobCompleted, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, string category, bool jobRepeats = false, bool adjacent = false)
+    public Job(Tile tile, TileType jobTileType, Action<Job> jobCompleted, float jobCost, RequestedItem[] requestedItems, Job.JobPriority jobPriority, string category, string jobSkillType, bool jobRepeats = false, bool adjacent = false)
     {
         this.Tile = tile;
         this.JobTileType = jobTileType;
@@ -217,6 +221,7 @@ public class Job
         this.Adjacent = adjacent;
         this.Description = "job_error_missing_desc";
         this.IsActive = true;
+        this.SkillType = jobSkillType;
 
         this.cbJobWorkedLua = new List<string>();
         this.cbJobCompletedLua = new List<string>();
@@ -251,6 +256,7 @@ public class Job
         this.Description = other.Description;
         this.OrderName = other.OrderName;
         this.IsActive = true; // A copied job should always start out as active.
+        this.SkillType = other.SkillType;
 
         this.cbJobWorkedLua = new List<string>(other.cbJobWorkedLua);
         this.cbJobCompletedLua = new List<string>(other.cbJobCompletedLua);
@@ -685,6 +691,7 @@ public class Job
 
     private void Suspend()
     {
+        DebugUtils.LogChannel("Job", "Job suspended!");
         IsActive = false;
     }
 }

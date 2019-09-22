@@ -28,9 +28,21 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
     protected string isEnterableAction;
 
+    /// <summary>
+    /// This action is called to get the progress info based on the furniture parameters.
+    /// </summary>
+    private string getProgressInfoNameAction;
+
     private HashSet<string> typeTags;
 
+    private HashSet<BuildableComponent> components;
+
     private Dictionary<string, OrderAction> orderActions;
+
+    private bool isOperating;
+
+    // Did we have power in the last update?
+    private bool prevUpdatePowerOn;
 
     private List<string> replaceableStructure = new List<string>();
 
@@ -108,6 +120,11 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         {
             EventActions.Trigger("OnFastUpdate", this, deltaTime);
         }
+
+        foreach (BuildableComponent component in components)
+        {
+            component.EveryFrameUpdate(deltaTime);
+        }
     }
 
     /// <summary>
@@ -116,11 +133,52 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// <param name="deltaTime">The time since the last update was called.</param>
     public void FixedFrequencyUpdate(float deltaTime)
     {
+        // requirements from components (gas, ...)
+        bool canFunction = true;
+        BuildableComponent.Requirements newRequirements = BuildableComponent.Requirements.None;
+        foreach (BuildableComponent component in components)
+        {
+            bool componentCanFunction = component.CanFunction();
+            canFunction &= componentCanFunction;
+
+            // if it can't function, collect all stuff it needs (power, gas, ...) for icon signalization
+            if (!componentCanFunction)
+            {
+                newRequirements |= component.Needs;
+            }
+        }
+
+        // requirements were changed, force update of status icons
+        if (Requirements != newRequirements)
+        {
+            Requirements = newRequirements;
+            OnIsOperatingChanged(this);
+        }
+
+        IsOperating = canFunction;
+
+        if (canFunction == false)
+        {
+            if (prevUpdatePowerOn)
+            {
+                EventActions.Trigger("OnPowerOff", this, deltaTime);
+            }
+
+            Jobs.PauseAll();
+            prevUpdatePowerOn = false;
+            return;
+        }
+
         Jobs.ResumeAll();
 
         if (EventActions != null)
         {
             EventActions.Trigger("OnUpdate", this, deltaTime);
+        }
+
+        foreach (BuildableComponent component in components)
+        {
+            component.FixedFrequencyUpdate(deltaTime);
         }
 
         if (Animations != null)
@@ -226,6 +284,17 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// <value>Whether the door is Vertical or not.</value>
     public bool VerticalDoor { get; set; }
 
+    /// <summary>
+    /// Checks whether structure has some custom progress info.
+    /// </summary>
+    public bool HasCustomProgressReport
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(getProgressInfoNameAction);
+        }
+    }
+
     public string LinksToNeighbors { get; protected set; }
 
     /// <summary>
@@ -241,6 +310,11 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     public bool RequiresFastUpdate { get; set; }
 
     public bool RequiresSlowUpdate { get; set; }
+
+    /// <summary>
+    /// Flag with structure requirements (used for showing icon overlay, e.g. No power, ... ).
+    /// </summary>
+    public BuildableComponent.Requirements Requirements { get; protected set; }
 
     /// <summary>
     /// Gets the EventAction for the current structure.
@@ -261,6 +335,29 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     }
 
     /// <summary>
+    /// Gets a value indicating whether the furniture is operating or not.
+    /// </summary>
+    /// <value>Whether the furniture is operating or not.</value>
+    public bool IsOperating
+    {
+        get
+        {
+            return isOperating;
+        }
+
+        private set
+        {
+            if (isOperating == value)
+            {
+                return;
+            }
+
+            isOperating = value;
+            OnIsOperatingChanged(this);
+        }
+    }
+
+    /// <summary>
     /// This flag is set if the structure is tasked to be destroyed.
     /// </summary>
     public bool IsBeingDestroyed { get; protected set; }
@@ -276,7 +373,10 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// </summary>
     public event Action<Structure> Removed;
 
-    Func<Tile, bool> funcPositionValidation;
+    /// <summary>
+    /// This event will trigger if <see cref="IsOperating"/> has been changed.
+    /// </summary>
+    public event Action<Structure> IsOperatingChanged;
 
     // TODO: Implement larger objects
     // TODO: Implement object rotation
@@ -296,6 +396,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         Height = 1;
         typeTags = new HashSet<string>();
         LinksToNeighbors = string.Empty;
+        components = new HashSet<BuildableComponent>();
+        orderActions = new Dictionary<string, OrderAction>();
     }
 
     // Copy Constructor -- don't call this directly, unless we never
@@ -316,6 +418,20 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         this.Jobs = new BuildableJobs(this, other.Jobs);
         this.typeTags = new HashSet<string>(other.typeTags);
 
+        // add cloned components
+        components = new HashSet<BuildableComponent>();
+        foreach (BuildableComponent component in other.components)
+        {
+            components.Add(component.Clone());
+        }
+
+        // add cloned order actions
+        orderActions = new Dictionary<string, OrderAction>();
+        foreach (var orderAction in other.orderActions)
+        {
+            orderActions.Add(orderAction.Key, orderAction.Value.Clone());
+        }
+
         if (other.Animations != null)
         {
             Animations = other.Animations.Clone();
@@ -330,12 +446,10 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
             this.updateActions = new List<string>(other.updateActions);
 
         this.isEnterableAction = other.isEnterableAction;
+        this.getProgressInfoNameAction = other.getProgressInfoNameAction;
 
-        if (other.funcPositionValidation != null)
-            this.funcPositionValidation = (Func<Tile, bool>)other.funcPositionValidation.Clone();
-
-        RequiresSlowUpdate = EventActions.HasEvent("OnUpdate");
-        RequiresFastUpdate = EventActions.HasEvent("OnFastUpdate");
+        RequiresSlowUpdate = EventActions.HasEvent("OnUpdate") || components.Any(c => c.RequiresSlowUpdate);
+        RequiresFastUpdate = EventActions.HasEvent("OnFastUpdate") || components.Any(c => c.RequiresFastUpdate);
 
         //this.IsEnterable = other.IsEnterable;
     }
@@ -362,8 +476,6 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         this.LinksToNeighbors = linksToNeighbors;
         this.AllowedTileTypes = allowedTileTypes;
 
-        this.funcPositionValidation = this.DefaulIsValidPosition;
-
         Parameters = new Parameter();
         Jobs = new BuildableJobs(this);
         typeTags = new HashSet<string>();
@@ -373,18 +485,18 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
     public static Structure PlaceInstance(Structure proto, Tile tile)
     {
-        if (proto.funcPositionValidation(tile) == false)
+        if (proto.IsValidPosition(tile) == false)
         {
-            Debug.LogError("PlaceInstance -- Position Validity Function returned False.");
+            DebugUtils.LogErrorChannel("Structure", "PlaceInstance :: Position Validity Function returned FALSE. " + proto.Type + " " + tile.X + ", " + tile.Y + ", " + tile.Z);
             return null;
         }
 
         // We know our placement destination is valid.
-        Structure obj = proto.Clone();
-        obj.Tile = tile;
+        Structure structObj = proto.Clone();
+        structObj.Tile = tile;
 
         // FIXME: This assumes we are 1x1!
-        if (tile.PlaceStructure(obj) == false)
+        if (tile.PlaceStructure(structObj) == false)
         {
             // For some reason,we weren't able to place our object in this tile.
             // (Probably it was already occupied.)
@@ -394,7 +506,13 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
             return null;
         }
 
-        if (obj.LinksToNeighbors != string.Empty)
+        // need to update reference to structure and call Initialize (so components can place hooks on events there)
+        foreach (BuildableComponent component in structObj.components)
+        {
+            component.Initialize(structObj);
+        }
+
+        if (structObj.LinksToNeighbors != string.Empty)
         {
             // This type of furniture links itself to its neighbors,
             // so we should inform our neighbors that they have a new
@@ -416,9 +534,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         }
 
         // Let our workspot tile know it is reserved for us
-        World.Current.ReserveTileAsWorkSpot(obj);
+        World.Current.ReserveTileAsWorkSpot(structObj);
 
-        return obj;
+        return structObj;
     }
 
     public bool IsExit()
@@ -431,18 +549,14 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         return false;
     }
 
-    public bool IsValidPosition(Tile t)
-    {
-        return funcPositionValidation(t);
-    }
-
-    // FIXME: These functions should never be called directly,
-    // so they probably shouldn't be public functions
-    // This will be replaced by validation checks fed to us from
-    // Lua files that will be customizable for each structure.
-    // For example, a door might specify that it needs two walls
-    // to connect to.
-    protected bool DefaulIsValidPosition(Tile tile)
+    /// <summary>
+    /// Check if the position of the structure is valid or not.
+    /// This is called when placing the structure.
+    /// TODO : Add some Lua special requierments.
+    /// </summary>
+    /// <param name="t">The base tile.</param>
+    /// <returns>True if the tile is valid for the placement of the structure.</returns>
+    public bool IsValidPosition(Tile tile)
     {
         if (typeTags.Contains("OutdoorOnly"))
         {
@@ -528,6 +642,53 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         return itemsDict.Values.ToArray();
     }
 
+    public string GetProgressInfo()
+    {
+        if (string.IsNullOrEmpty(getProgressInfoNameAction))
+        {
+            return string.Empty;
+        }
+        else
+        {
+            DynValue ret = FunctionsManager.Structure.Call(getProgressInfoNameAction, this);
+            return ret.String;
+        }
+    }
+
+    /// <summary>
+    /// Gets component if present or null.
+    /// </summary>
+    /// <typeparam name="T">Type of component.</typeparam>
+    /// <param name="componentName">Type of the component, e.g. PowerConnection, WorkShop.</param>
+    /// <returns>Component or null.</returns>
+    public T GetComponent<T>(string componentName) where T : BuildableComponent
+    {
+        if (components != null)
+        {
+            foreach (BuildableComponent component in components)
+            {
+                if (component.Type.Equals(componentName))
+                {
+                    return (T)component;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public BuildableComponent.Requirements GetPossibleRequirements()
+    {
+        BuildableComponent.Requirements requires = BuildableComponent.Requirements.None;
+
+        foreach (BuildableComponent component in components)
+        {
+            requires |= component.Needs;
+        }
+
+        return requires;
+    }
+
     public T GetOrderAction<T>() where T : OrderAction
     {
         OrderAction orderAction;
@@ -562,6 +723,15 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     public string[] GetTypeTags()
     {
         return typeTags.ToArray();
+    }
+
+    /// <summary>
+    /// Returns LocalizationCode name for the furniture.
+    /// </summary>
+    /// <returns>LocalizationCode for the name of the furniture.</returns>
+    public string GetName()
+    {
+        return Name;
     }
 
     public void Deconstruct()
@@ -617,6 +787,15 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
         // At this point, no DATA structures should be pointing to us, so we
         // should get garbage-collected.
+    }
+
+    private void OnIsOperatingChanged(Structure structure)
+    {
+        Action<Structure> handler = IsOperatingChanged;
+        if (handler != null)
+        {
+            handler(structure);
+        }
     }
 
     #region Saving & Loading
@@ -681,19 +860,17 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         }
         RoomEnclosure = bool.Parse(rootNode.SelectSingleNode("EnclosesRooms").InnerText);
 
-        XmlNode defaultSpriteNode = rootNode.SelectSingleNode("DefaultSpriteName");
-        if (defaultSpriteNode != null)
-        {
-            DefaultSpriteName = defaultSpriteNode.InnerText;
-        }
+        //XmlNode defaultSpriteNode = rootNode.SelectSingleNode("DefaultSpriteName");
+        //if (defaultSpriteNode != null)
+        //{
+        //    DefaultSpriteName = defaultSpriteNode.InnerText;
+        //}
 
-        XmlNode spriteNode = rootNode.SelectSingleNode("SpriteName");
-        if (spriteNode != null)
-        {
-            SpriteName = spriteNode.InnerText;
-        }
-
-        funcPositionValidation = DefaulIsValidPosition;
+        //XmlNode spriteNode = rootNode.SelectSingleNode("SpriteName");
+        //if (spriteNode != null)
+        //{
+        //    SpriteName = spriteNode.InnerText;
+        //}
 
         string tileTags = rootNode.SelectSingleNode("AllowedTiles").InnerText;
 
@@ -737,12 +914,9 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
 
         EventActions.ReadXml(rootNode.SelectNodes("EventAction"));
 
-        XmlNode isEnterableFnNode = rootNode.SelectSingleNode("IsEnterable");
-        if (isEnterableFnNode != null)
-        {
-            string isEnterableFuncName = isEnterableFnNode.Attributes["FunctionName"].InnerText;
-            isEnterableAction = isEnterableFuncName;
-        }
+        isEnterableAction = PrototypeReader.ReadXml(isEnterableAction, rootNode.SelectSingleNode("IsEnterableAction"));
+
+        getProgressInfoNameAction = PrototypeReader.ReadXml(getProgressInfoNameAction, rootNode.SelectSingleNode("GetProgressInfoNameAction"));
 
         // Params
         Parameters.FromXml(rootNode.SelectSingleNode("Params"));
@@ -751,6 +925,21 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         Animations = ReadAnimations(rootNode.SelectNodes("Animations/Animation"));
 
         orderActions = PrototypeReader.ReadOrderActions(rootNode.SelectSingleNode("OrderActions"));
+
+        XmlNodeList componentNodes = rootNode.SelectNodes("Component");
+        foreach (XmlNode componentNode in componentNodes)
+        {
+            BuildableComponent component = BuildableComponent.FromXml(componentNode);
+            if (component != null)
+            {
+                component.InitializePrototype(this);
+                components.Add(component);
+                if (component.IsValid() == false)
+                {
+                    DebugUtils.LogErrorChannel("BuildableComponent", "Error parsing " + component.GetType() + " for " + Type);
+                }
+            }
+        }
 
         // TODO Implement Order Actions
         /*

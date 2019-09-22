@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Skills>
+	<!-- Profession Skills -->
+	<Skill Type="Mining" Name="skill_Mining" Category="Profession" />
+	<Skill Type="Building" Name="skill_Building" Category="Profession" />
+	<Skill Type="Hauling" Name="skill_Hauling" Category="Profession" />
+	<Skill Type="Forestry" Name="skill_Forestry" Category="Profession" />
+	<Skill Type="Farming" Name="skill_Farming" Category="Profession" />
+	<Skill Type="Smithing" Name="skill_Smithing" Category="Profession" />
+	<Skill Type="Alchemy" Name="skill_Alchemy" Category="Profession" />
+	<Skill Type="Tailoring" Name="skill_Tailoring" Category="Profession" />
+	<Skill Type="LeatherWorking" Name="skill_LeatherWorking" Category="Profession" />
+	<Skill Type="Cooking" Name="skill_Cooking" Category="Profession" />
+	<Skill Type="Brewing" Name="skill_Brewing" Category="Profession" />
+	<Skill Type="Masonry" Name="skill_Masonry" Category="Profession" />
+	<Skill Type="Carpentry" Name="skill_Carpentry" Category="Profession" />
+	
+	<!-- Combat Skills -->
+	<Skill Type="Pugilisim" Name="skill_Pugilisim" Category="Combat" />
+	<Skill Type="OneHanded" Name="skill_OneHanded" Category="Combat" />
+	<Skill Type="TwoHanded" Name="skill_TwoHanded" Category="Combat" />
+	<Skill Type="Shields" Name="skill_Shields" Category="Combat" />
+	<Skill Type="Bows" Name="skill_Bows" Category="Combat" />
+	<Skill Type="ArmoredFighting" Name="skill_ArmoredFighting" Category="Combat" />
+</Skills>

@@ -124,7 +124,7 @@ public class BuildModeController : MonoBehaviour
                 }
                 else
                 {
-                    job = new Job(tile, structureType, null, 100, null, Job.JobPriority.High, "construct")
+                    job = new Job(tile, structureType, null, 100, null, Job.JobPriority.High, "construct", "Building")
                     {
                         Adjacent = true,
                         Description = "job_build_" + structureType + "_desc"

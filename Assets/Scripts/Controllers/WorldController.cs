@@ -179,4 +179,18 @@ public class WorldController : MonoBehaviour
 
         //World.RandomizeTiles();
     }
+
+    private void OnDrawGizmos()
+    {
+        if (World == null || World.ActorManager == null)
+            return;
+        
+        foreach (Actor actor in World.ActorManager.Actors)
+        {
+            if (actor.MyJob != null)
+            {
+                Debug.DrawLine(actor.CurrTile.Vector3, actor.MyJob.Tile.Vector3, Color.green);
+            }
+        }
+    }
 }

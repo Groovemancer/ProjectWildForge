@@ -163,6 +163,14 @@ public class Actor : IXmlSerializable, IUpdatable
         get { return workRate; }
     }
 
+    private float baseExperienceRate = 1f; // Rate at which we gain experience for skills
+    private float experienceRate; // Rate at which we gain experience for skills
+
+    public float ExperienceRate
+    {
+        get { return experienceRate; }
+    }
+
     public float ActionPoints { get; set; }
     public bool Acted { get; set; }
 
@@ -185,8 +193,11 @@ public class Actor : IXmlSerializable, IUpdatable
     // The item we are carrying (not gear/equipment)
     public Inventory Inventory { get; set; }
 
-    /// Stats, for character.
+    /// Stats, for actor.
     public Dictionary<string, Stat> Stats { get; protected set; }
+
+    /// Skills, for actor
+    public Dictionary<string, Skill> Skills { get; protected set; }
 
     public Actor()
     {
@@ -242,6 +253,8 @@ public class Actor : IXmlSerializable, IUpdatable
     {
         LoadStats();
         UseStats();
+
+        LoadSkills();
         LoadPriorities();
     }
 
@@ -273,24 +286,13 @@ public class Actor : IXmlSerializable, IUpdatable
 
             // Gets a random value within the min and max range of the stat.
             // TODO: Should there be any bias or any other algorithm applied here to make stats more interesting?
-            newStat.Value = Math.Max(StatRange(raceValue), 1);
+            newStat.Value = Math.Max(RandomUtils.DiceRoll(3, 8, raceValue), 1);
             Stats.Add(newStat.Type, newStat);
-
-            DebugUtils.LogChannel("Actor", "Stat: " + newStat.ToString());
         }
+
+        DebugUtils.LogChannel("Actor", string.Format("{0}'s Stats: {1}", Name, string.Join(", ", Stats.Select(s => s.Value.ToString()))));
 
         DebugUtils.LogChannel("Actor", "Initialized " + Stats.Count + " Stats.");
-    }
-
-    private int StatRange(int raceMod)
-    {
-        int val = raceMod;
-
-        for (int i = 0; i < 3; i++)
-        {
-            val += RandomUtils.Range(1, 9); // 8
-        }
-        return val;
     }
 
     private void UseStats()
@@ -299,13 +301,58 @@ public class Actor : IXmlSerializable, IUpdatable
         {
             movementCost = baseMovementCost - (0.3f * baseMovementCost * ((float)Stats["Agility"].Value - 10) / 10); // +/- 30%
             workRate = baseWorkRate + (0.5f * baseWorkRate * ((float)Stats["Dexterity"].Value - 10) / 10); // +/- 50%
+            experienceRate = baseExperienceRate + (0.3f * baseExperienceRate * ((float)Stats["Intellect"].Value - 10) / 10); // +/- 30%
 
-            DebugUtils.LogChannel("Actor", string.Format("Actor {0} movementCost: {1}", Id, movementCost));
-            DebugUtils.LogChannel("Actor", string.Format("Actor {0} workRate: {1}", Id, workRate));
+            DebugUtils.LogChannel("Actor", string.Format("{0}'s movementCost: {1}, workRate: {2}, experienceRate: {3}", Name, movementCost, workRate, experienceRate));
         }
         catch (KeyNotFoundException)
         {
             DebugUtils.LogError("Stat keys not found. If not testing, this is really bad!");
+        }
+    }
+
+    private void LoadSkills()
+    {
+        Skills = new Dictionary<string, Skill>(PrototypeManager.Skill.Count);
+        for (int i = 0; i < PrototypeManager.Skill.Count; i++)
+        {
+            Skill prototypeSkill = PrototypeManager.Skill.Values[i];
+            Skill newSkill = prototypeSkill.Clone();
+
+            // TODO: Add Skill modifiers to Races
+            //Skill raceSkill = Race.SkillModifiers.Find(skill => skill.Type == newSkill.Type);
+            //int raceValue = (raceSkill != null) ? raceSkill.Value : 0;
+
+            // Gets a random value within the min and max range of the skill.
+            // TODO: Should there be any bias or any other algorithm applied here to make skills more interesting?
+            newSkill.Value = Math.Max(RandomUtils.DiceRoll(3, 8, 0, 0), 0);
+            Skills.Add(newSkill.Type, newSkill);
+        }
+
+        DebugUtils.LogChannel("Actor", string.Format("{0}'s Skills: {1}", Name, string.Join(", ", Skills.Select(s => s.Value.ToString()))));
+
+        DebugUtils.LogChannel("Actor", "Initialized " + Skills.Count + " Skills.");
+    }
+
+    private void UseSkills()
+    {
+        try
+        {
+            // Maybe modify some stuff from skills? Or would we rather just use skill by itself?
+        }
+        catch (KeyNotFoundException)
+        {
+            DebugUtils.LogError("Skill keys not found. If not testing, this is really bad!");
+        }
+    }
+
+    public void GainSkillExperience(string skillType, float experience)
+    {
+        Skill skill;
+        if (Skills.TryGetValue(skillType, out skill))
+        {
+            skill.GainExperience(experience * ExperienceRate);
+            DebugUtils.LogChannel("Actor", string.Format("{0}'s {1} Gained {2} experience!", Name, skillType, (experience * ExperienceRate)));
         }
     }
 
@@ -394,7 +441,7 @@ public class Actor : IXmlSerializable, IUpdatable
             state.Interrupt();
         }
 
-        //SetState(new JobState(this, job));
+        SetState(new JobState(this, job));
     }
 
     /// <summary>

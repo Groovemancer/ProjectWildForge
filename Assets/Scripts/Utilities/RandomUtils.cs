@@ -72,6 +72,27 @@ public class RandomUtils
         return result;
     }
 
+    public static int DiceRoll(int count, int sides)
+    {
+        return DiceRoll(count, sides, 0);
+    }
+
+    public static int DiceRoll(int count, int sides, int modifier)
+    {
+        return DiceRoll(count, sides, modifier, 1);
+    }
+
+    public static int DiceRoll(int count, int sides, int modifier, int min)
+    {
+        int val = modifier;
+
+        for (int i = 0; i < count; i++)
+        {
+            val += Range(min, sides + 1);
+        }
+        return val;
+    }
+
     public static bool Boolean()
     {
         return Convert.ToBoolean(Instance.Next(0, 2));

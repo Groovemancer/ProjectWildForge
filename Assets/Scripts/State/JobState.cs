@@ -77,6 +77,7 @@ public class JobState : State
             {
                 Job.DoWork(actor.WorkRate);
                 actor.ActionPoints -= actor.WorkCost;
+                actor.GainSkillExperience(Job.SkillType, actor.WorkCost);
             }
             actor.Acted = true;
         }

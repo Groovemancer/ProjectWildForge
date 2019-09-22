@@ -87,6 +87,7 @@ public class ModsManager
         //HandlePrototypes("GameEvent", PrototypeManager.GameEvent.LoadXmlPrototypes);
         //HandlePrototypes("ScheduledEvent", PrototypeManager.ScheduledEvent.LoadXmlPrototypes);
         HandlePrototypes("Stats", PrototypeManager.Stat.LoadXmlPrototypes);
+        HandlePrototypes("Skills", PrototypeManager.Skill.LoadXmlPrototypes);
         HandlePrototypes("Races", PrototypeManager.Race.LoadXmlPrototypes);
         //HandlePrototypes("Quest", PrototypeManager.Quest.LoadXmlPrototypes);
         //HandlePrototypes("Headline", PrototypeManager.Headline.LoadXmlPrototypes);
@@ -264,12 +265,17 @@ public class ModsManager
                 FileInfo file = prototypeFiles[i];
 
                 DebugUtils.LogChannel("DataManager", "Loading " + file.FullName);
+                XmlReaderSettings readerSettings = new XmlReaderSettings();
+                readerSettings.IgnoreComments = true;
 
-                XmlDocument doc = new XmlDocument();
-                doc.Load(file.FullName);
-                string tagName = doc.ChildNodes[1].Name;
+                using (XmlReader reader = XmlReader.Create(file.FullName, readerSettings))
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(reader);
+                    string tagName = doc.ChildNodes[1].Name;
 
-                tagNameToNode.Add(tagName, doc.ChildNodes[1]);
+                    tagNameToNode.Add(tagName, doc.ChildNodes[1]);
+                }
             }
         }
         catch (Exception e)

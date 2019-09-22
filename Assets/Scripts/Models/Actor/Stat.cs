@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using System.Xml;
 
 public class Stat : IPrototypable
 {
     public Stat()
     {
-
     }
 
     private Stat(Stat other)
@@ -26,8 +20,8 @@ public class Stat : IPrototypable
 
     public void ReadXmlPrototype(XmlNode rootNode)
     {
-        Type = rootNode.Attributes["type"].InnerText;
-        Name = rootNode.Attributes["name"].InnerText;
+        Type = rootNode.Attributes["Type"].InnerText;
+        Name = rootNode.Attributes["Name"].InnerText;
     }
 
     public Stat Clone()

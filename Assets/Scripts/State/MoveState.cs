@@ -87,7 +87,10 @@ public class MoveState : State
                 }
                 else
                 {
-                    AdvanceNextTile();
+                    if (actor.CurrTile == nextTile)
+                    {
+                        AdvanceNextTile();
+                    }
                 }
 
                 if (nextTile.IsEnterable() == Enterability.Never)

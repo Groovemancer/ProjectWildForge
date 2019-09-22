@@ -22,12 +22,6 @@ end
 -- @Params - structure:Structure
 -- @Params - deltaAuts:float
 function OnUpdate_Door(structure, deltaAuts)
-	ModUtils.ULog("deltaAuts: " .. deltaAuts)
-	ModUtils.ULog("Openness: " .. structure.Parameters["openness"].value)
-	ModUtils.ULog("doorOpenTime: " .. structure.Parameters["doorOpenTime"].value)
-	ModUtils.ULog("isOpening: " .. structure.Parameters["isOpening"].value)
-	
-	
 	if (structure.Parameters["isOpening"].ToFloat() >= 1) then
 		structure.Parameters["openness"].ChangeFloatValue(deltaAuts)
 		if (structure.Parameters["openness"].ToFloat() >= structure.Parameters["doorOpenTime"].ToFloat()) then
@@ -60,6 +54,14 @@ function IsEnterable_Door(structure)
 	end
 
 	return Enterability_Soon
+end
+
+function Door_GetSpriteName(structure)
+	if (structure.VerticalDoor) then
+	    return structure.Type .. "_Vertical_0"
+	else
+	    return structure.Type .. "_Horizontal_0"
+	end
 end
 
 -- IsEnterable_Door
@@ -97,6 +99,7 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 	if (structure.Tile.Inventory ~= nil and structure.Tile.Inventory.StackSize >=
 		structure.Tile.Inventory.MaxStackSize) then
 		structure.Jobs.CancelAll();
+		return "Stockpile is Full!"
 	end
 	
 	-- Maybe we already have a job queued up?
@@ -144,6 +147,7 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 		itemsDesired,
 		Job.JobPriority.Low,
 		"hauling",
+		"Hauling",
 		false
 	)
 	job.Description = "job_stockpile_moving_desc"
@@ -153,7 +157,7 @@ function OnUpdate_Stockpile(structure, deltaAuts)
 	-- TODO: Later on, add stockpile priorities, so that we can take from a lower
     -- priority stockpile for a higher priority one.
 	job.canTakeFromStockpile = false;
-	job.acceptsAny = true
+	job.AcceptsAny = true
 
 	job.RegisterJobWorkedCallback("Stockpile_JobWorked")
 	structure.Jobs.Add(job)
@@ -214,6 +218,7 @@ function OnUpdate_WorkStation(structure, deltaAuts)
 		nil,
 		Job.JobPriority.Medium,
 		"workshop",
+		"Masonry",
 		true    -- This job repeats until the destination tile is full.
 	)
 	j.RegisterJobCompletedCallback("WorkStation_JobComplete")
@@ -269,6 +274,7 @@ function OnUpdate_StoneCuttingTable(structure, deltaAuts)
 			nil,
 			Job.JobPriority.Medium,
 			"workshop",
+			"Masonry",
 			false
 		)
 		
@@ -334,6 +340,7 @@ function OnUpdate_StoneCuttingTable(structure, deltaAuts)
 		itemsDesired,
 		Job.JobPriority.Medium,
 		"hauling",
+		"Hauling",
 		false
 	)  
 	

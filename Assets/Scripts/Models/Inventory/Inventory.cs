@@ -12,7 +12,7 @@ using System.Linq;
 [MoonSharpUserData]
 public class Inventory : IPrototypable
 {
-    private const float ClaimDuration = 120; // in Seconds
+    private const float ClaimDuration = 10; // in Seconds
 
     private int stackSize = 1;
     private List<InventoryClaim> claims;
@@ -151,6 +151,7 @@ public class Inventory : IPrototypable
         {
             World.Current.InventoryManager.InventoryAvailable(this);
         }
+        DebugUtils.LogChannel("Inventory", "Releasing Claim from: " + actor.Name);
     }
 
     public void Claim(Actor actor, int amount)
