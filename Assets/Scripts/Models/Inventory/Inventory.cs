@@ -10,7 +10,7 @@ using System.Linq;
 // or potentially a non-installed copy of furniture (e.g. a cabinet still in the box from Ikea)
 
 [MoonSharpUserData]
-public class Inventory : IPrototypable
+public class Inventory : IPrototypable, ISelectable
 {
     private const float ClaimDuration = 10; // in Seconds
 
@@ -57,6 +57,7 @@ public class Inventory : IPrototypable
 
     // Should this inventory be allowed to be picked up for completing a job?
     public bool Locked { get; set; }
+    public bool IsSelected { get; set; }
 
     public Actor actor;
 
@@ -186,6 +187,35 @@ public class Inventory : IPrototypable
         MaxStackSize = int.Parse(rootNode.SelectSingleNode("MaxStackSize").InnerText);
         BasePrice = float.Parse(rootNode.SelectSingleNode("BasePrice").InnerText);
         Category = rootNode.SelectSingleNode("Category").InnerText;
+    }
+
+    public bool CanAccept(Inventory inv)
+    {
+        return inv.Type == Type && inv.StackSize + stackSize <= MaxStackSize;
+    }
+
+    public string GetName()
+    {
+        return Type;
+    }
+
+    public string GetDescription()
+    {
+        return string.Format("StackSize: {0}\nCategory: {1}\nBasePrice: {2:N2}", StackSize, Category, BasePrice);
+    }
+
+    public string GetJobDescription()
+    {
+        return string.Empty;
+    }
+
+    public IEnumerable<string> GetAdditionalInfo()
+    {
+        // Does inventory have hitpoints? How does it get destroyed? Maybe it's just a percentage chance based on damage.
+        yield return string.Format("StackSize: {0}", stackSize);
+        yield return string.Format("Available Amount: {0}", AvailableInventory);
+        yield return string.Format("Category: {0}", BasePrice);
+        yield return string.Format("BasePrice: {0:N2}", BasePrice);
     }
 
     public struct InventoryClaim

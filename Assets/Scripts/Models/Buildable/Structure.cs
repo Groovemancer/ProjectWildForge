@@ -17,7 +17,7 @@ using Animation;
 // Structures are things like walls, doors, and furniture (e.g. table)
 
 [MoonSharpUserData]
-public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
+public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypable, IBuildable
 {
     /// <summary>
     /// These actions are called every update. They get passed the structure
@@ -255,6 +255,8 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         }
     }
 
+    public string Description { get; private set; }
+
     public uint AllowedTileTypes { get; protected set; }
 
     // This is a multiplier. So a value of "2" here, means you move twice as slowly (i.e. at half speed)
@@ -361,6 +363,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     /// This flag is set if the structure is tasked to be destroyed.
     /// </summary>
     public bool IsBeingDestroyed { get; protected set; }
+    public bool IsSelected { get; set; }
 
     /// <summary>
     /// This event will trigger when the structure has been changed.
@@ -851,6 +854,7 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
     {
         Type = rootNode.Attributes["Type"].InnerText;
         Name = rootNode.SelectSingleNode("Name").InnerText;
+        Description = PrototypeReader.ReadXml(string.Empty, rootNode.SelectSingleNode("Description"));
         MovementCost = float.Parse(rootNode.SelectSingleNode("MoveCost").InnerText);
         Width = int.Parse(rootNode.SelectSingleNode("Width").InnerText);
         Height = int.Parse(rootNode.SelectSingleNode("Height").InnerText);
@@ -983,6 +987,42 @@ public class Structure : IXmlSerializable, IUpdatable, IPrototypable, IBuildable
         }
 
         return new StructureAnimation(animations);
+    }
+
+    public string GetDescription()
+    {
+        return Description;
+    }
+
+    public string GetJobDescription()
+    {
+        return string.Empty;
+    }
+
+    public IEnumerable<string> GetAdditionalInfo()
+    {
+        // try to get some info from components
+        foreach (BuildableComponent component in components)
+        {
+            IEnumerable<string> desc = component.GetDescription();
+            if (desc != null)
+            {
+                foreach (string inf in desc)
+                {
+                    yield return inf;
+                }
+            }
+        }
+
+        // TODO: Implement Health system
+        /*
+        if (health != null)
+        {
+            yield return health.TextForSelectionPanel();
+        }
+        */
+
+        yield return GetProgressInfo();
     }
 
     #endregion

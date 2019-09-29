@@ -18,7 +18,7 @@ public enum ActorJobPriority
 }
 
 [MoonSharpUserData]
-public class Actor : IXmlSerializable, IUpdatable
+public class Actor : IXmlSerializable, ISelectable, IUpdatable
 {
     /// Unique ID of the actor
     public readonly int Id;
@@ -47,10 +47,10 @@ public class Actor : IXmlSerializable, IUpdatable
         {
             if (currTile != null)
             {
-                //currTile.Actors.Remove(this);
+                currTile.Actors.Remove(this);
             }
             currTile = value;
-            //currTile.Actors.Add(this);
+            currTile.Actors.Add(this);
 
             TileOffset = Vector3.zero;
         }
@@ -198,6 +198,7 @@ public class Actor : IXmlSerializable, IUpdatable
 
     /// Skills, for actor
     public Dictionary<string, Skill> Skills { get; protected set; }
+    public bool IsSelected { get; set; }
 
     public Actor()
     {
@@ -540,5 +541,39 @@ public class Actor : IXmlSerializable, IUpdatable
     public void ReadXml(XmlReader reader)
     {
 
+    }
+
+    public string GetDescription()
+    {
+        string strDesc = IsFemale ? "actor_desc_gender_female" : "actor_desc_gender_male";
+        return string.Format(StringUtils.GetLocalizedTextFiltered("comment#" + strDesc), StringUtils.GetLocalizedTextFiltered("comment#" + Race.Name));
+    }
+
+    public string GetJobDescription()
+    {
+        if (MyJob == null)
+        {
+            return "job_no_job_desc";
+        }
+
+        return MyJob.Description;
+    }
+
+    public IEnumerable<string> GetAdditionalInfo()
+    {
+        // TODO: Implement health
+        //yield return health.TextForSelectionPanel();
+
+        // TODO: Implement Needs
+        //foreach (Need n in Needs)
+        //{
+        //    yield return StringUtils.GetLocalizedTextFiltered("comment#" + n.Name) + ": " + n.DisplayAmount;
+        //}
+
+        foreach (Stat stat in Stats.Values)
+        {
+            
+            yield return StringUtils.GetLocalizedTextFiltered("comment#" + stat.Name) + ": " + stat.Value;
+        }
     }
 }

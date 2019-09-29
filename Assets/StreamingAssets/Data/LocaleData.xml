@@ -215,4 +215,49 @@
 			<de-DE>Q{0:q} Day {0:d}, {0:y}</de-DE>
 		</Text>
 	</Entry>
+	<Entry Id="25">
+		<Comment>actor_desc_gender_male</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>A male {0}</en-US>
+			<de-DE>Ein männlicher {0}</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="26">
+		<Comment>actor_desc_gender_female</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>A female {0}</en-US>
+			<de-DE>Eine weibliche {0}</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="27">
+		<Comment>race_name_elf</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Elf</en-US>
+			<de-DE>Elf</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="28">
+		<Comment>race_name_orc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Orc</en-US>
+			<de-DE>Orc</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="29">
+		<Comment>job_requirements</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Requirements:\n</en-US>
+			<de-DE>Bedarf:\n</de-DE>
+		</Text>
+	</Entry>
 </LocaleData>

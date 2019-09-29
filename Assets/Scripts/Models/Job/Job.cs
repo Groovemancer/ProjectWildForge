@@ -7,7 +7,7 @@ using MoonSharp.Interpreter;
 using ProjectWildForge.Pathfinding;
 
 [MoonSharpUserData]
-public class Job
+public class Job : ISelectable
 {
     // This class holds info for a queued up job, which can include
     // things like placing structures, moving stored loose items
@@ -163,6 +163,7 @@ public class Job
 
     // The items that have been delivered to the jobsite.
     public Dictionary<string, Inventory> DeliveredItems { get; set; }
+    public bool IsSelected { get; set; }
 
     private List<Actor> actorsCantReach = new List<Actor>();
 
@@ -693,5 +694,42 @@ public class Job
     {
         DebugUtils.LogChannel("Job", "Job suspended!");
         IsActive = false;
+    }
+
+    public string GetName()
+    {
+        try
+        {
+            return PrototypeManager.Structure.Get(Type).GetName();
+        }
+        catch
+        {
+            return StringUtils.GetLocalizedTextFiltered("comment#" + Type);
+        }
+    }
+
+    public string GetDescription()
+    {
+        string description = StringUtils.GetLocalizedTextFiltered("#comments:job_requirements");
+        foreach (RequestedItem item in RequestedItems.Values)
+        {
+            string itemDesc = string.Format("\t{0} {1}..{2}\n", PrototypeManager.Inventory.Get(item.Type).GetName(),
+                item.MinAmountRequested, item.MaxAmountRequested);
+
+            // TODO: Not sure if this works or not.
+            description += StringUtils.GetLocalizedTextFiltered(itemDesc);
+        }
+
+        return description;
+    }
+
+    public string GetJobDescription()
+    {
+        return GetDescription();
+    }
+
+    public IEnumerable<string> GetAdditionalInfo()
+    {
+        yield break;
     }
 }

@@ -18,7 +18,7 @@ using UnityEngine;
 public enum Enterability { Yes, Never, Soon };
 
 [MoonSharpUserData]
-public class Tile : IXmlSerializable
+public class Tile : IXmlSerializable, ISelectable
 {
     TileType _type = TileTypeData.GetByFlagName("Dirt");
     public TileType Type
@@ -36,7 +36,8 @@ public class Tile : IXmlSerializable
 
     public Inventory Inventory;
 
-    public Room Room;
+    public Room Room { get; set; }
+    public List<Actor> Actors { get; set; }
 
     public Structure Structure { get; protected set; }
     public HashSet<Job> PendingBuildJobs { get; set; }
@@ -60,6 +61,7 @@ public class Tile : IXmlSerializable
         this.Y = y;
         this.Z = z;
         CanSee = false;
+        Actors = new List<Actor>();
         _type = TileTypeData.Instance.DefaultType;
 
         ReservedAsWorkSpotBy = new HashSet<Structure>();
@@ -72,6 +74,8 @@ public class Tile : IXmlSerializable
     {
         get { return new Vector3(X, Y, Z); }
     }
+
+    public bool IsSelected { get; set; }
 
     public void RegisterTileChangedCallback(Action<Tile> callback)
     {
@@ -523,6 +527,27 @@ public class Tile : IXmlSerializable
         CanSee = bool.Parse(reader.GetAttribute("CanSee"));
         
         ReportTileChanged();
+    }
+
+    public string GetName()
+    {
+        return Type.NameLocaleId;
+    }
+
+    public string GetDescription()
+    {
+        return Type.DescriptionLocaleId;
+    }
+
+    public string GetJobDescription()
+    {
+        return string.Empty;
+    }
+
+    public IEnumerable<string> GetAdditionalInfo()
+    {
+        // Do tiles have hitpoints? Can flooring be damaged? Obviously "empty" is indestructible.
+        yield break;
     }
 }
 

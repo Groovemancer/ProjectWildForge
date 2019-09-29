@@ -12,6 +12,7 @@ public class TileType
     public uint Flag { get; set; }
     public string FlagName { get; set; }
     public string NameLocaleId { get; set; }
+    public string DescriptionLocaleId { get; set; }
     public float MoveCost { get; set; }
     public string Sprite { get; set; }
     public bool IsDefault { get; set; }
@@ -166,6 +167,7 @@ class TileTypeData
                     string flagName = typeNode.SelectSingleNode("FlagName").InnerText;
 
                     string nameLocaleId = typeNode.SelectSingleNode("NameLocaleId").InnerText;
+                    string descLocaleId = typeNode.SelectSingleNode("DescLocaleId").InnerText;
                     float moveCost = float.Parse(typeNode.SelectSingleNode("MoveCost").InnerText);
                     string sprite = "";
                     if (typeNode.SelectSingleNode("Sprite") != null)
@@ -187,6 +189,7 @@ class TileTypeData
                     type.Flag = flag;
                     type.FlagName = flagName;
                     type.NameLocaleId = nameLocaleId;
+                    type.DescriptionLocaleId = descLocaleId;
                     type.MoveCost = moveCost;
                     type.Sprite = sprite;
                     type.IsDefault = isDefault;
