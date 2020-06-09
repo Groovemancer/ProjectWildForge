@@ -77,7 +77,6 @@ public class LuaFunctions : IFunctions
         try
         {
             // TODO: Disabling debugging server temporarily, it seems to have stopped working. Will investigate later.
-            // TEst
             /*
             if (server == null)
             {
