@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Mono.CSharp;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -13,6 +15,24 @@ public class StringUtils
     public static string GetLocalizedTextFiltered(string filter)
     {
         return LocaleData.GetText(LocaleData.CurrentLocale(), filter);
+    }
+
+    public static string ToUpper(string returnString, int startIndex, int length)
+    {
+        string prefix = "";
+        string suffix = "";
+        if (startIndex > 0)
+        {
+            prefix = returnString.Substring(0, startIndex);
+            suffix = returnString.Substring(startIndex, length).ToUpper();
+        }
+        else
+        {
+            prefix = returnString.Substring(startIndex, length).ToUpper();
+            int remainingLength = returnString.Length - prefix.Length;
+            suffix = returnString.Substring(length, remainingLength);
+        }
+        return prefix + suffix;
     }
 
     /// <summary>

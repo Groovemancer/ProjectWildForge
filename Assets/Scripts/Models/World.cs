@@ -526,7 +526,7 @@ public class World : IXmlSerializable
 
     public void ReadXml(XmlReader reader)
     {
-        Debug.Log("ReadXML");
+        DebugUtils.LogChannel("World", "ReadXML");
         // Load info here
 
         Seed = int.Parse(reader.GetAttribute("Seed"));
@@ -612,7 +612,7 @@ public class World : IXmlSerializable
                 int y = int.Parse(reader.GetAttribute("Y"));
                 int z = int.Parse(reader.GetAttribute("Z"));
 
-                Structure structure = StructureManager.PlaceStructure(reader.GetAttribute("objectType"), tiles[x, y, z], false);
+                Structure structure = StructureManager.PlaceStructure(reader.GetAttribute("Type"), tiles[x, y, z], false);
                 structure.ReadXml(reader);
             } while (reader.ReadToNextSibling("Structure"));
 

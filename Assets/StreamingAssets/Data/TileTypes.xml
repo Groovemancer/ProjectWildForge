@@ -5,42 +5,49 @@
 		<Default/>
 		<FlagName>Dirt</FlagName>
 		<NameLocaleId>comment#tile_type_dirt</NameLocaleId>
+		<DescLocaleId>comment#tile_type_dirt_desc</DescLocaleId>
 		<MoveCost>1</MoveCost>
 		<Sprite>Dirt</Sprite>
 	</TileType>
 	<TileType id="3">
 		<FlagName>RoughStone</FlagName>
 		<NameLocaleId>comment#tile_type_roughstone</NameLocaleId>
+		<DescLocaleId>comment#tile_type_roughstone_desc</DescLocaleId>
 		<MoveCost>1.5</MoveCost>
 		<Sprite>RoughStone</Sprite>
 	</TileType>
 	<TileType id="4">
 		<FlagName>Marsh</FlagName>
 		<NameLocaleId>comment#tile_type_marsh</NameLocaleId>
+		<DescLocaleId>comment#tile_type_marsh_desc</DescLocaleId>
 		<MoveCost>2</MoveCost>
 		<Sprite>Marsh</Sprite>
 	</TileType>
 	<TileType id="5">
 		<FlagName>ShallowWater</FlagName>
 		<NameLocaleId>comment#tile_type_shallowwater</NameLocaleId>
+		<DescLocaleId>comment#tile_type_shallowwater_desc</DescLocaleId>
 		<MoveCost>2</MoveCost>
 		<Sprite>ShallowWater</Sprite>
 	</TileType>
 	<TileType id="6">
 		<FlagName>Grass</FlagName>
 		<NameLocaleId>comment#tile_type_grass</NameLocaleId>
+		<DescLocaleId>comment#tile_type_grass_desc</DescLocaleId>
 		<MoveCost>1</MoveCost>
 		<Sprite>Grass</Sprite>
 	</TileType>
 	<TileType id="7">
 		<FlagName>Floor</FlagName>
 		<NameLocaleId>comment#tile_type_floor</NameLocaleId>
+		<DescLocaleId>comment#tile_type_floor_desc</DescLocaleId>
 		<MoveCost>1</MoveCost>
 		<Sprite>Floor</Sprite>
 	</TileType>
 	<TileType id="8">
 		<FlagName>Road</FlagName>
 		<NameLocaleId>comment#tile_type_road</NameLocaleId>
+		<DescLocaleId>comment#tile_type_road_desc</DescLocaleId>
 		<MoveCost>0.75</MoveCost>
 		<Sprite>Road</Sprite>
 	</TileType>

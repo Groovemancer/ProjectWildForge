@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 9/2/2019 8:07:28 PM-->
+<!--Last Updated: 6/8/2020 9:11:46 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -7,7 +7,6 @@
 		<Locale>es-ES</Locale>
 		<Locale>fr-FR</Locale>
 		<Locale>de-DE</Locale>
-		<Locale>ru-RU</Locale>
 	</Locales>
 	<Entry Id="0">
 		<Comment>game_title</Comment>
@@ -258,6 +257,78 @@
 		<Text>
 			<en-US>Requirements:\n</en-US>
 			<de-DE>Bedarf:\n</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="31">
+		<Comment>tile_type_dirt_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Floor that is made of dirt</en-US>
+			<de-DE>Boden aus Schmutz</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="32">
+		<Comment>tile_type_roughstone_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Rough, stone, flooring. It's a little tough to traverse.</en-US>
+			<de-DE>Rau, Stein, Bodenbelag. Es ist ein bisschen schwer zu durchqueren.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="33">
+		<Comment>tile_type_marsh_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Marshy waters. It's difficult to traverse.</en-US>
+			<de-DE>Sumpfiges Wasser. Es ist schwer zu durchqueren.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="34">
+		<Comment>tile_type_shallowwater_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Shallow waters. It's difficult to traverse.</en-US>
+			<de-DE>Seichten Gewässern. Es ist schwer zu durchqueren.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="35">
+		<Comment>tile_type_grass_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Grassy flooring.</en-US>
+			<de-DE>Grasboden.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="36">
+		<Comment>tile_type_floor_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Handcrafted flooring.</en-US>
+			<de-DE>Handgefertigter Bodenbelag.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="37">
+		<Comment>tile_type_road_desc</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Handcrafted road. Allows for quicker travel.</en-US>
+			<de-DE>Handgefertigte Straße. Ermöglicht eine schnellere Reise.</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="38">
+		<Comment>none</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>none</en-US>
+			<de-DE>keiner</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

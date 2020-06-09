@@ -58,14 +58,12 @@ public class GameController : MonoBehaviour
         if (Instance == null || Instance == this)
         {
             Instance = this;
+            DontDestroyOnLoad(this);
         }
         else
         {
-            DebugUtils.LogError("Two GameController' exist, deleting the new version rather than the old.");
             Destroy(this.gameObject);
         }
-
-        DontDestroyOnLoad(this);
     }
 
     private void OnApplicationQuit()

@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using MoonSharp.Interpreter;
 using MoonSharp.VsCodeDebugger;
 
@@ -75,14 +76,54 @@ public class LuaFunctions : IFunctions
         this.scriptName = scriptName;
         try
         {
+            // TODO: Disabling debugging server temporarily, it seems to have stopped working. Will investigate later.
+            /*
             if (server == null)
             {
                 server = new MoonSharpVsCodeDebugServer();
-                server.Start();
+
+                // Start the debugger server
+                int retries = 0;
+                int maxRetries = 10;
+                while (retries <= maxRetries)
+                {
+                    try
+                    {
+                        server.Start();
+                        retries = maxRetries + 1;
+                        DebugUtils.LogChannel("Lua", "VsCodeServer Debugger Started!");
+                    }
+                    catch (SocketException se)
+                    {
+                        DebugUtils.LogErrorChannel("Lua", "SocketException! Try: " + retries.ToString());
+                        if (se.ErrorCode == 10048)
+                        {
+                            DebugUtils.LogErrorChannel("Lua", "Failed to start Debugger! " + se.ErrorCode.ToString() + " - " + se.Message);
+                            if (retries != maxRetries)
+                            {
+                                DebugUtils.LogErrorChannel("Lua", "Waiting for current socket to close. Retrying in 1 second!");
+                                System.Threading.Thread.Sleep(1000);
+                            }
+                        }
+                        else
+                        {
+                            DebugUtils.LogErrorChannel("Lua", "Cannot start debugger! Unhandled Error: " + se.ErrorCode.ToString() + " - " + se.Message);
+                        }
+
+                        if (retries == maxRetries)
+                        {
+                            DebugUtils.LogErrorChannel("Lua", "Max retries exceeded!");
+                            throw new Exception("Failed to start Debugger!");
+                        }
+
+                        retries++;
+                    }
+                }
+
             }
 
             server.AttachToScript(script, "StructureActions", s => text);
-
+            */
             script.DoString(text, script.Globals);
         }
         catch (SyntaxErrorException e)

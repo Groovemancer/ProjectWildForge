@@ -15,6 +15,10 @@
 			<Stat type="Dexterity" value="3"/>
 			<Stat type="Agility" value="5"/>
 		</StatMods>
+		<SkillMods>
+			<Skill type="Forestry" value="8"/>
+			<Skill type="Bows" value="10"/>
+		</SkillMods>
 	</Race>
 	<Race type="race_Orc">
 		<Name>race_name_orc</Name>
@@ -30,5 +34,10 @@
 			<Stat type="Strength" value="5"/>
 			<Stat type="Constitution" value="3"/>
 		</StatMods>
+		<SkillMods>
+			<Skill type="Mining" value="4"/>
+			<Skill type="Smithing" value="8"/>
+			<Skill type="TwoHanded" value="10"/>
+		</SkillMods>
 	</Race>
 </Races>

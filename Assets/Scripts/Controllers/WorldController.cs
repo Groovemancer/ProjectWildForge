@@ -154,6 +154,7 @@ public class WorldController : MonoBehaviour
 
     private void CreateEmptyWorld()
     {
+        DebugUtils.LogChannel("WorldController", "CreateEmptyWorld");
         // Create a world with Empty tiles
         World = new World(100, 100, 5);
 
@@ -165,7 +166,7 @@ public class WorldController : MonoBehaviour
 
     private void CreateEmptyWorldFromSaveFile()
     {
-        Debug.Log("CreateEmptyWorldFromSaveFile");
+        DebugUtils.LogChannel("WorldController", "CreateEmptyWorldFromSaveFile");
         // Create a world from our save file data.
 
         XmlSerializer serializer = new XmlSerializer(typeof(World));

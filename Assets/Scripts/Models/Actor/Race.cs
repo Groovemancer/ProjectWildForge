@@ -37,6 +37,7 @@ public class Race : IPrototypable
     public string ActorFemaleNamesFile { get; set; }
 
     public List<Stat> StatModifiers { get; private set; }
+    public List<Skill> SkillModifiers { get; private set; }
 
     public void ReadXmlPrototype(XmlNode rootNode)
     {
@@ -60,6 +61,20 @@ public class Race : IPrototypable
                 Stat statMod = PrototypeManager.Stat.Get(statType).Clone();
                 statMod.Value = int.Parse(statModNode.Attributes["value"].InnerText);
                 StatModifiers.Add(statMod);
+            }
+        }
+
+        SkillModifiers = new List<Skill>();
+        XmlNode skillModsNode = rootNode.SelectSingleNode("SkillMods");
+        if (skillModsNode != null)
+        {
+            XmlNodeList skillModsNodes = skillModsNode.SelectNodes("Skill");
+            foreach (XmlNode skillModNode in skillModsNodes)
+            {
+                string skillType = skillModNode.Attributes["type"].InnerText;
+                Skill skillMod = PrototypeManager.Skill.Get(skillType).Clone();
+                skillMod.Value = int.Parse(skillModNode.Attributes["value"].InnerText);
+                SkillModifiers.Add(skillMod);
             }
         }
     }

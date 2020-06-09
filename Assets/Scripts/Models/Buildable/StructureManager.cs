@@ -30,15 +30,15 @@ public class StructureManager : IEnumerable<Structure>
     /// <param name="doRoomFloodFill">If set to <c>true</c> do room flood fill.</param>
     public Structure PlaceStructure(string type, Tile tile, bool doRoomFloodFill = true)
     {
-        if (PrototypeManager.Structure.Has(type) == false)
+        DebugUtils.LogChannel("StructureManager", string.Format("PlaceStructure type={0}, tile x={1}, y={2}", type, tile.X, tile.Y));
+        Structure structure;
+        if (PrototypeManager.Structure.TryGet(type, out structure) == false)
         {
-            Debug.LogError("structurePrototypes doesn't contain a proto for key: " + type);
+            DebugUtils.LogErrorChannel("StructureManager", "structurePrototypes doesn't contain a proto for key: " + type);
             return null;
         }
 
-        Structure structure = PrototypeManager.Structure.Get(type).Clone();
-
-        return PlaceStructure(structure, tile, doRoomFloodFill);
+        return PlaceStructure(structure.Clone(), tile, doRoomFloodFill);
     }
 
     /// <summary>

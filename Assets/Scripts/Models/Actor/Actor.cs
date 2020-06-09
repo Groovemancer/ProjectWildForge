@@ -256,6 +256,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         UseStats();
 
         LoadSkills();
+        UseSkills();
         LoadPriorities();
     }
 
@@ -321,12 +322,12 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
             Skill newSkill = prototypeSkill.Clone();
 
             // TODO: Add Skill modifiers to Races
-            //Skill raceSkill = Race.SkillModifiers.Find(skill => skill.Type == newSkill.Type);
-            //int raceValue = (raceSkill != null) ? raceSkill.Value : 0;
+            Skill raceSkill = Race.SkillModifiers.Find(skill => skill.Type == newSkill.Type);
+            int raceValue = (raceSkill != null) ? raceSkill.Value : 0;
 
             // Gets a random value within the min and max range of the skill.
             // TODO: Should there be any bias or any other algorithm applied here to make skills more interesting?
-            newSkill.Value = Math.Max(RandomUtils.DiceRoll(3, 8, 0, 0), 0);
+            newSkill.Value = Math.Max(RandomUtils.DiceRoll(3, 8, raceValue, 0), 0);
             Skills.Add(newSkill.Type, newSkill);
         }
 
