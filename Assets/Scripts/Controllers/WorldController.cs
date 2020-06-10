@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using UnityEngine;
@@ -141,6 +142,27 @@ public class WorldController : MonoBehaviour
 
         PlayerPrefs.SetString("SaveGame00", writer.ToString());
 
+        string myDocsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string dirPath = Path.Combine(myDocsPath, Application.companyName, Application.productName);
+        if (!Directory.Exists(dirPath))
+        {
+            Directory.CreateDirectory(dirPath);
+            DebugUtils.LogChannel("WorldController", "Directory Does Not Exist! Create it!");
+        }
+        else
+        {
+            DebugUtils.LogChannel("WorldController", "Directory Exists!");
+        }
+
+        // Sanity check
+        if (Directory.Exists(dirPath))
+        {
+            string filePath = Path.Combine(dirPath, "SaveGame00.dat");
+
+            byte[] data = Encoding.ASCII.GetBytes(writer.ToString());
+
+            File.WriteAllBytes(filePath, data);
+        }
     }
 
     public void LoadWorld()
@@ -169,11 +191,21 @@ public class WorldController : MonoBehaviour
         DebugUtils.LogChannel("WorldController", "CreateEmptyWorldFromSaveFile");
         // Create a world from our save file data.
 
-        XmlSerializer serializer = new XmlSerializer(typeof(World));
-        TextReader reader = new StringReader(PlayerPrefs.GetString("SaveGame00"));
-        World = (World)serializer.Deserialize(reader);
-        reader.Close();
+        string myDocsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string savePath = Path.Combine(myDocsPath, Application.companyName, Application.productName, "SaveGame00.dat");
+        if (!File.Exists(savePath))
+        {
+            DebugUtils.LogChannel("WorldController", "CreateEmptyWorldFromSaveFile Save File Does Not Exist!");
 
+            return;
+        }
+
+        XmlSerializer serializer = new XmlSerializer(typeof(World));
+
+        using (StreamReader reader = new StreamReader(savePath))
+        {
+            World = (World)serializer.Deserialize(reader);
+        }
 
         // Center the camera
         Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);

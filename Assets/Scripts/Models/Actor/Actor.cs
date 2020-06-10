@@ -113,7 +113,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
     public List<Tile> Path { get; set; }
 
     // Amount of action points required to move 1 tile.
-    private float movementCost = 25f; 
+    private float movementCost = 25f;
     private float baseMovementCost = 25f;
 
     /// Tiles per second.
@@ -208,7 +208,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         IsFemale = false;
     }
 
-    public Actor(Tile tile, string name, string race, bool isFemale)
+    public Actor(Tile tile, string name, string race, bool isFemale, string spriteName = null)
     {
         CurrTile = destTile = tile;
         Name = name;
@@ -216,13 +216,20 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         IsFemale = isFemale;
         InitializeActorValues();
 
-        if (IsFemale)
+        if (string.IsNullOrEmpty(spriteName))
         {
-            SpriteName = RandomUtils.ObjectFromList(Race.FemaleSprites, string.Empty);
+            if (IsFemale)
+            {
+                SpriteName = RandomUtils.ObjectFromList(Race.FemaleSprites, string.Empty);
+            }
+            else
+            {
+                SpriteName = RandomUtils.ObjectFromList(Race.MaleSprites, string.Empty);
+            }
         }
         else
         {
-            SpriteName = RandomUtils.ObjectFromList(Race.MaleSprites, string.Empty);
+            SpriteName = spriteName;
         }
 
         stateQueue = new Queue<State>();
@@ -252,10 +259,10 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
 
     private void InitializeActorValues()
     {
-        LoadStats();
+        InitStats();
         UseStats();
 
-        LoadSkills();
+        InitSkills();
         UseSkills();
         LoadPriorities();
     }
@@ -275,7 +282,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         return Name;
     }
 
-    private void LoadStats()
+    private void InitStats()
     {
         Stats = new Dictionary<string, Stat>(PrototypeManager.Stat.Count);
         for (int i = 0; i < PrototypeManager.Stat.Count; i++)
@@ -313,7 +320,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         }
     }
 
-    private void LoadSkills()
+    private void InitSkills()
     {
         Skills = new Dictionary<string, Skill>(PrototypeManager.Skill.Count);
         for (int i = 0; i < PrototypeManager.Skill.Count; i++)
@@ -363,7 +370,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
     {
         Acted = false;
         ActionPoints += deltaAuts;
-        
+
         // Run all the global states first so that they can interrupt or queue up new states
         foreach (State globalState in globalStates)
         {
@@ -537,11 +544,111 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
         writer.WriteAttributeString("Y", CurrTile.Y.ToString());
         writer.WriteAttributeString("Z", CurrTile.Z.ToString());
 
+        writer.WriteAttributeString("Race", Race.Type);
+        writer.WriteAttributeString("Name", Name);
+        writer.WriteAttributeString("IsFemale", IsFemale.ToString());
+        writer.WriteAttributeString("SpriteName", SpriteName);
+
+        SaveStats(writer);
+        SaveSkills(writer);
     }
 
     public void ReadXml(XmlReader reader)
     {
+        while (reader.Read())
+        {
+            switch (reader.Name)
+            {
+                case "Stats":
+                    DebugUtils.LogChannel("Actor", "ReadXml Stats!");
+                    LoadStats(reader);
+                    break;
+                case "Skills":
+                    DebugUtils.LogChannel("Actor", "ReadXml Skills!");
+                    LoadSkills(reader);
+                    break;
+            }
+        }
+    }
 
+    private void SaveStats(XmlWriter writer)
+    {
+        writer.WriteStartElement("Stats");
+        foreach (Stat stat in Stats.Values)
+        {
+            string statType = stat.Type;
+            int statVal = stat.Value;
+
+            writer.WriteStartElement("Stat");
+            writer.WriteAttributeString("Type", statType);
+            writer.WriteAttributeString("Value", statVal.ToString());
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+    }
+
+    private void SaveSkills(XmlWriter writer)
+    {
+        writer.WriteStartElement("Skills");
+        foreach (Skill skill in Skills.Values)
+        {
+            string skillType = skill.Type;
+            int skillVal = skill.Value;
+            float skillExp = skill.Experience;
+
+            writer.WriteStartElement("Skill");
+            writer.WriteAttributeString("Type", skillType);
+            writer.WriteAttributeString("Value", skillVal.ToString());
+            writer.WriteAttributeString("Exp", skillExp.ToString());
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+    }
+
+    private void LoadStats(XmlReader reader)
+    {
+        Stats = new Dictionary<string, Stat>(PrototypeManager.Stat.Count);
+        if (reader.ReadToDescendant("Stat"))
+        {
+            do
+            {
+                string statType = reader.GetAttribute("Type");
+                int statVal = int.Parse(reader.GetAttribute("Value"));
+
+                Stat prototypeStat = PrototypeManager.Stat.Get(statType);
+                Stat newStat = prototypeStat.Clone();
+
+                newStat.Value = statVal;
+                Stats.Add(newStat.Type, newStat);
+            } while (reader.ReadToNextSibling("Stat"));
+        }
+
+        DebugUtils.LogChannel("Actor", string.Format("{0}'s Stats: {1}", Name, string.Join(", ", Stats.Select(s => s.Value.ToString()))));
+        UseStats();
+    }
+
+    private void LoadSkills(XmlReader reader)
+    {
+        Skills = new Dictionary<string, Skill>(PrototypeManager.Skill.Count);
+        if (reader.ReadToDescendant("Skill"))
+        {
+            do
+            {
+                string skillType = reader.GetAttribute("Type");
+                int skillVal = int.Parse(reader.GetAttribute("Value"));
+                float skillExp = float.Parse(reader.GetAttribute("Exp"));
+
+                Skill prototypeSkill = PrototypeManager.Skill.Get(skillType);
+                Skill newSkill = prototypeSkill.Clone();
+
+                newSkill.Value = skillVal;
+                newSkill.Experience = skillExp;
+                Skills.Add(newSkill.Type, newSkill);
+            } while (reader.ReadToNextSibling("Skill"));
+        }
+
+        DebugUtils.LogChannel("Actor", string.Format("{0}'s Skills: {1}", Name, string.Join(", ", Skills.Select(s => s.Value.ToString()))));
+        UseSkills();
     }
 
     public string GetDescription()
@@ -573,7 +680,7 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
 
         foreach (Stat stat in Stats.Values)
         {
-            
+
             yield return StringUtils.GetLocalizedTextFiltered("comment#" + stat.Name) + ": " + stat.Value;
         }
     }

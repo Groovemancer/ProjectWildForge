@@ -650,8 +650,14 @@ public class World : IXmlSerializable
                 int y = int.Parse(reader.GetAttribute("Y"));
                 int z = int.Parse(reader.GetAttribute("Z"));
 
-                Actor actor = ActorManager.Create(tiles[x, y, z], "race_Elf");
+                string race = reader.GetAttribute("Race");
+                string name = reader.GetAttribute("Name");
+                bool isFemale = bool.Parse(reader.GetAttribute("IsFemale"));
+                string spriteName = reader.GetAttribute("SpriteName");
+
+                Actor actor = ActorManager.Create(tiles[x, y, z], race, name, isFemale, spriteName);
                 actor.ReadXml(reader);
+
             } while (reader.ReadToNextSibling("Actor"));
         }
     }

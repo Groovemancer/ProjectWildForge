@@ -33,13 +33,13 @@ public class ActorManager : IEnumerable<Actor>
     /// <param name="race"></param>
     /// <param name="isFemale"></param>
     /// <returns></returns>
-    public Actor Create(Tile tile, string race, string name = null, bool isFemale = false)
+    public Actor Create(Tile tile, string race, string name = null, bool isFemale = false, string spriteName = null)
     {
         name = name != null ? name : ActorNameManager.GetNewName(race, isFemale);
-        Actor actor = new Actor(tile, name, race, isFemale);
+        Actor actor = new Actor(tile, name, race, isFemale, spriteName);
         Actors.Add(actor);
 
-        DebugUtils.LogChannel("ActorManager", string.Format("Created Actor {0} ID: {1} a {2} {3}", actor.Name, actor.Id, isFemale ? "female" : "male", actor.Race.Name));
+        DebugUtils.LogChannel("ActorManager", string.Format("Created Actor {0} ID: {1} a {2} {3} {4}", actor.Name, actor.Id, isFemale ? "female" : "male", actor.Race.Name, spriteName));
 
         TimeManager.Instance.RegisterFastUpdate(actor);
 

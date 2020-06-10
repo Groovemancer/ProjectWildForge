@@ -4,10 +4,10 @@
 	<Race type="race_Elf">
 		<Name>race_name_elf</Name>
 		<MaleSprites>
-			<Sprite>Elf_M_Front</Sprite>
+			<Sprite>Elf_M_Front_00</Sprite>
 		</MaleSprites>
 		<FemaleSprites>
-			<Sprite>Elf_F_Front</Sprite>
+			<Sprite>Elf_F_Front_00</Sprite>
 		</FemaleSprites>		
 		<ActorMaleNamesFile>ElfMaleActorNames</ActorMaleNamesFile>
 		<ActorFemaleNamesFile>ElfFemaleActorNames</ActorFemaleNamesFile>
@@ -23,10 +23,11 @@
 	<Race type="race_Orc">
 		<Name>race_name_orc</Name>
 		<MaleSprites>
-			<Sprite>Orc_M_Front</Sprite>
+			<Sprite>Orc_M_Front_00</Sprite>
+			<Sprite>Orc_M_Front_01</Sprite>
 		</MaleSprites>
 		<FemaleSprites>
-			<Sprite>Orc_F_Front</Sprite>
+			<Sprite>Orc_F_Front_00</Sprite>
 		</FemaleSprites>		
 		<ActorMaleNamesFile>OrcMaleActorNames</ActorMaleNamesFile>
 		<ActorFemaleNamesFile>OrcFemaleActorNames</ActorFemaleNamesFile>
