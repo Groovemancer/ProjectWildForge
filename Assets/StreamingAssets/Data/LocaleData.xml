@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 6/8/2020 9:11:46 PM-->
+<!--Last Updated: 6/9/2020 6:54:48 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -329,6 +329,42 @@
 		<Text>
 			<en-US>none</en-US>
 			<de-DE>keiner</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="39">
+		<Comment>item_type</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>
+			<en-US>Item Type: </en-US>
+			<de-DE>Gegenstandsart: </de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="40">
+		<Comment>inv_StoneBlock</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>
+			<en-US>Stone Block</en-US>
+			<de-DE>Steinblock</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="41">
+		<Comment>inv_RawStone</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>
+			<en-US>Raw Stone</en-US>
+			<de-DE>Roher Stein</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="42">
+		<Comment>inv_RawWood</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>
+			<en-US>Raw Wood</en-US>
+			<de-DE>Rohes Holz</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

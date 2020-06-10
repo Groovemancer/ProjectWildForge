@@ -12,6 +12,7 @@ public class MouseController : MonoBehaviour
     Vector3 currFramePosition;
 
     const float MIN_ZOOM = 5;
+    const float DEFAULT_ZOOM = 8;
     const float MAX_ZOOM = 25;
 
     // The world-position start of our left-mouse drag operation
@@ -31,6 +32,8 @@ public class MouseController : MonoBehaviour
         bmc = GameObject.FindObjectOfType<BuildModeController>();
 
         dragPreviewGameObjects = new List<GameObject>();
+
+        Camera.main.orthographicSize = DEFAULT_ZOOM;
     }
 
     /// <summary>
@@ -200,9 +203,12 @@ public class MouseController : MonoBehaviour
             Camera.main.transform.Translate(diff);
         }
 
-        Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel");
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel");
 
-        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, MIN_ZOOM, MAX_ZOOM);
+            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, MIN_ZOOM, MAX_ZOOM);
+        }
     }
 
 

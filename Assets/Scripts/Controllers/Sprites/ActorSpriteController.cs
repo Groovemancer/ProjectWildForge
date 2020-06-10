@@ -135,6 +135,8 @@ public class ActorSpriteController : BaseSpriteController<Actor>
         // Register our callback so that our GameObject gets updated whenever
         // the object's info changes.
         actor.OnActorChanged += OnChanged;
+
+        DebugUtils.LogChannel("ActorSpriteController", "OnCreated actorID: " + actor.Id);
     }
 
     protected override void OnChanged(Actor actor)
@@ -146,8 +148,11 @@ public class ActorSpriteController : BaseSpriteController<Actor>
             return;
         }
 
-        actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
-        actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+        if (actor_go != null)
+        {
+            actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
+            actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+        }
     }
 
     protected override void OnRemoved(Actor actor)
