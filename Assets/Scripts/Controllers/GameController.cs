@@ -38,7 +38,12 @@ public class GameController : MonoBehaviour
         IsModal = false;
         IsPaused = true;
 
-        KeyboardManager.Instance.RegisterInputAction("Pause", KeyboardMappedInputType.KeyUp, () => { IsPaused = !IsPaused; });
+        KeyboardManager.Instance.RegisterInputAction("Pause", KeyboardMappedInputType.KeyUp, TogglePause);
+    }
+
+    public void TogglePause()
+    {
+        IsPaused = !IsPaused;
     }
 
     // Only on first time a scene is loaded.

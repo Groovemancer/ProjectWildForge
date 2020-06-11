@@ -40,6 +40,7 @@ public class Tile : IXmlSerializable, ISelectable
     public List<Actor> Actors { get; set; }
 
     public Structure Structure { get; protected set; }
+    public Plant Plant { get; protected set; }
     public HashSet<Job> PendingBuildJobs { get; set; }
 
     /// <summary>
@@ -148,6 +149,20 @@ public class Tile : IXmlSerializable, ISelectable
                 UpdatePathfindingCost();
             }
         }
+
+        return true;
+    }
+
+    public bool PlacePlant(Plant objInstance)
+    {
+        if (objInstance == null)
+        {
+            Plant = null;
+            return true;
+        }
+
+        Plant = objInstance.Clone();
+        Plant.Tile = this;
 
         return true;
     }

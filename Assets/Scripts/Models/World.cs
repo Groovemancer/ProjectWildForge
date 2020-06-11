@@ -39,6 +39,12 @@ public class World : IXmlSerializable
     public StructureManager StructureManager { get; private set; }
 
     /// <summary>
+    /// Gets the plant manager.
+    /// </summary>
+    /// <value>The plant manager.</value>
+    public PlantManager PlantManager { get; private set; }
+
+    /// <summary>
     /// Gets the actor manager.
     /// </summary>
     /// <value>The actor manager.</value>
@@ -136,6 +142,9 @@ public class World : IXmlSerializable
         //Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
         //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
 
+
+        Plant plant = PlantManager.PlacePlant("plant_OakTree", GetTileAt(Width / 2 + 3, Height / 2, 0));
+
         DetermineVisibility(initialActor1.CurrTile);
     }
 
@@ -173,6 +182,7 @@ public class World : IXmlSerializable
 
         //Debug.Log("World created with " + (Width * Height) + " tiles.");
 
+        PlantManager = new PlantManager();
         InventoryManager = new InventoryManager();
         ActorManager = new ActorManager();
         JobManager = new JobManager();

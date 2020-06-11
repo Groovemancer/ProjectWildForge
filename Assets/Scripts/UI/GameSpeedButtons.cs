@@ -57,6 +57,28 @@ public class GameSpeedButtons : MonoBehaviour
     {
         currentGameSpeed = gameSpeed;
         ToggleButtons(currentGameSpeed);
+
+        // FIXME Update UI
+        /*
+        switch (currentGameSpeed)
+        {
+            case GameSpeed.Pause:
+                GameController.Instance.TogglePause();
+                break;
+            case GameSpeed.Normal:
+                TimeManager.Instance.SetTimeScalePosition(1);
+                break;
+            case GameSpeed.Fast:
+                TimeManager.Instance.SetTimeScalePosition(2);
+                break;
+            case GameSpeed.VeryFast:
+                TimeManager.Instance.SetTimeScalePosition(3);
+                break;
+            case GameSpeed.SuperFast:
+                TimeManager.Instance.SetTimeScalePosition(4);
+                break;
+        }
+        */
         //WorldController.Instance.SetGameSpeed(currentGameSpeed);
     }
 
