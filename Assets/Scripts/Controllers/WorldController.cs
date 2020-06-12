@@ -21,6 +21,8 @@ public class WorldController : MonoBehaviour
 
     public static StructureSpriteController StructureSpriteController { get; protected set; }
 
+    public static PlantSpriteController PlantSpriteController { get; protected set; }
+
     public static JobSpriteController JobSpriteController { get; protected set; }
 
     public static InventorySpriteController InventorySpriteController { get; protected set; }
@@ -75,6 +77,7 @@ public class WorldController : MonoBehaviour
         StructureSpriteController = new StructureSpriteController(World);
         JobSpriteController = new JobSpriteController(World, StructureSpriteController);
         InventorySpriteController = new InventorySpriteController(World, inventoryUI);
+        PlantSpriteController = new PlantSpriteController(World);
     }
 
     /// <summary>

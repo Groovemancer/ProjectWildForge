@@ -39,6 +39,12 @@ public static class PrototypeManager
     public static PrototypeMap<Structure> Structure { get; private set; }
 
     /// <summary>
+    /// Gets the plant prototype map.
+    /// </summary>
+    /// <value>The plant prototype map.</value>
+    public static PrototypeMap<Plant> Plant { get; private set; }
+
+    /// <summary>
     /// Gets the need prototype map.
     /// </summary>
     /// <value>The need prototype map.</value>
@@ -65,6 +71,7 @@ public static class PrototypeManager
         Skill = new PrototypeMap<Skill>();
         Race = new PrototypeMap<Race>();
         Structure = new PrototypeMap<Structure>();
+        Plant = new PrototypeMap<Plant>();
         Need = new PrototypeMap<Need>();
         JobCategory = new PrototypeMap<JobCategory>();
 

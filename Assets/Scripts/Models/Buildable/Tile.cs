@@ -40,6 +40,7 @@ public class Tile : IXmlSerializable, ISelectable
     public List<Actor> Actors { get; set; }
 
     public Structure Structure { get; protected set; }
+    public Plant Plant { get; protected set; }
     public HashSet<Job> PendingBuildJobs { get; set; }
 
     /// <summary>
@@ -96,10 +97,7 @@ public class Tile : IXmlSerializable, ISelectable
             movementCost = Type.MoveCost;
         }
 
-        if (Structure != null)
-            return movementCost * Structure.MovementCost;
-        else
-            return movementCost;
+        return movementCost * (Structure != null ? Structure.MovementCost : 1) * (Plant != null ? Plant.MovementCost : 1);
     }
 
 
@@ -148,6 +146,20 @@ public class Tile : IXmlSerializable, ISelectable
                 UpdatePathfindingCost();
             }
         }
+
+        return true;
+    }
+
+    public bool PlacePlant(Plant objInstance)
+    {
+        if (objInstance == null)
+        {
+            Plant = null;
+            return true;
+        }
+
+        Plant = objInstance.Clone();
+        Plant.Tile = this;
 
         return true;
     }

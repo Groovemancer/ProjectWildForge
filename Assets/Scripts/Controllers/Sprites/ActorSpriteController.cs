@@ -128,8 +128,8 @@ public class ActorSpriteController : BaseSpriteController<Actor>
         actor_go.transform.SetParent(objectParent.transform, true);
 
         SpriteRenderer sr = actor_go.AddComponent<SpriteRenderer>();
-        sr.sortingLayerName = "Actors";
-        sr.sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+        sr.sortingLayerName = "Objects";
+        sr.sortingOrder = Mathf.RoundToInt(actor.Y) * -1;
         sr.sprite = SpriteManager.GetSprite("Actor", actor.SpriteName);
 
         // Register our callback so that our GameObject gets updated whenever
@@ -151,7 +151,7 @@ public class ActorSpriteController : BaseSpriteController<Actor>
         if (actor_go != null)
         {
             actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
-            actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y * 100f) * -1;
+            actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y) * -1;
         }
     }
 

@@ -81,6 +81,7 @@ public class ModsManager
         //HandlePrototypes("Utility", PrototypeManager.Utility.LoadXmlPrototypes);
         //HandlePrototypes("RoomBehavior", PrototypeManager.RoomBehavior.LoadXmlPrototypes);
         HandlePrototypes("Inventories", PrototypeManager.Inventory.LoadXmlPrototypes);
+        HandlePrototypes("Plants", PrototypeManager.Plant.LoadXmlPrototypes);
         HandlePrototypes("Need", PrototypeManager.Need.LoadXmlPrototypes);
         //HandlePrototypes("Trader", PrototypeManager.Trader.LoadXmlPrototypes);
         //HandlePrototypes("Currency", PrototypeManager.Currency.LoadXmlPrototypes);

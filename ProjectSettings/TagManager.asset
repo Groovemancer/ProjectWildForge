@@ -56,8 +56,14 @@ TagManager:
   - name: InventoryUI
     uniqueID: 309522997
     locked: 0
+  - name: Plants
+    uniqueID: 1075232153
+    locked: 0
   - name: Actors
     uniqueID: 989739271
+    locked: 0
+  - name: Objects
+    uniqueID: 2387053765
     locked: 0
   - name: TileUI
     uniqueID: 3617189023

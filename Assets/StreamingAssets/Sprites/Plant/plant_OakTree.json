@@ -3,17 +3,18 @@
       "name": "plant_OakTree_0",
       "x": 0,
       "y": 0,
-      "w": 1,
-      "h": 2,
-      "pivotY": 0.25,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.4,
+      "pivotY": 0.125,
       "pixelPerUnit": 32
    },
    {
       "name": "plant_OakTree_1",
-      "x": 1,
+      "x": 2,
       "y": 0,
-      "w": 1,
-      "h": 2,
+      "w": 2,
+      "h": 4,
       "pivotY": 0.25,
       "pixelPerUnit": 32
    }
