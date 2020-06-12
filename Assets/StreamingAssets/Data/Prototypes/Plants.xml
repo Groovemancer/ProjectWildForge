@@ -3,11 +3,20 @@
 <Plants>
 	<Plant Type="plant_Dummy">
 		<Name>plant_Dummy</Name>
-		<GrowthTime>3600000</GrowthTime> <!-- Total amount of AUTs to fully grow -->
+		<Width>1</Width>
+		<Height>1</Height>
+		<MoveCost>0</MoveCost>
+		<GrowthTime>36000</GrowthTime> <!-- Total amount of AUTs to fully grow -->
 		<Health>300</Health> <!-- How much damage before destroyed. Does not Yield anything when destroyed -->
 		<AllowedTiles>Dirt|Grass</AllowedTiles> <!-- The tile types that the plant can be placed/grow on -->
+		<Sprites>
+			<Sprite GrowPctThreshold="0.00">plant_TestTree_0</Sprite> <!-- When the percentage of total grow time exceeds the threshold, change to this sprite -->
+			<Sprite GrowPctThreshold="0.25">plant_TestTree_1</Sprite>
+			<Sprite GrowPctThreshold="0.50">plant_TestTree_2</Sprite>
+			<Sprite GrowPctThreshold="0.75">plant_TestTree_3</Sprite>
+		</Sprites>
 		<Harvest>
-			<MinGrowthPerc>0.6</MinGrowthPerc> <!-- Minimum percent growth to harvest -->
+			<MinGrowthPct>0.6</MinGrowthPct> <!-- Minimum percent growth to harvest -->
 			<Cost>1200</Cost> <!-- How much "work done" is needed to harvest -->
 			<Skill>Forestry</Skill> <!-- What skill is needed to harvest -->
 			<Yield> <!-- Items that are dropped when harvested -->
@@ -17,11 +26,18 @@
 	</Plant>
 	<Plant Type="plant_OakTree">
 		<Name>plant_OakTree</Name>
+		<Width>1</Width>
+		<Height>1</Height>
+		<MoveCost>0</MoveCost>
 		<GrowthTime>3600000</GrowthTime>
 		<Health>300</Health>
 		<AllowedTiles>Dirt|Grass</AllowedTiles>
+		<Sprites>
+			<Sprite GrowPctThreshold="0.00">plant_OakTree_0</Sprite>
+			<Sprite GrowPctThreshold="0.25">plant_OakTree_1</Sprite>
+		</Sprites>
 		<Harvest>
-			<MinGrowthPerc>0.6</MinGrowthPerc>
+			<MinGrowthPct>0.6</MinGrowthPct>
 			<Cost>1200</Cost>
 			<Skill>Forestry</Skill>
 			<Yield>

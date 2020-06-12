@@ -21,22 +21,23 @@ public class PlantSpriteController : BaseSpriteController<Plant>
     public Sprite GetSpriteForPlant(string type)
     {
         Plant proto = PrototypeManager.Plant.Get(type);
-        Sprite s = SpriteManager.GetSprite("Plants", proto.GetDefaultSpriteName());
+        Sprite s = SpriteManager.GetSprite("Plant", proto.GetCurrentSprite());
 
         return s;
     }
 
-    public static SpriteRenderer SetSprite(GameObject inventoryGO, Plant plant, string sortingLayerName = "Inventory")
+    public static SpriteRenderer SetSprite(GameObject plantGO, Plant plant, string sortingLayerName = "Objects")
     {
-        SpriteRenderer sr = inventoryGO.GetComponent<SpriteRenderer>();
+        SpriteRenderer sr = plantGO.GetComponent<SpriteRenderer>();
         if (sr == null)
         {
-            sr = inventoryGO.AddComponent<SpriteRenderer>();
+            sr = plantGO.AddComponent<SpriteRenderer>();
         }
 
         sr.sortingLayerName = sortingLayerName;
 
-        sr.sprite = SpriteManager.GetSprite("Plant", plant.Type + "_0"); // TODO - Remove "_0"
+        sr.sprite = SpriteManager.GetSprite("Plant", plant.GetCurrentSprite());
+        sr.sortingOrder = Mathf.RoundToInt(plant.Tile.Y) * -1;
         if (sr.sprite == null)
         {
             DebugUtils.LogErrorChannel("PlantSpriteController", "No sprite for: " + plant.Type);
@@ -47,7 +48,15 @@ public class PlantSpriteController : BaseSpriteController<Plant>
 
     protected override void OnChanged(Plant plant)
     {
-        throw new System.NotImplementedException();
+        // Make sure the structure's graphics are correct.
+        GameObject plantGameObject;
+        if (objectGameObjectMap.TryGetValue(plant, out plantGameObject) == false)
+        {
+            DebugUtils.LogErrorChannel("PlantSpriteController", "OnChanged -- trying to change visuals for plant not in our map.");
+            return;
+        }
+
+        SetSprite(plantGameObject, plant);
     }
 
     protected override void OnCreated(Plant plant)
@@ -69,12 +78,43 @@ public class PlantSpriteController : BaseSpriteController<Plant>
         plantGameObject.transform.SetParent(objectParent.transform, true);
 
         SetSprite(plantGameObject, plant);
+
+        // Register our callback so that our GameObject gets updated whenever
+        // the object's into changes.
+        plant.Changed += OnChanged;
+        plant.Removed += OnRemoved;
     }
 
     protected override void OnRemoved(Plant plant)
     {
-        GameObject plantGameObject = objectGameObjectMap[plant];
+        // Retrieve gameobject from mapping
+        GameObject plantGameObject;
+        if (objectGameObjectMap.TryGetValue(plant, out plantGameObject) == false)
+        {
+            DebugUtils.LogErrorChannel("PlantSpriteController", "OnRemoved -- trying to remove visuals for plant not in our map.");
+            return;
+        }
+
+        // Unregister our callbacks
+        plant.Changed -= OnChanged;
+        plant.Removed -= OnRemoved;
+
+        // Remove from gameobject map
         objectGameObjectMap.Remove(plant);
+
+        // Delete game object
         GameObject.Destroy(plantGameObject);
+    }
+
+    public override void RemoveAll()
+    {
+        world.PlantManager.Created -= OnCreated;
+
+        foreach (Plant plant in world.PlantManager)
+        {
+            plant.Changed -= OnChanged;
+            plant.Removed -= OnRemoved;
+        }
+        base.RemoveAll();
     }
 }

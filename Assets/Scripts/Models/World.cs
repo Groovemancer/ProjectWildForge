@@ -142,8 +142,18 @@ public class World : IXmlSerializable
         //Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
         //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
 
+        /*
+        for (int x = Width / 2 - 3; x < Width / 2 + 3; x++)
+        {
+            for (int y = Height / 2 - 3; y < Height / 2 + 3; y++)
+            {
+                if (x == (Width / 2) && y == (Height / 2))
+                    continue;
 
-        Plant plant = PlantManager.PlacePlant("plant_OakTree", GetTileAt(Width / 2 + 3, Height / 2, 0));
+                Plant plant1 = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
+            }
+        }
+        */
 
         DetermineVisibility(initialActor1.CurrTile);
     }
@@ -306,6 +316,15 @@ public class World : IXmlSerializable
                 else
                 {
                     tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
+                }
+
+                if (RandomUtils.Range(0, 10) == 0)
+                {
+                    Plant plant = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
+                    if (plant != null)
+                    {
+                        plant.SetRandomGrowthPercent(0.1f, 0.7f);
+                    }
                 }
             }
         }

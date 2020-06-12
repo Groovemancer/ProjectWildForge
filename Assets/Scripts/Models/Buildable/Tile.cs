@@ -97,10 +97,7 @@ public class Tile : IXmlSerializable, ISelectable
             movementCost = Type.MoveCost;
         }
 
-        if (Structure != null)
-            return movementCost * Structure.MovementCost;
-        else
-            return movementCost;
+        return movementCost * (Structure != null ? Structure.MovementCost : 1) * (Plant != null ? Plant.MovementCost : 1);
     }
 
 

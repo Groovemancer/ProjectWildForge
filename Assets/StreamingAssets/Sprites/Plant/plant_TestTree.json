@@ -1,0 +1,42 @@
+[
+   {
+      "name": "plant_TestTree_0",
+      "x": 0,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_TestTree_1",
+      "x": 2,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_TestTree_2",
+      "x": 4,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_TestTree_3",
+      "x": 6,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+]
