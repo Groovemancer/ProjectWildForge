@@ -4,11 +4,10 @@ using UnityEngine;
 
 public enum GameSpeed
 {
-    Pause, Normal, Fast, VeryFast, SuperFast
+    Pause, Normal, Fast, VeryFast, SuperFast, SuperDuperFast, MegaFast, UberFast, UltraFast, OmegaFast
 }
 
 public class GameSpeedState : MonoBehaviour
 {
     public GameSpeed gameSpeed;
-    public KeyCode keyCode;
 }

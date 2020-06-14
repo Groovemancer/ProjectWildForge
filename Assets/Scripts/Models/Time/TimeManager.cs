@@ -18,7 +18,7 @@ public class TimeManager
     private List<Action> nextFrameActions = new List<Action>();
 
     // An array of possible time multipliers.
-    private float[] possibleTimeScales = new float[5] { 0.5f, 1f, 2f, 3f, 4f };
+    private float[] possibleTimeScales = new float[10] { 0.5f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f };
 
     private List<IUpdatable> fastUpdatables = new List<IUpdatable>();
 
@@ -48,6 +48,11 @@ public class TimeManager
         KeyboardManager.Instance.RegisterInputAction("SetSpeed2", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(2));
         KeyboardManager.Instance.RegisterInputAction("SetSpeed3", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(3));
         KeyboardManager.Instance.RegisterInputAction("SetSpeed4", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(4));
+        KeyboardManager.Instance.RegisterInputAction("SetSpeed5", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(5));
+        KeyboardManager.Instance.RegisterInputAction("SetSpeed6", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(6));
+        KeyboardManager.Instance.RegisterInputAction("SetSpeed7", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(7));
+        KeyboardManager.Instance.RegisterInputAction("SetSpeed8", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(8));
+        KeyboardManager.Instance.RegisterInputAction("SetSpeed9", KeyboardMappedInputType.KeyUp, () => SetTimeScalePosition(9));
         KeyboardManager.Instance.RegisterInputAction("DecreaseSpeed", KeyboardMappedInputType.KeyUp, DecreaseTimeScale);
         KeyboardManager.Instance.RegisterInputAction("IncreaseSpeed", KeyboardMappedInputType.KeyUp, IncreaseTimeScale);
     }

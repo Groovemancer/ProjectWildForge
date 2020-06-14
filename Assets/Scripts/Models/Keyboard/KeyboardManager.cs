@@ -95,6 +95,11 @@ public class KeyboardManager
         RegisterInputMapping("SetSpeed2", KeyboardInputModifier.None, KeyCode.Alpha2, KeyCode.Keypad2);
         RegisterInputMapping("SetSpeed3", KeyboardInputModifier.None, KeyCode.Alpha3, KeyCode.Keypad3);
         RegisterInputMapping("SetSpeed4", KeyboardInputModifier.None, KeyCode.Alpha4, KeyCode.Keypad4);
+        RegisterInputMapping("SetSpeed5", KeyboardInputModifier.None, KeyCode.Alpha5, KeyCode.Keypad5);
+        RegisterInputMapping("SetSpeed6", KeyboardInputModifier.None, KeyCode.Alpha6, KeyCode.Keypad6);
+        RegisterInputMapping("SetSpeed7", KeyboardInputModifier.None, KeyCode.Alpha7, KeyCode.Keypad7);
+        RegisterInputMapping("SetSpeed8", KeyboardInputModifier.None, KeyCode.Alpha8, KeyCode.Keypad8);
+        RegisterInputMapping("SetSpeed9", KeyboardInputModifier.None, KeyCode.Alpha9, KeyCode.Keypad9);
         RegisterInputMapping("DecreaseSpeed", KeyboardInputModifier.None, KeyCode.Minus, KeyCode.KeypadMinus);
         RegisterInputMapping("IncreaseSpeed", KeyboardInputModifier.None, KeyCode.Plus, KeyCode.KeypadPlus);
 
@@ -141,7 +146,7 @@ public class KeyboardManager
         KeyboadMappedInput mappedInput;
         if (mapping.TryGetValue(inputName, out mappedInput))
         {
-            mappedInput.OnTrigger = onTrigger;
+            mappedInput.OnTrigger += onTrigger;
             mappedInput.Type = inputType;
         }
         else
