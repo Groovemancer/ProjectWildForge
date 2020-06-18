@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
@@ -9,7 +10,6 @@ using UnityEngine.SceneManagement;
 [MoonSharpUserData]
 public class WorldController : MonoBehaviour
 {
-    [SerializeField]
     private GameObject inventoryUI;
 
     #region Instances

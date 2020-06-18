@@ -56,6 +56,12 @@ public class World : IXmlSerializable
     /// <value>The job manager.</value>
     public JobManager JobManager { get; private set; }
 
+    /// <summary>
+    /// Gets the light manager.
+    /// </summary>
+    /// <value>The light manager.</value>
+    public LightManager LightManager { get; private set; }
+
     // The pathfinding graph used to navigate our world map.
     public Path_TileGraph tileGraph;
     private Path_RoomGraph roomGraph;
@@ -155,6 +161,8 @@ public class World : IXmlSerializable
         }
         */
 
+        LightManager.AddPointLight("Point Light", new Vector3(50, 50, 0), 3, 6);
+
         DetermineVisibility(initialActor1.CurrTile);
     }
 
@@ -196,6 +204,7 @@ public class World : IXmlSerializable
         InventoryManager = new InventoryManager();
         ActorManager = new ActorManager();
         JobManager = new JobManager();
+        LightManager = new LightManager();
     }
 
     private void FillTilesArray()
@@ -257,13 +266,18 @@ public class World : IXmlSerializable
         {
             for (int y = b - 5; y < b + 15; y++)
             {
-                tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Floor"), false);
+                Tile tile = tiles[x, y, 0];
+                tile.SetTileType(TileTypeData.GetByFlagName("Floor"), false);
+                if (tile.Plant != null)
+                {
+                    tile.Plant.Deconstruct();
+                }
 
                 if (x == l || x == (l + 9) || y == b || y == (b + 9))
                 {
                     if (x != (l + 9) && y != (b + 4))
                     {
-                        StructureManager.PlaceStructure("struct_StoneWall", tiles[x, y, 0], false);
+                        StructureManager.PlaceStructure("struct_StoneWall", tile, false);
                     }
                 }
             }

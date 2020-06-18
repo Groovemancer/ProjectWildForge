@@ -739,8 +739,6 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
 
     public void Deconstruct()
     {
-        Debug.Log("Deconstruct");
-
         int x = Tile.X;
         int y = Tile.Y;
         int fwidth = 1;
@@ -760,7 +758,9 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
         Tile.UnplaceStructure();
 
         if (Removed != null)
+        {
             Removed(this);
+        }
 
         // Do we need to recalculate our rooms?
         if (RoomEnclosure)

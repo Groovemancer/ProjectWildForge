@@ -180,6 +180,10 @@ public class BuildModeController : MonoBehaviour
             {
                 tile.Structure.Deconstruct();
             }
+            if (tile.Plant != null)
+            {
+                tile.Plant.Deconstruct();
+            }
         }
         else
         {

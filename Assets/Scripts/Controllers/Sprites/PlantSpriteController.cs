@@ -72,6 +72,7 @@ public class PlantSpriteController : BaseSpriteController<Plant>
         // Only create a Game Object if inventory was created on tile, anything else will handle its own game object
         if (plant.Tile != null)
         {
+            plantGameObject.name += string.Format("_{0}_{1}_{2}", plant.Tile.X, plant.Tile.Y, plant.Tile.Z);
             plantGameObject.transform.position = new Vector3(plant.Tile.X, plant.Tile.Y, plant.Tile.Z);
         }
 

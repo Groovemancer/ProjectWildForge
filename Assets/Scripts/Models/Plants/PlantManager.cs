@@ -34,7 +34,6 @@ public class PlantManager : IEnumerable<Plant>
     /// <param name="tile">The tile to place the structure at.</param>
     public Plant PlacePlant(string type, Tile tile)
     {
-        DebugUtils.LogChannel("PlantManager", string.Format("PlantStructure type={0}, tile x={1}, y={2}", type, tile.X, tile.Y));
         Plant plant;
         if (PrototypeManager.Plant.TryGet(type, out plant) == false)
         {
@@ -105,6 +104,7 @@ public class PlantManager : IEnumerable<Plant>
     /// <param name="plant">The structure being removed.</param>
     private void OnRemoved(Plant plant)
     {
+        DebugUtils.LogChannel("PlantManager", "OnRemoved");
         Plants.Remove(plant);
         TimeManager.Instance.UnregisterSlowUpdate(plant);
     }

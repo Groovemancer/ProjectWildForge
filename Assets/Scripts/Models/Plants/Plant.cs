@@ -166,6 +166,19 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
 		return plantObj;
 	}
 
+	public void Deconstruct()
+	{
+		Tile.UnplacePlant();
+
+		if (Removed != null)
+		{
+			Removed(this);
+		}
+
+		// At this point, no DATA structures should be pointing to us, so we
+		// should get garbage-collected.
+	}
+
 	/// <summary>
 	/// Check if the position of the plant is valid or not.
 	/// This is called when placing the plant.

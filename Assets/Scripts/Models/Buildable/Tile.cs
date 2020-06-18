@@ -150,16 +150,25 @@ public class Tile : IXmlSerializable, ISelectable
         return true;
     }
 
+    public bool UnplacePlant()
+    {
+        // Just removing. FIXME: What if we have a multi-tile plant?
+        if (Plant == null)
+            return false;
+
+        Plant = null;
+
+        return true;
+    }
+
     public bool PlacePlant(Plant objInstance)
     {
         if (objInstance == null)
         {
-            Plant = null;
-            return true;
+            return UnplacePlant();
         }
 
-        Plant = objInstance.Clone();
-        Plant.Tile = this;
+        Plant = objInstance;
 
         return true;
     }
