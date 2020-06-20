@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 [MoonSharpUserData]
 public class WorldController : MonoBehaviour
 {
+    [SerializeField]
     private GameObject inventoryUI;
 
     #region Instances

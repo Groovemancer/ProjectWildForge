@@ -2,9 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class InventorySpriteController : BaseSpriteController<Inventory>
+public /*sealed*/ class InventorySpriteController : BaseSpriteController<Inventory>
 {
     private GameObject inventoryUIPrefab;
+    private GameObject selectionObject;
 
     // Use this for initialization
     public InventorySpriteController(World world, GameObject inventoryUI) : base(world, "Inventory", 500)
@@ -14,6 +15,7 @@ public sealed class InventorySpriteController : BaseSpriteController<Inventory>
         // Register our callback so that our GameObject gets updated whenever
         // the tile's type changes.
         world.InventoryManager.InventoryCreated += OnCreated;
+        world.InventoryManager.InventorySelectionChanged += SelectInventory;
 
         // Check for pre-existing inventory, which won't do the callback.
         foreach (Inventory inventory in world.InventoryManager.Inventories.SelectMany(pair => pair.Value))
@@ -51,6 +53,7 @@ public sealed class InventorySpriteController : BaseSpriteController<Inventory>
     public override void RemoveAll()
     {
         world.InventoryManager.InventoryCreated -= OnCreated;
+        world.InventoryManager.InventorySelectionChanged -= SelectInventory;
         foreach (Inventory inventory in world.InventoryManager.Inventories.SelectMany(pair => pair.Value))
         {
             inventory.StackSizeChanged -= OnChanged;
@@ -104,6 +107,8 @@ public sealed class InventorySpriteController : BaseSpriteController<Inventory>
             return;
         }
 
+        //SelectInventory(inventory);
+
         if (inventory.StackSize > 0)
         {
             Text text = inventoryGameObject.GetComponentInChildren<Text>();
@@ -121,8 +126,51 @@ public sealed class InventorySpriteController : BaseSpriteController<Inventory>
         }
     }
 
+    protected void SelectInventory(Inventory inventory)
+    {
+        if (inventory.IsSelected)
+        {
+            SpriteRenderer sr;
+            if (selectionObject == null)
+            {
+                selectionObject = new GameObject("Selection");
+                sr = selectionObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                sr = selectionObject.GetComponent<SpriteRenderer>();
+            }
+            selectionObject.SetActive(true);
+
+            selectionObject.transform.position = new Vector3(inventory.Tile.X, inventory.Tile.Y, 0);
+            selectionObject.transform.SetParent(objectParent.transform, true);
+
+            if (sr != null)
+            {
+                sr.sortingLayerName = "Objects";
+                sr.sortingOrder = -Mathf.RoundToInt(inventory.Tile.Y) - 1;
+                sr.sprite = SpriteManager.GetSelectionSprite();
+            }
+        }
+        else
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+    }
+
     protected override void OnRemoved(Inventory inventory)
     {
+        if (inventory.IsSelected)
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+
         inventory.StackSizeChanged -= OnChanged;
         GameObject inventoryGameObject = objectGameObjectMap[inventory];
         objectGameObjectMap.Remove(inventory);

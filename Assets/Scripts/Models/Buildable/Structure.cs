@@ -363,7 +363,24 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     /// This flag is set if the structure is tasked to be destroyed.
     /// </summary>
     public bool IsBeingDestroyed { get; protected set; }
-    public bool IsSelected { get; set; }
+
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get
+        {
+            return isSelected;
+        }
+        set
+        {
+            if (value != isSelected)
+            {
+                isSelected = value;
+                if (Changed != null)
+                    Changed(this);
+            }
+        }
+    }
 
     /// <summary>
     /// This event will trigger when the structure has been changed.

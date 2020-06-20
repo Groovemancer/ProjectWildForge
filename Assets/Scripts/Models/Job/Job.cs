@@ -163,7 +163,11 @@ public class Job : ISelectable
 
     // The items that have been delivered to the jobsite.
     public Dictionary<string, Inventory> DeliveredItems { get; set; }
-    public bool IsSelected { get; set; }
+
+    public bool IsSelected
+    {
+        get; set;
+    }
 
     private List<Actor> actorsCantReach = new List<Actor>();
 

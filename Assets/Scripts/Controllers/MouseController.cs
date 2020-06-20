@@ -19,6 +19,7 @@ public class MouseController : MonoBehaviour
     Vector3 dragStartPosition;
 
     bool isDragging = false;
+    bool isPanning = false;
 
     List<GameObject> dragPreviewGameObjects;
 
@@ -97,6 +98,12 @@ public class MouseController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Escape))
         {
             DebugUtils.LogChannel("MouseController", "Escape pressed?");
+
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = false;
+            }
+
             mySelection = null;
         }
 
@@ -109,12 +116,17 @@ public class MouseController : MonoBehaviour
         // If we are over a UI element, bail out.
         if (EventSystem.current.IsPointerOverGameObject())
         {
-            DebugUtils.LogChannel("MouseController", "Over UI?");
             return;
         }
 
         if (Input.GetMouseButtonUp(0))
         {
+            // Clear previous selection
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = false;
+            }
+
             Tile tileUnderMouse = GetMouseOverTile();
 
             if (tileUnderMouse == null)
@@ -135,6 +147,11 @@ public class MouseController : MonoBehaviour
             {
                 mySelection.BuildStuffInTile();
                 mySelection.SelectNextStuff();
+            }
+
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = true;
             }
         }
     }
@@ -256,6 +273,11 @@ public class MouseController : MonoBehaviour
         {
             Vector3 diff = lastFramePosition - currFramePosition;
             Camera.main.transform.Translate(diff);
+            isPanning = true;
+        }
+        else
+        {
+            isPanning = false;
         }
 
         if (Input.GetAxis("Mouse ScrollWheel") != 0)

@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Inventories>
 	<Inventory Type="inv_RawStone">
-		<Name>inv_RawStone</Name>
+		<NameLocaleId>comment#inv_RawStone</NameLocaleId>
 		<MaxStackSize>50</MaxStackSize>
 		<BasePrice>0.9</BasePrice>
 		<Category>inv_cat_mat_stone</Category>
 	</Inventory>
 	<Inventory Type="inv_StoneBlock">
-		<Name>inv_StoneBlock</Name>
+		<NameLocaleId>comment#inv_StoneBlock</NameLocaleId>
 		<MaxStackSize>50</MaxStackSize>
 		<BasePrice>1</BasePrice>
 		<Category>inv_cat_mat_stone</Category>
 	</Inventory>
 	<Inventory Type="inv_RawWood">
-		<Name>inv_RawWood</Name>
+		<NameLocaleId>comment#inv_RawWood</NameLocaleId>
 		<MaxStackSize>75</MaxStackSize>
 		<BasePrice>1.2</BasePrice>
 		<Category>inv_cat_mat_lumber</Category>

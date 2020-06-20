@@ -19,6 +19,8 @@ public class InventoryManager
 
     public event Action<Inventory> InventoryCreated;
 
+    public event Action<Inventory> InventorySelectionChanged;
+
     public InventoryManager()
     {
         Inventories = new Dictionary<string, List<Inventory>>();
@@ -112,6 +114,15 @@ public class InventoryManager
         }
 
         return true;
+    }
+
+    public void InvokeSelectionChanged(Inventory inventory)
+    {
+        Action<Inventory> handler = InventorySelectionChanged;
+        if (handler != null)
+        {
+            handler(inventory);
+        }
     }
 
     private void InvokeInventoryCreated(Inventory inventory)

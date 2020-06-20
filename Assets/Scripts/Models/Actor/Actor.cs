@@ -198,7 +198,24 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
 
     /// Skills, for actor
     public Dictionary<string, Skill> Skills { get; protected set; }
-    public bool IsSelected { get; set; }
+
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get
+        {
+            return isSelected;
+        }
+        set
+        {
+            if (value != isSelected)
+            {
+                isSelected = value;
+                if (OnActorChanged != null)
+                    OnActorChanged(this);
+            }
+        }
+    }
 
     public Actor()
     {

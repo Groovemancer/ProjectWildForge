@@ -8,6 +8,7 @@ using System.Linq;
 using MoonSharp.Interpreter;
 using ProjectWildForge.Pathfinding;
 using UnityEngine;
+using System.Reflection;
 
 //[Flags]
 //public enum TileType {
@@ -76,7 +77,23 @@ public class Tile : IXmlSerializable, ISelectable
         get { return new Vector3(X, Y, Z); }
     }
 
-    public bool IsSelected { get; set; }
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get
+        {
+            return isSelected;
+        }
+        set
+        {
+            if (value != isSelected)
+            {
+                isSelected = value;
+                if (TileChanged != null)
+                    TileChanged(this);
+            }
+        }
+    }
 
     public void RegisterTileChangedCallback(Action<Tile> callback)
     {
