@@ -2651,6 +2651,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13c78b22593c7c843abe3589c5f05f29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inventoryUI: {fileID: 1342820593168902, guid: 9e1f096203316f74796dfbadd868144a,
+    type: 3}
 --- !u!4 &1063862942
 Transform:
   m_ObjectHideFlags: 0
