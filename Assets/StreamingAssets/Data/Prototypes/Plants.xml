@@ -2,7 +2,7 @@
 
 <Plants>
 	<Plant Type="plant_Dummy">
-		<Name>plant_Dummy</Name>
+		<NameLocaleId>comment#plant_Dummy</NameLocaleId>
 		<Width>1</Width>
 		<Height>1</Height>
 		<MoveCost>0</MoveCost>
@@ -25,7 +25,7 @@
 		</Harvest>
 	</Plant>
 	<Plant Type="plant_OakTree">
-		<Name>plant_OakTree</Name>
+		<NameLocaleId>comment#plant_OakTree</NameLocaleId>
 		<Width>1</Width>
 		<Height>1</Height>
 		<MoveCost>0</MoveCost>

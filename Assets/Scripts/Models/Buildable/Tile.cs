@@ -552,7 +552,7 @@ public class Tile : IXmlSerializable, ISelectable
 
     public string GetName()
     {
-        return Type.NameLocaleId;
+        return StringUtils.GetLocalizedTextFiltered(Type.NameLocaleId);
     }
 
     public string GetDescription()

@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using ProjectWildForge.Rooms;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [MoonSharpUserData]
 public class World : IXmlSerializable
@@ -161,7 +162,7 @@ public class World : IXmlSerializable
         }
         */
 
-        LightManager.AddPointLight("Point Light", new Vector3(50, 50, 0), 3, 6);
+        LightManager.AddPointLight("Point Light", new Vector3(50, 50, 0), MathUtils.HexToRGB(0xFFD7B6), 3, 6, 0.9f, true);
 
         DetermineVisibility(initialActor1.CurrTile);
     }

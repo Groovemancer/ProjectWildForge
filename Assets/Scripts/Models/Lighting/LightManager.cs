@@ -34,7 +34,7 @@ public class LightManager
 
     public void CreateOutdoorLighting()
     {
-        int id = AddLight("OutdoorLighting", Vector3.zero, Light2D.LightType.Global);
+        int id = AddLight("OutdoorLighting", Vector3.zero, Light2D.LightType.Global, MathUtils.HexToRGB(0xE0E0E0));
         outdoorLight = Lights[id];
 
         if (!outdoorLight.GetComponent<OutdoorLighting>())
@@ -43,7 +43,7 @@ public class LightManager
         }
     }
 
-    public int AddLight(string name, Vector3 position, Light2D.LightType lightType)
+    public int AddLight(string name, Vector3 position, Light2D.LightType lightType, Color lightColor)
     {
         GameObject lightObject;
         int id = GetAvailableId();
@@ -54,6 +54,7 @@ public class LightManager
 
         Light2D lighting = lightObject.AddComponent<Light2D>();
         lighting.lightType = lightType;
+        lighting.color = lightColor;
 
         int[] layers = layers = SortingLayer.layers.Select(x => x.id).ToArray();
 
@@ -70,14 +71,21 @@ public class LightManager
     }
 
 
-    public int AddPointLight(string name, Vector3 position, float innerRadius, float outterRadius)
+    public int AddPointLight(string name, Vector3 position, Color lightColor, float innerRadius, float outterRadius, float intensity = 1f, bool flicker = false, float variance = 0.1f)
     {
-        int id = AddLight(name, position, Light2D.LightType.Point);
+        int id = AddLight(name, position, Light2D.LightType.Point, lightColor);
 
         Light2D lighting = Lights[id].GetComponent<Light2D>();
 
         lighting.pointLightInnerRadius = innerRadius;
         lighting.pointLightOuterRadius = outterRadius;
+        lighting.intensity = intensity;
+
+        if (flicker)
+        {
+            LightFlicker flickering = Lights[id].AddComponent<LightFlicker>();
+            flickering.Variance = variance;
+        }
 
         return id;
     }

@@ -734,7 +734,7 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     /// <returns>LocalizationCode for the name of the furniture.</returns>
     public string GetName()
     {
-        return Name;
+        return StringUtils.GetLocalizedTextFiltered(Name);
     }
 
     public void Deconstruct()
@@ -853,7 +853,7 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     public void ReadXmlPrototype(XmlNode rootNode)
     {
         Type = rootNode.Attributes["Type"].InnerText;
-        Name = rootNode.SelectSingleNode("Name").InnerText;
+        Name = rootNode.SelectSingleNode("NameLocaleId").InnerText;
         Description = PrototypeReader.ReadXml(string.Empty, rootNode.SelectSingleNode("Description"));
         MovementCost = float.Parse(rootNode.SelectSingleNode("MoveCost").InnerText);
         Width = int.Parse(rootNode.SelectSingleNode("Width").InnerText);

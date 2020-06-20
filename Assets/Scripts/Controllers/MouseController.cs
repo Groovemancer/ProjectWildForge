@@ -22,6 +22,8 @@ public class MouseController : MonoBehaviour
 
     List<GameObject> dragPreviewGameObjects;
 
+    public SelectionInfo mySelection;
+
     BuildModeController bmc;
 
     MouseMode currentMode = MouseMode.Select;
@@ -42,6 +44,11 @@ public class MouseController : MonoBehaviour
     public Vector3 GetMousePosition()
     {
         return currFramePosition;
+    }
+
+    public MouseMode GetCurrentMode()
+    {
+        return currentMode;
     }
 
     public Tile GetMouseOverTile()
@@ -79,9 +86,57 @@ public class MouseController : MonoBehaviour
 
         UpdateDragging();
         UpdateCameraMovement();
+        UpdateSelection();
 
         lastFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         lastFramePosition.z = 0;
+    }
+
+    void UpdateSelection()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            DebugUtils.LogChannel("MouseController", "Escape pressed?");
+            mySelection = null;
+        }
+
+        if (currentMode != MouseMode.Select)
+        {
+            DebugUtils.LogChannel("MouseController", "No Select Mode?");
+            return;
+        }
+
+        // If we are over a UI element, bail out.
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            DebugUtils.LogChannel("MouseController", "Over UI?");
+            return;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            Tile tileUnderMouse = GetMouseOverTile();
+
+            if (tileUnderMouse == null)
+            {
+                DebugUtils.LogChannel("MouseController", "No valid tile");
+                // No valid tile under mouse
+                return;
+            }
+
+            DebugUtils.LogChannel("MouseController", string.Format("Selection Tile X: {0} Y: {1}", tileUnderMouse.X, tileUnderMouse.Y));
+
+            if (mySelection == null || mySelection.Tile != tileUnderMouse)
+            {
+                // We have just selected a brand new tile, reset the info.
+                mySelection = new SelectionInfo(tileUnderMouse);
+            }
+            else
+            {
+                mySelection.BuildStuffInTile();
+                mySelection.SelectNextStuff();
+            }
+        }
     }
 
     void UpdateDragging()

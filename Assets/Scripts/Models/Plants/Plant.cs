@@ -286,7 +286,7 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
 
 	public string GetName()
 	{
-		return Name;
+		return StringUtils.GetLocalizedTextFiltered(Name);
 	}
 
 	#region Saving & Loading
@@ -326,7 +326,7 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
 		DebugUtils.LogChannel("Plant", "ReadXmlPrototype");
 		/*
 		<Plant Type="plant_Dummy">
-			<Name>plant_Dummy</Name>
+			<NameLocaleId>comment#plant_Dummy</NameLocaleId>
 			<Width>1</Width>
 			<Height>1</Height>
 			<MoveCost>0</MoveCost>
@@ -350,7 +350,7 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
 		</Plant>
 		*/
 		Type = rootNode.Attributes["Type"].InnerText;
-		Name = rootNode.SelectSingleNode("Name").InnerText;
+		Name = rootNode.SelectSingleNode("NameLocaleId").InnerText;
 		Width = int.Parse(rootNode.SelectSingleNode("Width").InnerText);
 		Height = int.Parse(rootNode.SelectSingleNode("Height").InnerText);
 		MovementCost = float.Parse(rootNode.SelectSingleNode("MoveCost").InnerText);
