@@ -1,0 +1,12 @@
+﻿[
+   {
+      "name": "eqp_IronPickaxe",
+      "x": 0,
+      "y": 0,
+      "w": 1,
+      "h": 2,
+      "pixelPerUnit": 64,
+	  "pivotX": 0.5,
+      "pivotY": 0.25
+   }
+]
