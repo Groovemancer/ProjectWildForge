@@ -363,7 +363,24 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     /// This flag is set if the structure is tasked to be destroyed.
     /// </summary>
     public bool IsBeingDestroyed { get; protected set; }
-    public bool IsSelected { get; set; }
+
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get
+        {
+            return isSelected;
+        }
+        set
+        {
+            if (value != isSelected)
+            {
+                isSelected = value;
+                if (Changed != null)
+                    Changed(this);
+            }
+        }
+    }
 
     /// <summary>
     /// This event will trigger when the structure has been changed.
@@ -734,13 +751,11 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     /// <returns>LocalizationCode for the name of the furniture.</returns>
     public string GetName()
     {
-        return Name;
+        return StringUtils.GetLocalizedTextFiltered(Name);
     }
 
     public void Deconstruct()
     {
-        Debug.Log("Deconstruct");
-
         int x = Tile.X;
         int y = Tile.Y;
         int fwidth = 1;
@@ -760,7 +775,9 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
         Tile.UnplaceStructure();
 
         if (Removed != null)
+        {
             Removed(this);
+        }
 
         // Do we need to recalculate our rooms?
         if (RoomEnclosure)
@@ -853,7 +870,7 @@ public class Structure : IXmlSerializable, ISelectable, IUpdatable, IPrototypabl
     public void ReadXmlPrototype(XmlNode rootNode)
     {
         Type = rootNode.Attributes["Type"].InnerText;
-        Name = rootNode.SelectSingleNode("Name").InnerText;
+        Name = rootNode.SelectSingleNode("NameLocaleId").InnerText;
         Description = PrototypeReader.ReadXml(string.Empty, rootNode.SelectSingleNode("Description"));
         MovementCost = float.Parse(rootNode.SelectSingleNode("MoveCost").InnerText);
         Width = int.Parse(rootNode.SelectSingleNode("Width").InnerText);

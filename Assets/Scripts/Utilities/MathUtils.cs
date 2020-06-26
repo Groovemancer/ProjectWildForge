@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// Different mathematical calculations. 
@@ -86,5 +87,14 @@ public static class MathUtils
             max = y;
             min = x;
         }
+    }
+
+    public static Color32 HexToRGB(int color)
+    {
+        byte r = (byte)((color >> 16) & 255);
+        byte g = (byte)((color >> 8) & 255);
+        byte b = (byte)(color & 255);
+
+        return new Color32(r, g, b, 255);
     }
 }

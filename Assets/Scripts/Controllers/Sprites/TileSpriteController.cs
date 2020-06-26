@@ -140,6 +140,8 @@ public class TileSpriteController : BaseSpriteController<Tile>
     public UnityEngine.Tilemaps.Tile errorTile;
     public UnityEngine.Tilemaps.Tile fogTile;
 
+    private GameObject selectionObject;
+
     public Dictionary<string, TileBase> TileLookup;
 
     // Use this for initialization
@@ -220,10 +222,53 @@ public class TileSpriteController : BaseSpriteController<Tile>
     protected override void OnChanged(Tile tile)
     {
         tilemaps[tile.Z].SetTile(new Vector3Int(tile.X, tile.Y, 0), DetermineTileBaseToUse(tile));
+        SelectTile(tile);
+    }
+
+    protected void SelectTile(Tile tile)
+    {
+        if (tile.IsSelected)
+        {
+            SpriteRenderer sr;
+            if (selectionObject == null)
+            {
+                selectionObject = new GameObject("Selection");
+                sr = selectionObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                sr = selectionObject.GetComponent<SpriteRenderer>();
+            }
+            selectionObject.SetActive(true);
+
+            selectionObject.transform.position = new Vector3(tile.X, tile.Y, 0);
+            selectionObject.transform.SetParent(objectParent.transform, true);
+
+            if (sr != null)
+            {
+                sr.sortingLayerName = "Tiles";
+                sr.sortingOrder = tile.Z + 1;
+                sr.sprite = SpriteManager.GetSelectionSprite();
+            }
+        }
+        else
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
     }
 
     protected override void OnRemoved(Tile tile)
     {
+        if (tile.IsSelected)
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
     }
 
     private TileBase DetermineTileBaseToUse(Tile tile)

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 6/9/2020 6:54:48 PM-->
+<!--Last Updated: 6/19/2020 9:14:56 PM-->
 <LocaleData>
 	<Locales>
 		<Default>en-US</Default>
@@ -365,6 +365,24 @@
 		<Text>
 			<en-US>Raw Wood</en-US>
 			<de-DE>Rohes Holz</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="43">
+		<Comment>plant_Dummy</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Dummy Plant</en-US>
+			<de-DE>Dummy-Pflanze</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="44">
+		<Comment>plant_OakTree</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Oak Tree</en-US>
+			<de-DE>Eiche</de-DE>
 		</Text>
 	</Entry>
 </LocaleData>

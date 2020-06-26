@@ -2,7 +2,7 @@
 
 <Structures>
 	<Structure Type="struct_StoneWall">
-		<Name>struct_StoneWall</Name>
+		<NameLocaleId>comment#struct_StoneWall</NameLocaleId>
 		<MoveCost>0</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
@@ -34,7 +34,7 @@
 		</DeconstructJob>
 	</Structure>
 	<Structure Type="struct_WoodDoor">
-		<Name>struct_WoodDoor</Name>
+		<NameLocaleId>struct_WoodDoor</NameLocaleId>
 		<MoveCost>1</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
@@ -108,7 +108,7 @@
 		
 	</Structure>
 	<Structure Type="struct_Stockpile">
-		<Name>struct_Stockpile</Name>
+		<NameLocaleId>comment#struct_Stockpile</NameLocaleId>
 		<MoveCost>1</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
@@ -128,7 +128,7 @@
 		<EventAction event="OnUpdate" FunctionName="OnUpdate_Stockpile" />
 	</Structure>
 	<Structure Type="struct_WorkStation">
-		<Name>struct_WorkStation</Name>
+		<NameLocaleId>comment#struct_WorkStation</NameLocaleId>
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
 		<Height>3</Height>
@@ -153,7 +153,7 @@
 		</DeconstructJob>
 	</Structure>
 	<Structure Type="struct_O2Generator">
-		<Name>struct_O2Generator</Name>
+		<NameLocaleId>comment#struct_O2Generator</NameLocaleId>
 		<MoveCost>10</MoveCost>
 		<Width>2</Width>
 		<Height>2</Height>
@@ -178,7 +178,7 @@
 		</DeconstructJob>-->
 	</Structure>
 	<Structure Type="struct_StoneCuttingTable">
-		<Name>struct_StoneCuttingTable</Name>
+		<NameLocaleId>comment#struct_StoneCuttingTable</NameLocaleId>
 		<MoveCost>1</MoveCost>
 		<Width>3</Width>
 		<Height>2</Height>

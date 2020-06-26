@@ -42,6 +42,7 @@ public class Inventory : IPrototypable, ISelectable
     }
 
     public event Action<Inventory> StackSizeChanged;
+    public event Action<Inventory> SelectionChanged;
 
     public string Type { get; set; }
 
@@ -57,7 +58,23 @@ public class Inventory : IPrototypable, ISelectable
 
     // Should this inventory be allowed to be picked up for completing a job?
     public bool Locked { get; set; }
-    public bool IsSelected { get; set; }
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get
+        {
+            return isSelected;
+        }
+        set
+        {
+            if (value != isSelected)
+            {
+                DebugUtils.LogChannel("Inventory", "IsSelected value=" + value + ", Method = " + (StackSizeChanged != null ? StackSizeChanged.Method.Name : ""));
+                isSelected = value;
+                World.Current.InventoryManager.InvokeSelectionChanged(this);
+            }
+        }
+    }
 
     public Actor actor;
 
@@ -105,11 +122,12 @@ public class Inventory : IPrototypable, ISelectable
         return new Inventory(this);
     }
 
-    private void InvokeStackSizeChanged(Inventory inventory)
+    public void InvokeStackSizeChanged(Inventory inventory)
     {
         Action<Inventory> handler = StackSizeChanged;
         if (handler != null)
         {
+            DebugUtils.LogChannel("Inventory", "InvokeStackSizeChanged!");
             handler(inventory);
         }
     }
@@ -183,7 +201,7 @@ public class Inventory : IPrototypable, ISelectable
     public void ReadXmlPrototype(XmlNode rootNode)
     {
         Type = rootNode.Attributes["Type"].InnerText;
-        Name = rootNode.SelectSingleNode("Name").InnerText;
+        Name = rootNode.SelectSingleNode("NameLocaleId").InnerText;
         MaxStackSize = int.Parse(rootNode.SelectSingleNode("MaxStackSize").InnerText);
         BasePrice = float.Parse(rootNode.SelectSingleNode("BasePrice").InnerText);
         Category = rootNode.SelectSingleNode("Category").InnerText;
@@ -196,7 +214,7 @@ public class Inventory : IPrototypable, ISelectable
 
     public string GetName()
     {
-        return Type;
+        return StringUtils.GetLocalizedTextFiltered(Name);
     }
 
     public string GetDescription()

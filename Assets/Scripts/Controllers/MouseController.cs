@@ -19,8 +19,11 @@ public class MouseController : MonoBehaviour
     Vector3 dragStartPosition;
 
     bool isDragging = false;
+    bool isPanning = false;
 
     List<GameObject> dragPreviewGameObjects;
+
+    public SelectionInfo mySelection;
 
     BuildModeController bmc;
 
@@ -42,6 +45,11 @@ public class MouseController : MonoBehaviour
     public Vector3 GetMousePosition()
     {
         return currFramePosition;
+    }
+
+    public MouseMode GetCurrentMode()
+    {
+        return currentMode;
     }
 
     public Tile GetMouseOverTile()
@@ -79,9 +87,73 @@ public class MouseController : MonoBehaviour
 
         UpdateDragging();
         UpdateCameraMovement();
+        UpdateSelection();
 
         lastFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         lastFramePosition.z = 0;
+    }
+
+    void UpdateSelection()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            DebugUtils.LogChannel("MouseController", "Escape pressed?");
+
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = false;
+            }
+
+            mySelection = null;
+        }
+
+        if (currentMode != MouseMode.Select)
+        {
+            DebugUtils.LogChannel("MouseController", "No Select Mode?");
+            return;
+        }
+
+        // If we are over a UI element, bail out.
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            // Clear previous selection
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = false;
+            }
+
+            Tile tileUnderMouse = GetMouseOverTile();
+
+            if (tileUnderMouse == null)
+            {
+                DebugUtils.LogChannel("MouseController", "No valid tile");
+                // No valid tile under mouse
+                return;
+            }
+
+            DebugUtils.LogChannel("MouseController", string.Format("Selection Tile X: {0} Y: {1}", tileUnderMouse.X, tileUnderMouse.Y));
+
+            if (mySelection == null || mySelection.Tile != tileUnderMouse)
+            {
+                // We have just selected a brand new tile, reset the info.
+                mySelection = new SelectionInfo(tileUnderMouse);
+            }
+            else
+            {
+                mySelection.BuildStuffInTile();
+                mySelection.SelectNextStuff();
+            }
+
+            if (mySelection != null)
+            {
+                mySelection.GetSelectedStuff().IsSelected = true;
+            }
+        }
     }
 
     void UpdateDragging()
@@ -201,6 +273,11 @@ public class MouseController : MonoBehaviour
         {
             Vector3 diff = lastFramePosition - currFramePosition;
             Camera.main.transform.Translate(diff);
+            isPanning = true;
+        }
+        else
+        {
+            isPanning = false;
         }
 
         if (Input.GetAxis("Mouse ScrollWheel") != 0)

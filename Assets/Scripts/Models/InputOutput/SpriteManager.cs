@@ -27,6 +27,9 @@ public static class SpriteManager
 
     private static bool isInitialized;
 
+    private static string CategoryUI = "UI";
+    private static string SelectionSquare = "SelectionSquare";
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SpriteManager"/> class.
     /// </summary>
@@ -86,6 +89,29 @@ public static class SpriteManager
 
         // Return a pink square as a error indication
         DebugUtils.LogWarningChannel("SpriteManager", string.Format("No sprite: {0}, using fallback sprite.", spriteName));
+        return CreateErrorSprite();
+    }
+
+    /// <summary>
+    /// Gets the sprite for the given category and name.
+    /// </summary>
+    /// <returns>The sprite.</returns>
+    /// <param name="categoryName">Category name.</param>
+    /// <param name="spriteName">Sprite name.</param>
+    public static Sprite GetSelectionSprite()
+    {
+        Dictionary<string, Sprite> categorySprites;
+        Sprite sprite;
+        if (sprites.TryGetValue(CategoryUI, out categorySprites))
+        {
+            if (categorySprites.TryGetValue(SelectionSquare, out sprite))
+            {
+                return sprite;
+            }
+        }
+
+        // Return a pink square as a error indication
+        DebugUtils.LogWarningChannel("SpriteManager", string.Format("No sprite: {0}, using fallback sprite.", SelectionSquare));
         return CreateErrorSprite();
     }
 

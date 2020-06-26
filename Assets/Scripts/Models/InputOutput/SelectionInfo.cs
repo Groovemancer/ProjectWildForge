@@ -49,6 +49,11 @@ public class SelectionInfo
             stuffInTile.Add(Tile.Structure);
         }
 
+        if (Tile.Plant != null)
+        {
+            stuffInTile.Add(Tile.Plant);
+        }
+
         if (Tile.Inventory != null)
         {
             stuffInTile.Add(Tile.Inventory);

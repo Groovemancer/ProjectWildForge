@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class PlantSpriteController : BaseSpriteController<Plant>
 {
+    GameObject selectionObject;
+
     // Use this for initialization
     public PlantSpriteController(World world) : base(world, "Plant", 500)
     {
@@ -59,6 +62,43 @@ public class PlantSpriteController : BaseSpriteController<Plant>
         SetSprite(plantGameObject, plant);
     }
 
+    protected void SelectPlant(Plant plant)
+    {
+        DebugUtils.LogChannel("PlantSpriteController", "SelectPlant plant.IsSelected=" + plant.IsSelected);
+
+        if (plant.IsSelected)
+        {
+            SpriteRenderer sr;
+            if (selectionObject == null)
+            {
+                selectionObject = new GameObject("Selection");
+                sr = selectionObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                sr = selectionObject.GetComponent<SpriteRenderer>();
+            }
+            selectionObject.SetActive(true);
+
+            selectionObject.transform.position = new Vector3(plant.Tile.X, plant.Tile.Y, 0);
+            selectionObject.transform.SetParent(objectParent.transform, true);
+
+            if (sr != null)
+            {
+                sr.sortingLayerName = "Objects";
+                sr.sortingOrder = -Mathf.RoundToInt(plant.Tile.Y) - 1;
+                sr.sprite = SpriteManager.GetSelectionSprite();
+            }
+        }
+        else
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+    }
+
     protected override void OnCreated(Plant plant)
     {
         // This creates a new GameObject and adds it to our scene.
@@ -72,6 +112,7 @@ public class PlantSpriteController : BaseSpriteController<Plant>
         // Only create a Game Object if inventory was created on tile, anything else will handle its own game object
         if (plant.Tile != null)
         {
+            plantGameObject.name += string.Format("_{0}_{1}_{2}", plant.Tile.X, plant.Tile.Y, plant.Tile.Z);
             plantGameObject.transform.position = new Vector3(plant.Tile.X, plant.Tile.Y, plant.Tile.Z);
         }
 
@@ -82,11 +123,20 @@ public class PlantSpriteController : BaseSpriteController<Plant>
         // Register our callback so that our GameObject gets updated whenever
         // the object's into changes.
         plant.Changed += OnChanged;
+        plant.SelectionChanged += SelectPlant;
         plant.Removed += OnRemoved;
     }
 
     protected override void OnRemoved(Plant plant)
     {
+        if (plant.IsSelected)
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+
         // Retrieve gameobject from mapping
         GameObject plantGameObject;
         if (objectGameObjectMap.TryGetValue(plant, out plantGameObject) == false)

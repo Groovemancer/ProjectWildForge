@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Mono.CSharp.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -89,6 +90,8 @@ public class ActorSpriteController : MonoBehaviour
 
 public class ActorSpriteController : BaseSpriteController<Actor>
 {
+    private GameObject selectionObject;
+
     // Use this for initialization
     public ActorSpriteController(World world) : base(world, "Actor", 100)
     {
@@ -152,11 +155,56 @@ public class ActorSpriteController : BaseSpriteController<Actor>
         {
             actor_go.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
             actor_go.GetComponent<SpriteRenderer>().sortingOrder = Mathf.RoundToInt(actor.Y) * -1;
+
+            SelectActor(actor);
+        }
+    }
+
+    protected void SelectActor(Actor actor)
+    {
+        if (actor.IsSelected)
+        {
+            SpriteRenderer sr;
+            if (selectionObject == null)
+            {
+                selectionObject = new GameObject("Selection");
+                sr = selectionObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                sr = selectionObject.GetComponent<SpriteRenderer>();
+            }
+            selectionObject.SetActive(true);
+            
+            selectionObject.transform.position = new Vector3(actor.CurrTile.X, actor.CurrTile.Y, 0);
+            selectionObject.transform.SetParent(objectParent.transform, true);
+
+            if (sr != null)
+            {
+                sr.sortingLayerName = "Objects";
+                sr.sortingOrder = -Mathf.RoundToInt(actor.Y) - 1;
+                sr.sprite = SpriteManager.GetSelectionSprite();
+            }
+        }
+        else
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
         }
     }
 
     protected override void OnRemoved(Actor actor)
     {
+        if (actor.IsSelected)
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+
         actor.OnActorChanged -= OnChanged;
         GameObject actor_go = objectGameObjectMap[actor];
         objectGameObjectMap.Remove(actor);

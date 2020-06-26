@@ -19,6 +19,8 @@ public class StructureSpriteController : BaseSpriteController<Structure>
 
     private Dictionary<Structure, GameObject> childObjectMap;
 
+    private GameObject selectionObject;
+
     //private Dictionary<BuildableComponent.Requirements, Vector3> statusIndicatorOffsets;
 
     // Use this for initialization
@@ -253,10 +255,55 @@ public class StructureSpriteController : BaseSpriteController<Structure>
             childObjectMap[structure].Overlay.GetComponent<SpriteRenderer>().sprite = overlaySprite;
         }
         */
+
+        SelectStructure(structure);
+    }
+
+    protected void SelectStructure(Structure structure)
+    {
+        if (structure.IsSelected)
+        {
+            SpriteRenderer sr;
+            if (selectionObject == null)
+            {
+                selectionObject = new GameObject("Selection");
+                sr = selectionObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                sr = selectionObject.GetComponent<SpriteRenderer>();
+            }
+            selectionObject.SetActive(true);
+            selectionObject.transform.position = new Vector3(structure.Tile.X + ((structure.Width - 1) / 2f), structure.Tile.Y + ((structure.Height - 1) / 2f), 0);
+            selectionObject.transform.SetParent(objectParent.transform, true);
+            selectionObject.transform.localScale = new Vector3(structure.Width, structure.Height, 1);
+
+            if (sr != null)
+            {
+                sr.sortingLayerName = "Structures";
+                sr.sortingOrder = -Mathf.RoundToInt(structure.Tile.Y) + 1;
+                sr.sprite = SpriteManager.GetSelectionSprite();
+            }
+        }
+        else
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
     }
 
     protected override void OnRemoved(Structure structure)
     {
+        if (structure.IsSelected)
+        {
+            if (selectionObject != null)
+            {
+                selectionObject.SetActive(false);
+            }
+        }
+
         GameObject structure_go;
         if (objectGameObjectMap.TryGetValue(structure, out structure_go) == false)
         {
