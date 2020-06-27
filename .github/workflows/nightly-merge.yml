@@ -30,6 +30,7 @@ jobs:
     - name: Nightly Merge
       uses: ./.github/actions/merge-branches
       with:
+        lfs: true
         source_branch: 'master'
         target_branch: 'develop'
         allow_ff: true
