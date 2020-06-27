@@ -48,6 +48,8 @@ git clone https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSIT
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 
+git lfs install --local
+
 set -o xtrace
 
 set +o xtrace

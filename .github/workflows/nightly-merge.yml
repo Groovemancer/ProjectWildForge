@@ -27,7 +27,6 @@ jobs:
       run: git lfs checkout
         
     - name: Nightly Merge
-      run: git lfs install --local
       uses: ./.github/actions/merge-branches
       with:
         source_branch: 'master'
