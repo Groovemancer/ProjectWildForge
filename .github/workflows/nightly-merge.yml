@@ -20,5 +20,6 @@ jobs:
         source_branch: 'master'
         target_branch: 'develop'
         allow_ff: true
+        push_token: 'NIGHTLY_MERGE'
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.NIGHTLY_MERGE }}
