@@ -6,9 +6,9 @@ branding:
   color: 'orange'
 inputs:
   source_branch:
-    description: 'Name of the branch that the is the source of the merge (i.e., stage)'
+    description: 'Name of the branch that the is the source of the merge (i.e., develop)'
     required: false
-    default: 'stage'
+    default: 'develop'
   target_branch:
     description: 'Name of the branch that is the target for the merge (i.e., master)'
     required: false
