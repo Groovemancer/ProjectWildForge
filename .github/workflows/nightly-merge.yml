@@ -8,12 +8,7 @@ on:
 jobs:
   nightly-merge:
 
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: 'ubuntu-latest'
-        node-version: [18.x]
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout github repo (+ download lfs dependencies)
