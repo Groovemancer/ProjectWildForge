@@ -56,6 +56,7 @@ echo "Pre source checkout"
 echo
 set -o xtrace
 
+git fetch origin $INPUT_TARGET_BRANCH
 git checkout $INPUT_TARGET_BRANCH
 
 
