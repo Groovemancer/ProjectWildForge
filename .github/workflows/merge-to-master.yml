@@ -20,6 +20,7 @@ jobs:
         stable_branch: 'develop'
         development_branch: 'master'
         allow_ff: false
+        allow_git_lfs: true
         push_token: 'Nightly_Merge'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
