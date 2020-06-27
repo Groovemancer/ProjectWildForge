@@ -50,6 +50,8 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+dir /usr/bin
+
 set +o xtrace
 echo
 echo "Pre source checkout"
