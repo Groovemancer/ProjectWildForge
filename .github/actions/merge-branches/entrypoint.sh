@@ -52,7 +52,7 @@ set -o xtrace
 
 set +o xtrace
 echo
-echo $LFSPATH
+echo $PATH
 echo
 set -o xtrace
 
