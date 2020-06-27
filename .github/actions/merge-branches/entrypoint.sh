@@ -50,11 +50,27 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+echo
+echo "Pre source checkout"
+echo
+
 git fetch origin $INPUT_SOURCE_BRANCH
 git checkout $INPUT_SOURCE_BRANCH # origin/$INPUT_SOURCE_BRANCH
 
+echo
+echo "Post source checkout"
+echo
+
+echo
+echo "Pre target checkout"
+echo
+
 git fetch origin $INPUT_TARGET_BRANCH
 git checkout $INPUT_TARGET_BRANCH # origin/$INPUT_TARGET_BRANCH
+
+echo
+echo "Post target checkout"
+echo
 
 if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
   echo "No merge is necessary"
