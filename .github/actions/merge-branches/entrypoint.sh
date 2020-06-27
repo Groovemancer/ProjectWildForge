@@ -4,8 +4,8 @@ set -e
 
 echo
 echo "  'Nightly Merge Action' is using the following input:"
-echo "    - source_branch = '$INPUT_SOURCE_BRANCH'"
-echo "    - target_branch = '$INPUT_TARGET_BRANCH'"
+echo "    - stable_branch = '$INPUT_SOURCE_BRANCH'"
+echo "    - development_branch = '$INPUT_TARGET_BRANCH'"
 echo "    - allow_ff = $INPUT_ALLOW_FF"
 echo "    - allow_git_lfs = $INPUT_GIT_LFS"
 echo "    - ff_only = $INPUT_FF_ONLY"
@@ -43,17 +43,37 @@ if ! $INPUT_ALLOW_FORKS; then
   fi
 fi
 
-git clone https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSITORY.git
-#cd docs
+git remote set-url origin https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSITORY.git
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
-git checkout $INPUT_TARGET_BRANCH
+git fetch origin $INPUT_SOURCE_BRANCH
+git checkout -b $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
+
+git fetch origin $INPUT_TARGET_BRANCH
+git checkout -b $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
+
+if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
+  echo "No merge is necessary"
+  exit 0
+fi;
+
+set +o xtrace
+echo
+echo "  'Nightly Merge Action' is trying to merge the '$INPUT_SOURCE_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_SOURCE_BRANCH))"
+echo "  into the '$INPUT_TARGET_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_TARGET_BRANCH))"
+echo
+set -o xtrace
 
 # Do the merge
-git merge origin/$INPUT_SOURCE_BRANCH
+git merge $FF_MODE --no-edit $INPUT_SOURCE_BRANCH
+
+# Pull lfs if enabled
+if $INPUT_GIT_LFS; then
+  git lfs pull
+fi
 
 # Push the branch
-git push
+git push origin $INPUT_TARGET_BRANCH
