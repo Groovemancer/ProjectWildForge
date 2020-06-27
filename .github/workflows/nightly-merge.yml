@@ -18,14 +18,14 @@ jobs:
     - name: Checkout LFS objects
       run: git lfs pull
       
-      - name: Cache git lfs
-        uses: actions/cache@v1.1.0
-        with:
-          path: /usr/bin/git/lfs
-          key: .git/lfs
+    - name: Cache git lfs
+      uses: actions/cache@v1.1.0
+      with:
+        path: /usr/bin/git/lfs
+        key: .git/lfs
   
-      - name: Pull lfs data, if not cached
-        run: git lfs pull
+    - name: Checkout LFS objects
+      run: git lfs checkout
         
     - name: Nightly Merge
       uses: ./.github/actions/merge-branches
