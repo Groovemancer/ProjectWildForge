@@ -18,7 +18,7 @@ jobs:
       uses: ./.github/actions/merge-branches
       with:
         source_branch: 'master'
-        target_branch: 'develop'
+        target_branch: 'nightly'
         allow_ff: true
         allow_git_lfs: true
         push_token: 'Nightly_Merge'
