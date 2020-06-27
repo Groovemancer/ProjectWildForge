@@ -50,6 +50,7 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+git fetch origin $INPUT_TARGET_BRANCH
 git checkout $INPUT_TARGET_BRANCH
 
 # Do the merge
