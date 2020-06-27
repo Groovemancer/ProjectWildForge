@@ -57,7 +57,7 @@ echo
 set -o xtrace
 
 git fetch origin $INPUT_SOURCE_BRANCH
-git checkout $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
+git checkout $INPUT_SOURCE_BRANCH
 
 set +o xtrace
 echo
