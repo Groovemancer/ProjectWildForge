@@ -19,6 +19,8 @@ jobs:
       with:
         path: .git/lfs/
         key: .git/lfs/
+    
+    - run: set LFSPATH=usr\bin\git\lfs
         
     - name: Pull LFS objects
       run: git lfs pull
