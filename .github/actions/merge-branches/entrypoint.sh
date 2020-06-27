@@ -49,11 +49,17 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+echo
 echo "Checkout source"
+echo
+
 git fetch origin $INPUT_SOURCE_BRANCH
 git checkout -b $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
 
+echo
 echo "Checkout target"
+echo
+
 git fetch origin $INPUT_TARGET_BRANCH
 git checkout -b $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
 
