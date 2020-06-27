@@ -32,7 +32,7 @@ jobs:
         source_branch: 'master'
         target_branch: 'develop'
         allow_ff: true
-        allow_git_lfs: true
+        allow_git_lfs: false
         push_token: 'Nightly_Merge'
       env:
         GITHUB_TOKEN: ${{ secrets.Nightly_Merge }}
