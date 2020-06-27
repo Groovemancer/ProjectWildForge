@@ -13,16 +13,16 @@ jobs:
     steps:
     - name: Checkout github repo (+ download lfs dependencies)
       uses: actions/checkout@v2
-    
-    - name: Pull LFS objects
-      run: git lfs pull    
-    
+      
     - name: Cache git lfs
       uses: actions/cache@v1.1.0
       with:
-        path: .git/lfs
-        key: .git/lfs
-    
+        path: .git/lfs/
+        key: .git/lfs/
+        
+    - name: Pull LFS objects
+      run: git lfs pull
+  
     - name: Checkout LFS objects
       run: git lfs checkout
         
