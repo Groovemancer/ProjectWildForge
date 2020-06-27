@@ -44,7 +44,7 @@ if ! $INPUT_ALLOW_FORKS; then
 fi
 
 git clone https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSITORY.git
-cd docs
+#cd docs
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 
