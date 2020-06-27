@@ -19,5 +19,6 @@ jobs:
         stable_branch: 'master'
         development_branch: 'develop'
         allow_ff: false
+        user_email: icedmetal57@gmail.com
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
