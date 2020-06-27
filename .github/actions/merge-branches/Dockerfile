@@ -1,9 +1,8 @@
 FROM alpine:latest
 
-LABEL repository="http://github.com/robotology/gh-action-nightly-merge"
-LABEL homepage="http://github.com/robotology/gh-action-nightly-merge"
-LABEL "com.github.actions.name"="Nightly Merge"
-LABEL "com.github.actions.description"="Automatically merge the stable branch into the development one."
+LABEL repository="https://github.com/icedmetal57/ProjectWildForge"
+LABEL "com.github.actions.name"="Merge Branches"
+LABEL "com.github.actions.description"="Automatically merge from one branch to another."
 LABEL "com.github.actions.icon"="git-merge"
 LABEL "com.github.actions.color"="orange"
 
