@@ -52,7 +52,7 @@ set -o xtrace
 
 # Pull lfs if enabled
 if $INPUT_GIT_LFS; then
-  git lfs pull
+  git lfs install --local
 fi
 
 set +o xtrace
