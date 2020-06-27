@@ -50,11 +50,26 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+git fetch origin $INPUT_SOURCE_BRANCH
+git checkout -b $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
+
 git fetch origin $INPUT_TARGET_BRANCH
-git checkout $INPUT_TARGET_BRANCH
+git checkout -b $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
+
+if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
+  echo "No merge is necessary"
+  exit 0
+fi;
+
+set +o xtrace
+echo
+echo "  'Merge Action' is trying to merge the '$INPUT_SOURCE_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_SOURCE_BRANCH))"
+echo "  into the '$INPUT_TARGET_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_TARGET_BRANCH))"
+echo
+set -o xtrace
 
 # Do the merge
-git merge origin/$INPUT_SOURCE_BRANCH
+git merge $FF_MODE --no-edit $INPUT_SOURCE_BRANCH
 
 # Push the branch
 git push
