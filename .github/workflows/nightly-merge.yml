@@ -22,4 +22,5 @@ jobs:
         allow_ff: true
         push_token: 'Nightly_Merge'
       env:
-        GITHUB_TOKEN: ${{ secrets.NIGHTLY_MERGE }}
+        GITHUB_TOKEN: ${{ secrets.Nightly_Merge }}
+        Nightly_Merge: ${{ secrets.Nightly_Merge }}
