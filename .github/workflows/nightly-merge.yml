@@ -14,9 +14,6 @@ jobs:
     - name: Checkout github repo (+ download lfs dependencies)
       uses: actions/checkout@v2
       
-    - name: Install lfs
-      run: git lfs install --local
-      
     - name: Cache git lfs
       uses: actions/cache@v1.1.0
       with:
@@ -30,6 +27,7 @@ jobs:
       run: git lfs checkout
         
     - name: Nightly Merge
+      run: git lfs install --local
       uses: ./.github/actions/merge-branches
       with:
         source_branch: 'master'
