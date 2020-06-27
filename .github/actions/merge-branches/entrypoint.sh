@@ -55,5 +55,10 @@ git checkout $INPUT_TARGET_BRANCH
 # Do the merge
 git merge origin/$INPUT_SOURCE_BRANCH
 
+# Pull lfs if enabled
+if $INPUT_GIT_LFS; then
+  git lfs pull
+fi;
+
 # Push the branch
 git push
