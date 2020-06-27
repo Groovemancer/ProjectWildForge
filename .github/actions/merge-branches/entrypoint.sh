@@ -50,11 +50,6 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
-# Pull lfs if enabled
-if $INPUT_GIT_LFS; then
-  git lfs install --local
-fi
-
 set +o xtrace
 echo
 echo "Pre target fetch"
