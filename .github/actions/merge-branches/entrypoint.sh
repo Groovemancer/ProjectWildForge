@@ -51,10 +51,10 @@ git config --global user.email "$INPUT_USER_EMAIL"
 set -o xtrace
 
 git fetch origin $INPUT_SOURCE_BRANCH
-git checkout -b $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
+git checkout $INPUT_SOURCE_BRANCH # origin/$INPUT_SOURCE_BRANCH
 
 git fetch origin $INPUT_TARGET_BRANCH
-git checkout -b $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
+git checkout $INPUT_TARGET_BRANCH # origin/$INPUT_TARGET_BRANCH
 
 if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
   echo "No merge is necessary"
