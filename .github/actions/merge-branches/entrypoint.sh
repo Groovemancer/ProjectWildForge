@@ -52,21 +52,6 @@ set -o xtrace
 
 set +o xtrace
 echo
-echo "Pre source checkout"
-echo
-set -o xtrace
-
-git fetch origin $INPUT_SOURCE_BRANCH
-git checkout $INPUT_SOURCE_BRANCH
-
-set +o xtrace
-echo
-echo "Post source checkout"
-echo
-set -o xtrace
-
-set +o xtrace
-echo
 echo "Pre target checkout"
 echo
 set -o xtrace
