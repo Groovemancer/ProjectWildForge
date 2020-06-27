@@ -43,50 +43,17 @@ if ! $INPUT_ALLOW_FORKS; then
   fi
 fi
 
-git remote set-url origin https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSITORY.git
+git clone https://x-access-token:${!INPUT_PUSH_TOKEN}@github.com/$GITHUB_REPOSITORY.git
+cd docs
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
-# Pull lfs if enabled
-if $INPUT_GIT_LFS; then
-  git lfs pull
-fi
-
-echo
-echo "Checkout source"
-echo
-
-git fetch origin $INPUT_SOURCE_BRANCH
-git checkout -b $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
-
-echo
-echo "Checkout target"
-echo
-
-git fetch origin $INPUT_TARGET_BRANCH
-git checkout -b $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
-
-if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
-  echo "No merge is necessary"
-  exit 0
-fi;
-
-set +o xtrace
-echo
-echo "  'Nightly Merge Action' is trying to merge the '$INPUT_SOURCE_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_SOURCE_BRANCH))"
-echo "  into the '$INPUT_TARGET_BRANCH' branch ($(git log -1 --pretty=%H $INPUT_TARGET_BRANCH))"
-echo
-set -o xtrace
+git checkout $INPUT_TARGET_BRANCH
 
 # Do the merge
-git merge $FF_MODE --no-edit $INPUT_SOURCE_BRANCH
-
-# Pull lfs if enabled
-if $INPUT_GIT_LFS; then
-  git lfs pull
-fi
+git merge origin/$INPUT_SOURCE_BRANCH
 
 # Push the branch
-git push origin $INPUT_TARGET_BRANCH
+git push
