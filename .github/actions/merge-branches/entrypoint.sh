@@ -66,6 +66,11 @@ set -o xtrace
 
 git checkout $INPUT_TARGET_BRANCH
 
+set +o xtrace
+echo
+echo "Post target checkout"
+echo
+set -o xtrace
 
 if git merge-base --is-ancestor $INPUT_SOURCE_BRANCH $INPUT_TARGET_BRANCH; then
   echo "No merge is necessary"
