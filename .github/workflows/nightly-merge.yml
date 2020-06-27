@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         os: ubuntu-latest
+        node-version: [18.x]
 
     steps:
     - name: Checkout github repo (+ download lfs dependencies)
