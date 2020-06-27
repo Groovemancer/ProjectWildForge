@@ -11,18 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout github repo (+ download lfs dependencies)
-      uses: actions/checkout@v2
-      
-    - name: Cache git lfs
-      uses: actions/cache@v1.1.0
-      with:
-        path: .git/lfs
-        key: .git/lfs
-
-    - name: Pull lfs data, if not cached
-      run: git lfs pull
-
+     - name: Checkout github repo (+ download lfs dependencies)
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Checkout LFS objects
+        run: git lfs pull
+        
     - name: Nightly Merge
       uses: ./.github/actions/merge-branches
       with:
