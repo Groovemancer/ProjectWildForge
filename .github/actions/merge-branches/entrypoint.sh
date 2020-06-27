@@ -57,7 +57,7 @@ echo
 set -o xtrace
 
 git fetch origin $INPUT_SOURCE_BRANCH
-git checkout $INPUT_SOURCE_BRANCH # origin/$INPUT_SOURCE_BRANCH
+git checkout $INPUT_SOURCE_BRANCH origin/$INPUT_SOURCE_BRANCH
 
 set +o xtrace
 echo
@@ -72,7 +72,7 @@ echo
 set -o xtrace
 
 git fetch origin $INPUT_TARGET_BRANCH
-git checkout $INPUT_TARGET_BRANCH # origin/$INPUT_TARGET_BRANCH
+git checkout $INPUT_TARGET_BRANCH origin/$INPUT_TARGET_BRANCH
 
 set +o xtrace
 echo
@@ -95,5 +95,22 @@ set -o xtrace
 # Do the merge
 git merge $FF_MODE --no-edit $INPUT_SOURCE_BRANCH
 
+# Pull lfs if enabled
+if $INPUT_GIT_LFS; then
+  git lfs pull
+fi
+
+set +o xtrace
+echo
+echo "Pre push"
+echo
+set -o xtrace
+
 # Push the branch
 git push
+
+set +o xtrace
+echo
+echo "Post push"
+echo
+set -o xtrace
