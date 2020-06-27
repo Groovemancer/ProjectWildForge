@@ -23,7 +23,7 @@ jobs:
     - name: Cache git lfs
       uses: actions/cache@v1.1.0
       with:
-        path: /usr/bin/git/lfs
+        path: .git/lfs
         key: .git/lfs
         
     - name: Pull LFS objects
