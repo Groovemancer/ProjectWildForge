@@ -50,15 +50,20 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
-dir /usr/bin
-
 set +o xtrace
 echo
-echo "Pre source checkout"
+echo "Pre target fetch"
 echo
 set -o xtrace
 
 git fetch origin $INPUT_TARGET_BRANCH
+
+set +o xtrace
+echo
+echo "Post target fetch! Pre target checkout"
+echo
+set -o xtrace
+
 git checkout $INPUT_TARGET_BRANCH
 
 
