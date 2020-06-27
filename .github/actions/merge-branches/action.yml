@@ -12,7 +12,7 @@ inputs:
   target_branch:
     description: 'Name of the target branch'
     required: false
-    default: 'develop'
+    default: 'nightly'
   allow_ff:
     description: 'Allow fast forward merge'
     required: false
