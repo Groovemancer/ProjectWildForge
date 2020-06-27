@@ -20,7 +20,7 @@ jobs:
         path: .git/lfs/
         key: .git/lfs/
     
-    - run: set PATH=$PATH:~/usr/local/bin/git/lfs
+    - run: echo "::add-path::/usr/local/bin/git/lfs"
         
     - name: Pull LFS objects
       run: git lfs pull
