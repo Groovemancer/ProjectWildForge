@@ -52,6 +52,12 @@ set -o xtrace
 
 set +o xtrace
 echo
+echo $LFSPATH
+echo
+set -o xtrace
+
+set +o xtrace
+echo
 echo "Pre target fetch"
 echo
 set -o xtrace
