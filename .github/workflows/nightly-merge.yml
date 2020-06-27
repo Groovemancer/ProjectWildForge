@@ -17,8 +17,8 @@ jobs:
     - name: Nightly Merge
       uses: ./.github/actions/merge-branches
       with:
-        source_branch: master
-        target_branch: develop
+        source_branch: 'master'
+        target_branch: 'develop'
         allow_ff: true
         allow_git_lfs: true
         push_token: 'Nightly_Merge'
