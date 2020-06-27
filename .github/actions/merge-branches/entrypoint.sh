@@ -50,10 +50,23 @@ git config --global user.email "$INPUT_USER_EMAIL"
 
 set -o xtrace
 
+echo "Pre checkout target"
+
 git checkout $INPUT_TARGET_BRANCH
+
+echo "Post checkout target"
+
+# Pull lfs if enabled
+if $INPUT_GIT_LFS; then
+  git lfs pull
+fi;
+
+echo "Pre merge source"
 
 # Do the merge
 git merge origin/$INPUT_SOURCE_BRANCH
+
+echo "Post merge source"
 
 # Pull lfs if enabled
 if $INPUT_GIT_LFS; then
