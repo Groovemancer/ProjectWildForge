@@ -5,11 +5,11 @@ branding:
   icon: 'git-merge'
   color: 'orange'
 inputs:
-  stable_branch:
+  source_branch:
     description: 'Name of the stable branch'
     required: false
     default: 'master'
-  development_branch:
+  target_branch:
     description: 'Name of the development branch'
     required: false
     default: 'develop'
