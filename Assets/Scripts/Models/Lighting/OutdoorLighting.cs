@@ -55,7 +55,7 @@ public class OutdoorLighting : MonoBehaviour
         {
             prevLightLevel = lightLevel;
 
-            outdoorLight.intensity = 0.3f + (lightLevel / 12f);
+            outdoorLight.intensity = 0.3f + (0.2f * (lightLevel / 12f)) + (lightLevel / 12f);
         }
 
         prevHour = hour;
