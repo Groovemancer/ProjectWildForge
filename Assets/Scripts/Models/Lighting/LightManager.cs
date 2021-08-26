@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
@@ -63,7 +64,10 @@ public class LightManager
             Debug.Log("AddLight layer id=" + layers[i] + ", Name=" + SortingLayer.IDToName(layers[i]));
         }
 
-        lighting.sortingLayers = layers;
+        //lighting.sortingLayers = layers;
+
+        FieldInfo fieldInfo = lighting.GetType().GetField("m_ApplyToSortingLayers", BindingFlags.NonPublic | BindingFlags.Instance);
+        fieldInfo.SetValue(lighting, layers);
 
         Lights.Add(id, lightObject);
 

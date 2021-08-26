@@ -33,7 +33,8 @@ public class GameController : MonoBehaviour
     {
         EnableDontDestroyOnLoad();
 
-        SoundController = new SoundController();
+        //this.gameObject.AddComponent<SoundController>();
+        SoundController = this.gameObject.AddComponent<SoundController>(); //new SoundController();
 
         IsModal = false;
         IsPaused = true;
