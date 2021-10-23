@@ -83,6 +83,11 @@ public class BuildModeController : MonoBehaviour
         WorldController.Instance.World.SetupPathfindingExample();
     }
 
+    public void DoReplantTrees()
+    {
+        WorldController.Instance.World.DebugReplantTrees();
+    }
+
     public void SetBuildTileType(string tileType)
     {
         buildModeTile = TileTypeData.GetByFlagName(tileType);
