@@ -60,6 +60,15 @@ public class RandomUtils
         return Instance.Next(min, max);
     }
 
+    public static int GenerateRandomSeed()
+    {
+        DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+        DateTime dtNow = DateTime.Now;
+        TimeSpan result = dtNow.Subtract(dt);
+        int randomSeed = Convert.ToInt32(result.TotalSeconds);
+        return randomSeed;
+    }
+
     public static float Range(float min, float max)
     {
         calls++;

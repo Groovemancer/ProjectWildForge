@@ -144,23 +144,11 @@ public class World : IXmlSerializable
         // Make one actor
         Actor initialActor1 = ActorManager.Create(GetTileAt(Width / 2, Height / 2, 0),
             RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
-        //Actor initialActor2 = ActorManager.Create(GetTileAt(Width / 2 + 2, Height / 2, 0),
-        //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
+        Actor initialActor2 = ActorManager.Create(GetTileAt(Width / 2 + 2, Height / 2, 0),
+            RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
         //Actor initialActor3 = ActorManager.Create(GetTileAt(Width / 2 + 4, Height / 2, 0),
         //    RandomUtils.ObjectFromList(PrototypeManager.Race.Keys.ToList(), "race_Elf"), null, RandomUtils.Boolean());
 
-        /*
-        for (int x = Width / 2 - 3; x < Width / 2 + 3; x++)
-        {
-            for (int y = Height / 2 - 3; y < Height / 2 + 3; y++)
-            {
-                if (x == (Width / 2) && y == (Height / 2))
-                    continue;
-
-                Plant plant1 = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
-            }
-        }
-        */
 
         LightManager.AddPointLight("Point Light", new Vector3(50, 50, 0), MathUtils.HexToRGB(0xFFD7B6), 3, 6, 0.9f, true);
 
@@ -332,15 +320,42 @@ public class World : IXmlSerializable
                 {
                     tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
                 }
+            }
+        }
 
-                if (RandomUtils.Range(0, 10) == 0)
+        RandomTreePlacement();
+    }
+
+    public void DebugReplantTrees()
+    {
+        foreach (Tile tile in tiles)
+        {
+            if (tile.Plant != null)
+            {
+                tile.Plant.Deconstruct();
+            }
+        }
+
+        RandomTreePlacement();
+    }
+
+    public void RandomTreePlacement()
+    {
+        const int kTreeAttempts = 2;
+
+        for (int i = 0; i < kTreeAttempts; i++)
+        {
+            PoissonDiscSampler poissonDiscSampler = new PoissonDiscSampler(Width, Height, 3.5f);
+            foreach (Vector2 sample in poissonDiscSampler.Samples())
+            {
+                int x = Mathf.FloorToInt(sample.x);
+                int y = Mathf.FloorToInt(sample.y);
+                Plant plant = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
+                if (plant != null)
                 {
-                    Plant plant = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
-                    if (plant != null)
-                    {
-                        plant.SetRandomGrowthPercent(0.1f, 0.7f);
-                    }
+                    plant.SetRandomGrowthPercent(0.1f, 0.7f);
                 }
+                //DebugUtils.Log(string.Format("RandomTreePlacement {0}, {1}", x, y));
             }
         }
     }
@@ -349,7 +364,7 @@ public class World : IXmlSerializable
     {
         if (x >= Width || x < 0 || y >= Height || y < 0 || z >= Depth || z < 0)
         {
-            //Debug.LogError("World::GetTileAt Tile (" + x + ", " + y + ") is out of range.");
+            //DebugUtils.LogError("World::GetTileAt Tile (" + x + ", " + y + ", " + z + ") is out of range.");
             return null;
         }
 

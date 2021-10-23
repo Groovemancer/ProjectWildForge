@@ -22,5 +22,5 @@
 	<Skill Type="TwoHanded" Name="skill_TwoHanded" Category="Combat" />
 	<Skill Type="Shields" Name="skill_Shields" Category="Combat" />
 	<Skill Type="Bows" Name="skill_Bows" Category="Combat" />
-	<Skill Type="ArmoredFighting" Name="skill_ArmoredFighting" Category="Combat" />
+	<Skill Type="Armor" Name="skill_Armor" Category="Combat" />
 </Skills>

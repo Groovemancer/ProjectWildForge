@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <TileTypes>
-	<TileType id="2">		
+	<TileType id="2">
 		<Default/>
 		<FlagName>Dirt</FlagName>
 		<NameLocaleId>comment#tile_type_dirt</NameLocaleId>

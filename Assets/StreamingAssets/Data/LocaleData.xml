@@ -385,4 +385,76 @@
 			<de-DE>Eiche</de-DE>
 		</Text>
 	</Entry>
+  <Entry Id="45">
+    <Comment>stat_Strength</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Strength</en-US>
+      <de-DE>Stärke</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="46">
+    <Comment>stat_Dexterity</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Dexterity</en-US>
+      <de-DE>Geschicklichkeit</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="47">
+    <Comment>stat_Agility</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Agility</en-US>
+      <de-DE>Beweglichkeit</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="48">
+    <Comment>stat_Constitution</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Constitution</en-US>
+      <de-DE>Verfassung</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="49">
+    <Comment>stat_Endurance</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Endurance</en-US>
+      <de-DE>Ausdauer</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="50">
+    <Comment>stat_Intellect</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Intellect</en-US>
+      <de-DE>Intellekt</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="51">
+    <Comment>actor_gender_male</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Male</en-US>
+      <de-DE>Männlich</de-DE>
+    </Text>
+  </Entry>
+  <Entry Id="52">
+    <Comment>actor_gender_female</Comment>
+    <Context />
+    <Options />
+    <Text>
+      <en-US>Female</en-US>
+      <de-DE>Weiblich</de-DE>
+    </Text>
+  </Entry>
 </LocaleData>
