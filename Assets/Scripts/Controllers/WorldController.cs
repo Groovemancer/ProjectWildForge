@@ -182,12 +182,14 @@ public class WorldController : MonoBehaviour
     {
         DebugUtils.LogChannel("WorldController", "CreateEmptyWorld");
         // Create a world with Empty tiles
-        World = new World(100, 100, 5);
+        //World = new World(100, 100, 5);
+        World = WorldGenerator.GenerateWorldFromSettings();
 
         // Center the camera
         Camera.main.transform.position = new Vector3(World.Width / 2, World.Height / 2, Camera.main.transform.position.z);
 
-        World.RandomizeTiles();
+        //World.RandomizeTiles();
+        World.RandomTreePlacement();
     }
 
     private void CreateEmptyWorldFromSaveFile()

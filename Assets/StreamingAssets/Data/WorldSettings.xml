@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<WorldSettings>
+	<Width>100</Width>
+	<Height>100</Height>
+	<Depth>5</Depth>
+	<Biomes>
+		<Biome Type="biome_deepwater">
+			<NameLocaleId>comment#biome_DeepWater</NameLocaleId>
+			<TileTypes>DeepWater</TileTypes>
+			<MinHeight>0</MinHeight>
+			<MinMoisture>0</MinMoisture>
+			<MinHeat>0</MinHeat>
+		</Biome>
+		<Biome Type="biome_shallowWater">
+			<NameLocaleId>comment#biome_ShallowWater</NameLocaleId>
+			<TileTypes>ShallowWater</TileTypes>
+			<MinHeight>0.15</MinHeight>
+			<MinMoisture>0</MinMoisture>
+			<MinHeat>0</MinHeat>
+		</Biome>
+		<Biome Type="biome_grassland">
+			<NameLocaleId>comment#biome_Grassland</NameLocaleId>
+			<TileTypes>Dirt|Grass</TileTypes>
+			<MinHeight>0.2</MinHeight>
+			<MinMoisture>0.1</MinMoisture>
+			<MinHeat>0.1</MinHeat>
+		</Biome>
+		<Biome Type="biome_marshland">
+			<NameLocaleId>comment#biome_Marshland</NameLocaleId>
+			<TileTypes>Marsh</TileTypes>
+			<MinHeight>0.2</MinHeight>
+			<MinMoisture>0.7</MinMoisture>
+			<MinHeat>0.4</MinHeat>
+		</Biome>
+		<Biome Type="biome_mountain">
+			<NameLocaleId>comment#biome_Mountain</NameLocaleId>
+			<TileTypes>RoughStone</TileTypes>
+			<MinHeight>0.65</MinHeight>
+			<MinMoisture>0</MinMoisture>
+			<MinHeat>0</MinHeat>
+		</Biome>
+	</Biomes>
+	<HeightWaves>
+		<Wave Frequency="0.05" Amplitude="1"/>
+		<Wave Frequency="0.1" Amplitude="0.5"/>
+	</HeightWaves>
+	<MoistureWaves>
+		<Wave Frequency="0.03" Amplitude="1"/>
+	</MoistureWaves>
+	<HeatWaves>
+		<Wave Frequency="0.04" Amplitude="1"/>
+		<Wave Frequency="0.02" Amplitude="0.5"/>
+	</HeatWaves>
+</WorldSettings>

@@ -307,6 +307,7 @@ public class World : IXmlSerializable
 
     public void RandomizeTiles()
     {
+        TileType shallowWater = TileTypeData.GetByFlagName("ShallowWater");
         Debug.Log("World::RandomizeTiles");
         for (int x = 0; x < Width; x++)
         {
@@ -318,7 +319,16 @@ public class World : IXmlSerializable
                 }
                 else
                 {
-                    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
+                    //bool nearWater = tiles[x, y, 0].GetNeighbors().Any(t => t.Type == shallowWater);
+                    //int r = (nearWater) ? 3 : 40;
+                    //if (RandomUtils.Range(0, r) == 0)
+                    //{
+                    //    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("ShallowWater"), false);
+                    //}
+                    //else
+                    //{
+                        tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
+                    //}
                 }
             }
         }
@@ -350,7 +360,11 @@ public class World : IXmlSerializable
             {
                 int x = Mathf.FloorToInt(sample.x);
                 int y = Mathf.FloorToInt(sample.y);
+
+                Tile t = GetTileAt(x, y, 0);
+
                 Plant plant = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
+                //DebugUtils.Log(string.Format("Is Valid ({0}, {1}): {2}", x, y, plant.IsValidPosition(t)));
                 if (plant != null)
                 {
                     plant.SetRandomGrowthPercent(0.1f, 0.7f);
@@ -369,6 +383,16 @@ public class World : IXmlSerializable
         }
 
         return tiles[x, y, z];
+    }
+
+    public void SetTileType(int x, int y, int z, TileType newTileType, bool doRoomFloodFill = true)
+    {
+        Tile tile = GetTileAt(x, y, z);
+        if (tile == null)
+        {
+            return;
+        }
+        tile.SetTileType(newTileType, doRoomFloodFill);
     }
 
     // This should be called whenever a change to the world
