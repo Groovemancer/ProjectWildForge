@@ -51,4 +51,11 @@
 		<MoveCost>0.75</MoveCost>
 		<Sprite>Road</Sprite>
 	</TileType>
+	<TileType id="9">
+		<FlagName>DeepWater</FlagName>
+		<NameLocaleId>comment#tile_type_deepwater</NameLocaleId>
+		<DescLocaleId>comment#tile_type_deepwater_desc</DescLocaleId>
+		<MoveCost>0</MoveCost>
+		<Sprite>DeepWater</Sprite>
+	</TileType>
 </TileTypes>

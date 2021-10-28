@@ -218,9 +218,9 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
                     break;
 
                 // Make sure tile is of allowed types
-                // Make sure tile doesn't already have a plant
                 if ((AllowedTileTypes & tile2.Type.Flag) != tile2.Type.Flag && tile2.Type != TileTypeData.Instance.AllType)
                 {
+                    //DebugUtils.LogErrorChannel("Plant", string.Format("Plant type not allowed at {0}, {1}, {2}", tile.X, tile.Y, tile.Z));
                     return false;
                 }
 
