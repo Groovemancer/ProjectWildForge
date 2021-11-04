@@ -7,11 +7,11 @@ public class MouseOverTileTypeText : MouseOverTileBase
 {
     protected override void ValidTile()
     {
-        m_text.text = StringUtils.GetLocalizedText("11") + StringUtils.GetLocalizedTextFiltered(m_currentTile.Type.NameLocaleId); // Tile Type: 
+        m_text.text = StringUtils.GetText("$(tid:11)") + StringUtils.GetLocalizedTextFiltered(m_currentTile.Type.NameLocaleId); // Tile Type: 
     }
 
     protected override void InvalidTile()
     {
-        m_text.text = StringUtils.GetLocalizedText("11"); // Tile Type: 
+        m_text.text = StringUtils.GetText("$(tid:11)"); // Tile Type: 
     }
 }

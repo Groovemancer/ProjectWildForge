@@ -86,6 +86,11 @@ public class LocaleData
         set { Instance.currentLocaleIndex = value; }
     }
 
+    public static bool IsLoaded()
+    {
+        return loaded;
+    }
+
     public static string GetText(string locale, string filter)
     {
         Locale data = GetLocale(filter);

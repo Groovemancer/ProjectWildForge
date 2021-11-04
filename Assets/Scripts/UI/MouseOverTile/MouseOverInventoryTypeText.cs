@@ -11,7 +11,7 @@ public class MouseOverInventoryTypeText : MouseOverTileBase
         {
             DebugUtils.LogChannel("MouseOverInventoryTypeText", "ValidTile invName=" + m_currentTile.Inventory.GetName());
 
-            m_text.text = StringUtils.GetLocalizedText("39") + m_currentTile.Inventory.GetName(); ; // Item Type: 
+            m_text.text = StringUtils.GetText("$(tid:39)") + m_currentTile.Inventory.GetName(); ; // Item Type: 
         }
         else
         {

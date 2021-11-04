@@ -1,0 +1,62 @@
+[
+   {
+      "name": "plant_AppleTree_0",
+      "x": 0,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.484375,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_AppleTree_1",
+      "x": 2,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.46875,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_AppleTree_2",
+      "x": 4,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.4375,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_AppleTree_3",
+      "x": 6,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.4375,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_AppleTree_4",
+      "x": 8,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.4375,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+   {
+      "name": "plant_AppleTree_5",
+      "x": 10,
+      "y": 0,
+      "w": 2,
+      "h": 4,
+      "pivotX": 0.4375,
+      "pivotY": 0.125,
+      "pixelPerUnit": 32
+   },
+]

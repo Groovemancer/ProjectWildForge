@@ -199,7 +199,7 @@ public class TimeManager
             {
                 nextFrameActions[i].Invoke();
             }
-
+            
             nextFrameActions.Clear();
         }
 

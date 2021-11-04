@@ -476,4 +476,22 @@
 			<de-DE>Tiefe Gewässer. Zu Fuß nicht begehbar.</de-DE>
 		</Text>
 	</Entry>
+	<Entry Id="55">
+		<Comment>plant_AppleTree</Comment>
+		<Context />
+		<Options />
+		<Text>
+			<en-US>Apple Tree</en-US>
+			<de-DE>Apfelbaum</de-DE>
+		</Text>
+	</Entry>
+	<Entry Id="56">
+		<Comment>inv_Apple</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>
+			<en-US>Apple</en-US>
+			<de-DE>Apfel</de-DE>
+		</Text>
+	</Entry>
 </LocaleData>

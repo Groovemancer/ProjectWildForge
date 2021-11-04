@@ -14,11 +14,11 @@ public class MouseOverRoomIndexText : MouseOverTileBase
             strRoomId = m_currentTile.Room.Id.ToString();
         }
 
-        m_text.text = StringUtils.GetLocalizedText("13") + strRoomId; // Room Index: 
+        m_text.text = StringUtils.GetText("$(tid:13)") + strRoomId; // Room Index: 
     }
 
     protected override void InvalidTile()
     {
-        m_text.text = StringUtils.GetLocalizedText("13"); // Room Index: 
+        m_text.text = StringUtils.GetText("$(tid:13)"); // Room Index: 
     }
 }
