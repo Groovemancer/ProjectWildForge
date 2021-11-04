@@ -5,23 +5,33 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LocalizedText : MonoBehaviour
+public class LocalizedText : Text
 {
-    public string text = null;
+    private bool m_invalidate = false;
 
-    // Use this for initialization
-    void Start()
+    protected override void OnValidate()
     {
-        UpdateText();
+        if (Application.isPlaying)
+        {
+            if (LocaleData.IsLoaded() && m_invalidate)
+            {
+                text = StringUtils.GetText(text);
+                m_invalidate = false;
+            }
+            else
+            {
+                m_invalidate = true;
+            }
+        }
+        
+        base.OnValidate();
     }
 
-    public void UpdateText()
+    private void Update()
     {
-        Text tc = GetComponent<Text>();
-
-        if (tc != null)
-            tc.text = StringUtils.GetText(text);
-        else
-            tc.text = StringUtils.GetText(tc.text);
+        if (LocaleData.IsLoaded() && m_invalidate)
+        {
+            OnValidate();
+        }
     }
 }

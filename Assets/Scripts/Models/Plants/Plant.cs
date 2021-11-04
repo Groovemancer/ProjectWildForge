@@ -329,13 +329,12 @@ public class Plant : IXmlSerializable, ISelectable, IUpdatable, IPrototypable
         writer.WriteAttributeString("Y", Tile.Y.ToString());
         writer.WriteAttributeString("Z", Tile.Z.ToString());
         writer.WriteAttributeString("Type", Type);
-        writer.WriteElementString("GrowthTime", GrowthTime.ToString());
-        writer.WriteElementString("CurrentGrowth", CurrentGrowth.ToString());
+        writer.WriteAttributeString("CurrentGrowth", CurrentGrowth.ToString());
     }
 
     public void ReadXml(XmlReader reader)
     {
-        throw new NotImplementedException();
+        CurrentGrowth = float.Parse(reader.GetAttribute("CurrentGrowth"));
     }
 
     #endregion

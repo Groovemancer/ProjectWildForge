@@ -351,11 +351,11 @@ public class World : IXmlSerializable
 
     public void RandomTreePlacement()
     {
-        const int kTreeAttempts = 2;
+        const int kTreeAttempts = 1;
 
         for (int i = 0; i < kTreeAttempts; i++)
         {
-            PoissonDiscSampler poissonDiscSampler = new PoissonDiscSampler(Width, Height, 3.5f);
+            PoissonDiscSampler poissonDiscSampler = new PoissonDiscSampler(Width, Height, 3f);
             foreach (Vector2 sample in poissonDiscSampler.Samples())
             {
                 int x = Mathf.FloorToInt(sample.x);
@@ -363,13 +363,54 @@ public class World : IXmlSerializable
 
                 Tile t = GetTileAt(x, y, 0);
 
-                Plant plant = PlantManager.PlacePlant("plant_Dummy", GetTileAt(x, y, 0));
-                //DebugUtils.Log(string.Format("Is Valid ({0}, {1}): {2}", x, y, plant.IsValidPosition(t)));
+                Plant plant = PlantManager.PlacePlant("plant_AppleTree", GetTileAt(x, y, 0));
                 if (plant != null)
                 {
                     plant.SetRandomGrowthPercent(0.1f, 0.7f);
                 }
-                //DebugUtils.Log(string.Format("RandomTreePlacement {0}, {1}", x, y));
+            }
+        }
+    }
+
+    public void ClearSafeSpace()
+    {
+        const int kSafeSpaceWidth = 10;
+        const int kSafeSpaceHeight = 10;
+
+        int xMin = (Width / 2) - (kSafeSpaceWidth / 2);
+        int xMax = (Width / 2) + (kSafeSpaceWidth / 2);
+
+        int yMin = (Height / 2) - (kSafeSpaceHeight / 2);
+        int yMax = (Height / 2) + (kSafeSpaceHeight / 2);
+
+        Debug.Log("World::RandomizeTiles");
+        for (int x = xMin; x < xMax; x++)
+        {
+            for (int y = yMin; y < yMax; y++)
+            {
+                if (RandomUtils.Range(0, 3) == 0)
+                {
+                    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Dirt"), false);
+                }
+                else
+                {
+                    tiles[x, y, 0].SetTileType(TileTypeData.GetByFlagName("Grass"), false);
+                }
+            }
+        }
+    }
+
+    public void SpawnStoneWalls()
+    {
+        Debug.Log("World::SpawnStoneWalls");
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (tiles[x, y, 0].Type == TileTypeData.GetByFlagName("RoughStone"))
+                {
+                    StructureManager.PlaceStructure("struct_StoneWall", tiles[x, y, 0], false);
+                }
             }
         }
     }
@@ -597,6 +638,15 @@ public class World : IXmlSerializable
         }
         writer.WriteEndElement();
 
+        writer.WriteStartElement("Plants");
+        foreach (Plant plant in PlantManager)
+        {
+            writer.WriteStartElement("Plant");
+            plant.WriteXml(writer);
+            writer.WriteEndElement();
+        }
+        writer.WriteEndElement();
+
         writer.WriteStartElement("Actors");
         foreach (Actor actor in ActorManager)
         {
@@ -631,6 +681,9 @@ public class World : IXmlSerializable
                     break;
                 case "Structures":
                     ReadXmlStructures(reader);
+                    break;
+                case "Plants":
+                    ReadXmlPlants(reader);
                     break;
                 case "Actors":
                     ReadXmlActors(reader);
@@ -706,6 +759,22 @@ public class World : IXmlSerializable
                 Room.DoRoomFloodFill(strct.Tile, true);
             }
             */
+        }
+    }
+
+    void ReadXmlPlants(XmlReader reader)
+    {
+        if (reader.ReadToDescendant("Plant"))
+        {
+            do
+            {
+                int x = int.Parse(reader.GetAttribute("X"));
+                int y = int.Parse(reader.GetAttribute("Y"));
+                int z = int.Parse(reader.GetAttribute("Z"));
+                string strType = reader.GetAttribute("Type");
+                Plant plant = PlantManager.PlacePlant(strType, tiles[x, y, z]);
+                plant.ReadXml(reader);
+            } while (reader.ReadToNextSibling("Plant"));
         }
     }
 

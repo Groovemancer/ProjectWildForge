@@ -572,19 +572,22 @@ public class Actor : IXmlSerializable, ISelectable, IUpdatable
 
     public void ReadXml(XmlReader reader)
     {
-        while (reader.Read())
+        if (reader.ReadToDescendant("Stats"))
         {
-            switch (reader.Name)
+            do
             {
-                case "Stats":
-                    DebugUtils.LogChannel("Actor", "ReadXml Stats!");
-                    LoadStats(reader);
-                    break;
-                case "Skills":
-                    DebugUtils.LogChannel("Actor", "ReadXml Skills!");
-                    LoadSkills(reader);
-                    break;
-            }
+                DebugUtils.LogChannel("Actor", "ReadXml Stats!");
+                LoadStats(reader);
+            } while (reader.ReadToNextSibling("Stats"));
+        }
+
+        if (reader.ReadToDescendant("Skill"))
+        {
+            do
+            {
+                DebugUtils.LogChannel("Actor", "ReadXml Skills!");
+                LoadSkills(reader);
+            } while (reader.ReadToNextSibling("Skill"));
         }
     }
 

@@ -45,4 +45,37 @@
 			</Yield>
 		</Harvest>
 	</Plant>
+	<Plant Type="plant_AppleTree">
+		<NameLocaleId>comment#plant_AppleTree</NameLocaleId>
+		<Width>1</Width>
+		<Height>1</Height>
+		<MoveCost>0</MoveCost>
+		<GrowthTime>54000</GrowthTime>
+		<Health>300</Health>
+		<AllowedTiles>Dirt|Grass</AllowedTiles>
+		<Sprites>
+			<Sprite GrowPctThreshold="0.00">plant_AppleTree_0</Sprite>
+			<Sprite GrowPctThreshold="0.17">plant_AppleTree_1</Sprite>
+			<Sprite GrowPctThreshold="0.33">plant_AppleTree_2</Sprite>
+			<Sprite GrowPctThreshold="0.5">plant_AppleTree_3</Sprite>
+			<Sprite GrowPctThreshold="0.66">plant_AppleTree_4</Sprite>
+			<Sprite GrowPctThreshold="0.83">plant_AppleTree_5</Sprite>
+		</Sprites>
+		<Harvest>
+			<MinGrowthPct>0.4</MinGrowthPct>
+			<Cost>1200</Cost>
+			<Skill>Forestry</Skill>
+			<Yield>
+				<Inv type="inv_RawWood" amount="25"/>
+			</Yield>
+		</Harvest>
+		<Harvest>
+			<MinGrowthPct>0.6</MinGrowthPct>
+			<Cost>1200</Cost>
+			<Skill>Forestry</Skill>
+			<Yield>
+				<Inv type="inv_RawWood" amount="25"/>
+			</Yield>
+		</Harvest>
+	</Plant>
 </Plants>

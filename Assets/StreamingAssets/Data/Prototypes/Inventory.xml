@@ -18,4 +18,10 @@
 		<BasePrice>1.2</BasePrice>
 		<Category>inv_cat_mat_lumber</Category>
 	</Inventory>
+	<Inventory Type="inv_Apple">
+		<NameLocaleId>comment#inv_Apple</NameLocaleId>
+		<MaxStackSize>75</MaxStackSize>
+		<BasePrice>1.2</BasePrice>
+		<Category>inv_cat_food</Category>
+	</Inventory>
 </Inventories>

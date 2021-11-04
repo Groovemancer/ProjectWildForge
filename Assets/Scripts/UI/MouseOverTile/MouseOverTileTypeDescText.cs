@@ -7,7 +7,7 @@ public class MouseOverTileTypeDescText : MouseOverTileBase
 {
     protected override void ValidTile()
     {
-        m_text.text = StringUtils.GetLocalizedTextFiltered(m_currentTile.Type.DescriptionLocaleId);
+        m_text.text = StringUtils.GetText("$(filter:" + m_currentTile.Type.DescriptionLocaleId + ")");
     }
 
     protected override void InvalidTile()
