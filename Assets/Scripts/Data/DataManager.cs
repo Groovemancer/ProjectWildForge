@@ -47,8 +47,11 @@ public class DataManager : MonoBehaviour
     private void LoadSceneFiles()
     {
         // Load Stuff
-        LocaleData.LoadData();
+        //LocaleData.LoadData();
+        LocaleData.LoadDataNew();
         TileTypeData.LoadData();
+
+        //SetCurrentLocale("de-DE");
 
         //LoadFunctions("Structure.lua", "Structure");
 

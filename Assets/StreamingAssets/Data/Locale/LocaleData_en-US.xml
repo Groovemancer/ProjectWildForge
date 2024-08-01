@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Last Updated: 6/19/2020 9:14:56 PM-->
+<LocaleData code="en-US">
+	<Entry Id="0">
+		<Comment>game_title</Comment>
+		<Context />
+		<Options />
+		<Text>Project Wild Forge</Text>
+	</Entry>
+	<Entry Id="1">
+		<Comment>start_button</Comment>
+		<Context />
+		<Options />
+		<Text>Start Game</Text>
+	</Entry>
+	<Entry Id="2">
+		<Comment>tile_type_empty</Comment>
+		<Context />
+		<Options />
+		<Text>Empty</Text>
+	</Entry>
+	<Entry Id="3">
+		<Comment>tile_type_all</Comment>
+		<Context />
+		<Options />
+		<Text>All</Text>
+	</Entry>
+	<Entry Id="4">
+		<Comment>tile_type_dirt</Comment>
+		<Context />
+		<Options />
+		<Text>Dirt</Text>
+	</Entry>
+	<Entry Id="5">
+		<Comment>tile_type_roughstone</Comment>
+		<Context />
+		<Options />
+		<Text>Rough Stone</Text>
+	</Entry>
+	<Entry Id="6">
+		<Comment>tile_type_marsh</Comment>
+		<Context />
+		<Options />
+		<Text>Marsh</Text>
+	</Entry>
+	<Entry Id="7">
+		<Comment>tile_type_shallowwater</Comment>
+		<Context />
+		<Options />
+		<Text>Shallow Water</Text>
+	</Entry>
+	<Entry Id="8">
+		<Comment>tile_type_grass</Comment>
+		<Context />
+		<Options />
+		<Text>Grass</Text>
+	</Entry>
+	<Entry Id="9">
+		<Comment>tile_type_floor</Comment>
+		<Context />
+		<Options />
+		<Text>Floor</Text>
+	</Entry>
+	<Entry Id="10">
+		<Comment>tile_type_road</Comment>
+		<Context />
+		<Options />
+		<Text>Road</Text>
+	</Entry>
+	<Entry Id="11">
+		<Comment>tile_type</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>Tile Type: </Text>
+	</Entry>
+	<Entry Id="12">
+		<Comment>structure</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>Structure: </Text>
+	</Entry>
+	<Entry Id="13">
+		<Comment>room_index</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>Room Index: </Text>
+	</Entry>
+	<Entry Id="14">
+		<Comment>null</Comment>
+		<Context />
+		<Options />
+		<Text>null</Text>
+	</Entry>
+	<Entry Id="15">
+		<Comment>struct_StoneWall</Comment>
+		<Context />
+		<Options />
+		<Text>Stone Wall</Text>
+	</Entry>
+	<Entry Id="16">
+		<Comment>struct_WoodDoor</Comment>
+		<Context />
+		<Options />
+		<Text>Wood Door</Text>
+	</Entry>
+	<Entry Id="17">
+		<Comment>struct_Stockpile</Comment>
+		<Context />
+		<Options />
+		<Text>Stockpile</Text>
+	</Entry>
+	<Entry Id="18">
+		<Comment>struct_WorkStation</Comment>
+		<Context />
+		<Options />
+		<Text>Work Station</Text>
+	</Entry>
+	<Entry Id="21">
+		<Comment>struct_StoneCuttingTable</Comment>
+		<Context />
+		<Options />
+		<Text>Stone Cutting Table</Text>
+	</Entry>
+	<Entry Id="22">
+		<Comment>struct_O2Generator</Comment>
+		<Context />
+		<Options />
+		<Text>O2 Generator</Text>
+	</Entry>
+	<Entry Id="23">
+		<Comment>time_string</Comment>
+		<Context />
+		<Options />
+		<Text>{0:h}:{0:mm} {0:tt}</Text>
+	</Entry>
+	<Entry Id="24">
+		<Comment>date_string</Comment>
+		<Context />
+		<Options />
+		<Text>Q{0:q} Day {0:d}, {0:y}</Text>
+	</Entry>
+	<Entry Id="25">
+		<Comment>actor_desc_gender_male</Comment>
+		<Context />
+		<Options />
+		<Text>A male {0}</Text>
+	</Entry>
+	<Entry Id="26">
+		<Comment>actor_desc_gender_female</Comment>
+		<Context />
+		<Options />
+		<Text>A female {0}</Text>
+	</Entry>
+	<Entry Id="27">
+		<Comment>race_name_elf</Comment>
+		<Context />
+		<Options />
+		<Text>Elf</Text>
+	</Entry>
+	<Entry Id="28">
+		<Comment>race_name_orc</Comment>
+		<Context />
+		<Options />
+		<Text>Orc</Text>
+	</Entry>
+	<Entry Id="29">
+		<Comment>job_requirements</Comment>
+		<Context />
+		<Options />
+		<Text>Requirements:\n</Text>
+	</Entry>
+	<Entry Id="31">
+		<Comment>tile_type_dirt_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Floor that is made of dirt</Text>
+	</Entry>
+	<Entry Id="32">
+		<Comment>tile_type_roughstone_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Rough, stone, flooring. It's a little tough to traverse.</Text>
+	</Entry>
+	<Entry Id="33">
+		<Comment>tile_type_marsh_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Marshy waters. It's difficult to traverse.</Text>
+	</Entry>
+	<Entry Id="34">
+		<Comment>tile_type_shallowwater_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Shallow waters. It's difficult to traverse.</Text>
+	</Entry>
+	<Entry Id="35">
+		<Comment>tile_type_grass_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Grassy flooring.</Text>
+	</Entry>
+	<Entry Id="36">
+		<Comment>tile_type_floor_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Handcrafted flooring.</Text>
+	</Entry>
+	<Entry Id="37">
+		<Comment>tile_type_road_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Handcrafted road. Allows for quicker travel.</Text>
+	</Entry>
+	<Entry Id="38">
+		<Comment>none</Comment>
+		<Context />
+		<Options />
+		<Text>none</Text>
+	</Entry>
+	<Entry Id="39">
+		<Comment>item_type</Comment>
+		<Context>UI_Panel_MouseOverTip</Context>
+		<Options />
+		<Text>Item Type: </Text>
+	</Entry>
+	<Entry Id="40">
+		<Comment>inv_StoneBlock</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>Stone Block</Text>
+	</Entry>
+	<Entry Id="41">
+		<Comment>inv_RawStone</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>Raw Stone</Text>
+	</Entry>
+	<Entry Id="42">
+		<Comment>inv_RawWood</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>Raw Wood</Text>
+	</Entry>
+	<Entry Id="43">
+		<Comment>plant_Dummy</Comment>
+		<Context />
+		<Options />
+		<Text>Dummy Plant</Text>
+	</Entry>
+	<Entry Id="44">
+		<Comment>plant_OakTree</Comment>
+		<Context />
+		<Options />
+		<Text>Oak Tree</Text>
+	</Entry>
+	<Entry Id="45">
+		<Comment>stat_Strength</Comment>
+		<Context />
+		<Options />
+		<Text>Strength</Text>
+	</Entry>
+	<Entry Id="46">
+		<Comment>stat_Dexterity</Comment>
+		<Context />
+		<Options />
+		<Text>Dexterity</Text>
+	</Entry>
+	<Entry Id="47">
+		<Comment>stat_Agility</Comment>
+		<Context />
+		<Options />
+		<Text>Agility</Text>
+	</Entry>
+	<Entry Id="48">
+		<Comment>stat_Constitution</Comment>
+		<Context />
+		<Options />
+		<Text>Constitution</Text>
+	</Entry>
+	<Entry Id="49">
+		<Comment>stat_Endurance</Comment>
+		<Context />
+		<Options />
+		<Text>Endurance</Text>
+	</Entry>
+	<Entry Id="50">
+		<Comment>stat_Intellect</Comment>
+		<Context />
+		<Options />
+		<Text>Intellect</Text>
+	</Entry>
+	<Entry Id="51">
+		<Comment>actor_gender_male</Comment>
+		<Context />
+		<Options />
+		<Text>Male</Text>
+	</Entry>
+	<Entry Id="52">
+		<Comment>actor_gender_female</Comment>
+		<Context />
+		<Options />
+		<Text>Female</Text>
+	</Entry>
+	<Entry Id="53">
+		<Comment>tile_type_deepwater</Comment>
+		<Context />
+		<Options />
+		<Text>Deep Water</Text>
+	</Entry>
+	<Entry Id="54">
+		<Comment>tile_type_deepwater_desc</Comment>
+		<Context />
+		<Options />
+		<Text>Deep waters. Cannot be traversed on foot.</Text>
+	</Entry>
+	<Entry Id="55">
+		<Comment>plant_AppleTree</Comment>
+		<Context />
+		<Options />
+		<Text>Apple Tree</Text>
+	</Entry>
+	<Entry Id="56">
+		<Comment>inv_Apple</Comment>
+		<Context>Inventory_Name</Context>
+		<Options />
+		<Text>Apple</Text>
+	</Entry>
+</LocaleData>

@@ -273,7 +273,7 @@ TextureImporter:
       213: 21300178
     second: struct_StoneWall_NESW
   externalObjects: {}
-  serializedVersion: 10
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -290,9 +290,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -302,8 +305,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 2
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -324,9 +327,15 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 1
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -338,6 +347,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 1
   - serializedVersion: 3
@@ -350,6 +360,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 1
   - serializedVersion: 3
@@ -362,6 +373,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 1
   - serializedVersion: 3
@@ -374,6 +386,20 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
@@ -1208,9 +1234,48 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-  spritePackingTag: 
+    nameFileIdTable:
+      struct_StoneWall_: 21300088
+      struct_StoneWall_1: 21300002
+      struct_StoneWall_15: 21300030
+      struct_StoneWall_16: 21300032
+      struct_StoneWall_18: 21300036
+      struct_StoneWall_2: 21300004
+      struct_StoneWall_20: 21300040
+      struct_StoneWall_22: 21300044
+      struct_StoneWall_24: 21300048
+      struct_StoneWall_26: 21300052
+      struct_StoneWall_27: 21300054
+      struct_StoneWall_28: 21300056
+      struct_StoneWall_29: 21300058
+      struct_StoneWall_30: 21300060
+      struct_StoneWall_31: 21300062
+      struct_StoneWall_32: 21300064
+      struct_StoneWall_33: 21300066
+      struct_StoneWall_35: 21300070
+      struct_StoneWall_36: 21300072
+      struct_StoneWall_37: 21300074
+      struct_StoneWall_38: 21300076
+      struct_StoneWall_39: 21300078
+      struct_StoneWall_6: 21300012
+      struct_StoneWall_7: 21300174
+      struct_StoneWall_E: 21300014
+      struct_StoneWall_ES: 21300106
+      struct_StoneWall_ESW: 21300150
+      struct_StoneWall_EW: 21300016
+      struct_StoneWall_N: 21300102
+      struct_StoneWall_NE: 21300124
+      struct_StoneWall_NES: 21300098
+      struct_StoneWall_NESW: 21300178
+      struct_StoneWall_NEW: 21300132
+      struct_StoneWall_NS: 21300094
+      struct_StoneWall_NSW: 21300176
+      struct_StoneWall_NW: 21300128
+      struct_StoneWall_S: 21300090
+      struct_StoneWall_SW: 21300110
+      struct_StoneWall_W: 21300018
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

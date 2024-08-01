@@ -34,7 +34,7 @@
 		</DeconstructJob>
 	</Structure>
 	<Structure Type="struct_WoodDoor">
-		<NameLocaleId>struct_WoodDoor</NameLocaleId>
+		<NameLocaleId>comment#struct_WoodDoor</NameLocaleId>
 		<MoveCost>1</MoveCost>
 		<Width>1</Width>
 		<Height>1</Height>
