@@ -88,10 +88,15 @@ public class ActorStatsPanel : MonoBehaviour
                         strText += StringUtils.GetLocalizedTextFiltered(strGender) + " - ";
                         strText += StringUtils.GetLocalizedTextFiltered(selectedActor.Race.Name) + "\n\n";
 
-                        foreach (Stat stat in selectedActor.Stats.Values)
+                        foreach (Skill skill in selectedActor.Skills.Values)
                         {
-                            strText += StringUtils.GetLocalizedTextFiltered(stat.Name) + ": " + stat.Value + "\n";
+                            strText += StringUtils.GetLocalizedTextFiltered(skill.Name) + ": " + skill.Value + "\n";
                         }
+
+                        //foreach (Stat stat in selectedActor.Stats.Values)
+                        //{
+                        //    strText += StringUtils.GetLocalizedTextFiltered(stat.Name) + ": " + stat.Value + "\n";
+                        //}
 
                         myText.text = strText;
                     }

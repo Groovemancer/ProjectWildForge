@@ -50,7 +50,8 @@ public class GameController : MonoBehaviour
     // Only on first time a scene is loaded.
     private void Start()
     {
-        LocaleData.LoadData();
+        //LocaleData.LoadData();
+        LocaleData.LoadDataNew();
     }
 
     private void Update()

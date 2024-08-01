@@ -196,6 +196,14 @@ public class LocaleData
         return data != null;
     }
 
+    public static int GetIndexOf(string id)
+    {
+        int index = -1;
+        if (!string.IsNullOrEmpty(id))
+            index = Instance.Data.FindIndex(e => e.Id == id);
+        return index;
+    }
+
     public static void LoadData()
     {
         if (!loaded)
@@ -251,6 +259,111 @@ public class LocaleData
 
                     Instance.Data.Add(new Locale(id, comment, context, options, localeText));
                 }
+                DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
+                loaded = true;
+            }
+            catch (Exception e)
+            {
+                DebugUtils.DisplayError(e.ToString(), false);
+                DebugUtils.LogException(e);
+            }
+        }
+    }
+
+    public static void LoadDataNew()
+    {
+        if (!loaded)
+        {
+            DebugUtils.Log("Loading Locale Master File...");
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+
+                string filePath = Path.Combine(Application.streamingAssetsPath, "Data", "Locale");
+                filePath = Path.Combine(filePath, "LocaleData.xml");
+                doc.Load(filePath);
+
+                DefaultLocale = doc.SelectSingleNode("LocaleData/Default").InnerText;
+
+                XmlNodeList localeNodes = doc.SelectNodes("LocaleData/Locale");
+
+                Instance.Locales.Clear();
+
+                List<string> localePaths = new List<string>();
+
+                foreach (XmlNode localeNode in localeNodes)
+                {
+                    string code = localeNode.Attributes["code"].InnerText;
+                    string localePath = localeNode.InnerText;
+
+                    if (!Instance.Locales.Contains(code))
+                        localePaths.Add(localePath);
+                }
+
+                Dictionary<string, Locale> localeData = new Dictionary<string, Locale>();
+
+                foreach (string localePath in localePaths)
+                {
+                    try
+                    {
+                        DebugUtils.Log("Loading Locale...");
+                        XmlDocument locDoc = new XmlDocument();
+
+                        filePath = Path.Combine(Application.streamingAssetsPath, "Data", "Locale");
+                        filePath = Path.Combine(filePath, localePath);
+                        locDoc.Load(filePath);
+
+                        XmlNode localeDataNode = locDoc.SelectSingleNode("LocaleData");
+
+                        if (localeDataNode != null)
+                        {
+                            string locCode = localeDataNode.Attributes["code"].InnerText;
+                            if (!Instance.Locales.Contains(locCode))
+                                Instance.Locales.Add(locCode);
+
+                            XmlNodeList entryNodes = localeDataNode.SelectNodes("Entry");
+
+                            foreach (XmlNode entryNode in entryNodes)
+                            {
+                                string id = entryNode.Attributes["Id"].InnerText;
+
+                                string comment = entryNode.SelectSingleNode("Comment").InnerText;
+                                string context = entryNode.SelectSingleNode("Context").InnerText;
+                                string options = entryNode.SelectSingleNode("Options").InnerText;
+
+                                XmlNode textNode = entryNode.SelectSingleNode("Text");
+
+                                string locText = "";
+                                if (textNode != null)
+                                {
+                                    locText = textNode.InnerText;
+
+                                    Dictionary<string, string> localeText = new Dictionary<string, string>();
+
+
+                                    int index = GetIndexOf(id);
+                                    if (index == -1)
+                                    {
+                                        localeText.Add(locCode, locText);
+                                        Instance.Data.Add(new Locale(id, comment, context, options, localeText));
+                                    }
+                                    else
+                                    {
+                                        Instance.Data[index].Text.Add(locCode, locText);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        DebugUtils.DisplayError(e.ToString(), false);
+                        DebugUtils.LogException(e);
+                    }
+                }
+
+                
                 DebugUtils.Log("Locale Entries Loaded: " + Instance.Data.Count);
                 loaded = true;
             }
