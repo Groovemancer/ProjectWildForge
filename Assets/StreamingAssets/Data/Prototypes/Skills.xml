@@ -17,7 +17,7 @@
 	<Skill Type="Carpentry" Name="comment#skill_Carpentry" Category="Profession" />
 	
 	<!-- Combat Skills -->
-	<Skill Type="Pugilisim" Name="comment#skill_Pugilisim" Category="Combat" />
+	<Skill Type="Pugilism" Name="comment#skill_Pugilism" Category="Combat" />
 	<Skill Type="OneHanded" Name="comment#skill_OneHanded" Category="Combat" />
 	<Skill Type="TwoHanded" Name="comment#skill_TwoHanded" Category="Combat" />
 	<Skill Type="Shields" Name="comment#skill_Shields" Category="Combat" />

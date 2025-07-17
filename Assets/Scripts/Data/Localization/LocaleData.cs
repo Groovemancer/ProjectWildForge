@@ -283,9 +283,9 @@ public class LocaleData
                 filePath = Path.Combine(filePath, "LocaleData.xml");
                 doc.Load(filePath);
 
-                DefaultLocale = doc.SelectSingleNode("LocaleData/Default").InnerText;
+                DefaultLocale = doc.SelectSingleNode("Locales/Default").InnerText;
 
-                XmlNodeList localeNodes = doc.SelectNodes("LocaleData/Locale");
+                XmlNodeList localeNodes = doc.SelectNodes("Locales/Locale");
 
                 Instance.Locales.Clear();
 

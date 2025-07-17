@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--Last Updated: 6/19/2020 9:14:56 PM-->
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Last Updated: 7/16/2025 5:46:21 PM-->
 <LocaleData code="en-US">
 	<Entry Id="0">
 		<Comment>game_title</Comment>
@@ -324,5 +324,119 @@
 		<Context>Inventory_Name</Context>
 		<Options />
 		<Text>Apple</Text>
+	</Entry>
+	<Entry Id="57">
+		<Comment>skill_Mining</Comment>
+		<Context />
+		<Options />
+		<Text>Mining</Text>
+	</Entry>
+	<Entry Id="58">
+		<Comment>skill_Building</Comment>
+		<Context />
+		<Options />
+		<Text>Building</Text>
+	</Entry>
+	<Entry Id="59">
+		<Comment>skill_Hauling</Comment>
+		<Context />
+		<Options />
+		<Text>Hauling</Text>
+	</Entry>
+	<Entry Id="60">
+		<Comment>skill_Forestry</Comment>
+		<Context />
+		<Options />
+		<Text>Forestry</Text>
+	</Entry>
+	<Entry Id="61">
+		<Comment>skill_Farming</Comment>
+		<Context />
+		<Options />
+		<Text>Farming</Text>
+	</Entry>
+	<Entry Id="62">
+		<Comment>skill_Smithing</Comment>
+		<Context />
+		<Options />
+		<Text>Smithing</Text>
+	</Entry>
+	<Entry Id="63">
+		<Comment>skill_Alchemy</Comment>
+		<Context />
+		<Options />
+		<Text>Alchemy</Text>
+	</Entry>
+	<Entry Id="64">
+		<Comment>skill_Tailoring</Comment>
+		<Context />
+		<Options />
+		<Text>Tailoring</Text>
+	</Entry>
+	<Entry Id="65">
+		<Comment>skill_LeatherWorking</Comment>
+		<Context />
+		<Options />
+		<Text>Leather Working</Text>
+	</Entry>
+	<Entry Id="66">
+		<Comment>skill_Cooking</Comment>
+		<Context />
+		<Options />
+		<Text>Cooking</Text>
+	</Entry>
+	<Entry Id="67">
+		<Comment>skill_Brewing</Comment>
+		<Context />
+		<Options />
+		<Text>Brewing</Text>
+	</Entry>
+	<Entry Id="68">
+		<Comment>skill_Masonry</Comment>
+		<Context />
+		<Options />
+		<Text>Masonry</Text>
+	</Entry>
+	<Entry Id="69">
+		<Comment>skill_Carpentry</Comment>
+		<Context />
+		<Options />
+		<Text>Carpentry</Text>
+	</Entry>
+	<Entry Id="70">
+		<Comment>skill_Pugilism</Comment>
+		<Context />
+		<Options />
+		<Text>Pugilism</Text>
+	</Entry>
+	<Entry Id="71">
+		<Comment>skill_OneHanded</Comment>
+		<Context />
+		<Options />
+		<Text>One Handed</Text>
+	</Entry>
+	<Entry Id="72">
+		<Comment>skill_TwoHanded</Comment>
+		<Context />
+		<Options />
+		<Text>Two Handed</Text>
+	</Entry>
+	<Entry Id="73">
+		<Comment>skill_Shields</Comment>
+		<Context />
+		<Options />
+		<Text>Shields</Text>
+	</Entry>
+	<Entry Id="74">
+		<Comment>skill_Bows</Comment>
+		<Context />
+		<Options />
+		<Text>Bows</Text>
+	</Entry>
+	<Entry Id="75">
+		<Comment>skill_Armor</Comment>
+		<Context />
+		<Options />
+		<Text>Armor</Text>
 	</Entry>
 </LocaleData>
